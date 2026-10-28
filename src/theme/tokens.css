@@ -1,0 +1,24 @@
+:root {
+  --bg:        #0F1419;
+  --bg-panel:  #131922;
+  --bg-raised: #161C24;
+  --bg-chip:   #1E2733;
+  --border:    #263040;
+  --border-2:  #3A4656;
+  --text:      #E6EDF3;
+  --text-2:    #9AA7B4;   /* 패널 위 4.5:1 이상 */
+  --sig-on:    #F5A524;   /* 강조색, 값 1 */
+  --sig-off:   #4A5563;   /* 값 0 */
+  --sig-in:    #3FB8FF;
+  --sig-out:   var(--sig-on);
+  --sig-fb:    #B79CFF;
+  --danger:    #F08A6B;
+  --push-cap:  #C8402F;
+  --radius:    8px;
+  --grid:      20px;
+
+  /* 파생 토큰 */
+  --select:    var(--sig-in);
+  --font-sans: 'IBM Plex Sans KR', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}

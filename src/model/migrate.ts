@@ -1,0 +1,23 @@
+import { VERSION } from './schema';
+
+/**
+ * 저장 JSON을 현재 VERSION으로 단계별 변환한다.
+ * 스키마를 바꾸면 `steps[이전버전]`에 변환 함수를 추가할 것.
+ */
+const steps: Record<number, (doc: Record<string, unknown>) => Record<string, unknown>> = {};
+
+export class MigrationError extends Error {}
+
+export function migrate(raw: unknown): unknown {
+  if (typeof raw !== 'object' || raw === null) throw new MigrationError('JSON 객체가 아닙니다');
+  let doc = raw as Record<string, unknown>;
+  if (doc.format !== 'logiclab') throw new MigrationError('format 필드가 "logiclab"이 아닙니다');
+  if (typeof doc.version !== 'number') throw new MigrationError('version 필드가 없습니다');
+  if (doc.version > VERSION) throw new MigrationError(`지원하지 않는 최신 버전입니다 (v${doc.version})`);
+  while ((doc.version as number) < VERSION) {
+    const step = steps[doc.version as number];
+    if (!step) throw new MigrationError(`v${doc.version}에서 변환하는 단계가 없습니다`);
+    doc = step(doc);
+  }
+  return doc;
+}
