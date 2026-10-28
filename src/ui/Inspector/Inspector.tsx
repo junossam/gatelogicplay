@@ -1,7 +1,13 @@
-import { useEditor } from '../../store/editorStore';
+import { useState, type DragEvent, type ReactNode } from 'react';
+import { GATE_KINDS, INPUT_KINDS } from '../../sim/primitives';
+import { orderedIO } from '../../sim/truthTable';
+import type { Part } from '../../sim/types';
+import { editorStore, useEditor } from '../../store/editorStore';
+import { engine, useSim } from '../../store/simStore';
 import { partPins } from '../Canvas/geometry';
+import { TruthTableView, useTruthTable } from '../TruthTable/TruthTableView';
 
-const KIND_NAMES: Record<string, string> = {
+export const KIND_NAMES: Record<string, string> = {
   AND: 'AND 게이트',
   OR: 'OR 게이트',
   XOR: 'XOR 게이트',
@@ -15,7 +21,193 @@ const KIND_NAMES: Record<string, string> = {
   CLOCK: '클럭',
 };
 
-export function Inspector() {
+function delayText(part: Part): string {
+  if (part.kind.type === 'chip') return '내부 게이트마다 1틱';
+  const k = part.kind.kind;
+  if (GATE_KINDS.has(k)) return '1틱';
+  if (INPUT_KINDS.has(k) || k === 'CLOCK') return '없음 (틱 시작에 반영)';
+  return '없음 (표시만)';
+}
+
+function Bit({ v }: { v: 0 | 1 }) {
+  return <span className={`bit bit-${v}`}>{v}</span>;
+}
+
+/** 엔터나 포커스 이동 시 반영되는 입력 */
+function CommitInput({ value, onCommit, label, type = 'text' }: { value: string; onCommit(v: string): void; label: string; type?: string }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  return (
+    <input
+      className="field"
+      type={type}
+      aria-label={label}
+      value={draft ?? value}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => {
+        if (draft !== null && draft !== value) onCommit(draft);
+        setDraft(null);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+        if (e.key === 'Escape') {
+          setDraft(null);
+          (e.target as HTMLInputElement).blur();
+        }
+      }}
+    />
+  );
+}
+
+function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; readOnly: boolean }) {
+  const circuit = useEditor((s) => s.circuit);
+  const library = useEditor((s) => s.library);
+  useSim((s) => s.version);
+  const kind = part.kind.type === 'primitive' ? part.kind.kind : null;
+  const labelled = kind === 'SWITCH' || kind === 'PUSH' || kind === 'LED';
+  const value = (pin: string) => engine.readPin(`${prefix}${part.id}.${pin}`);
+  return (
+    <dl className="props" data-testid="inspector-part">
+      <dt>종류</dt>
+      <dd>{kind ? KIND_NAMES[kind] : `칩 · ${library[(part.kind as { chipId: string }).chipId]?.name ?? '?'}`}</dd>
+      <dt>ID</dt>
+      <dd className="mono">{part.id}</dd>
+      {labelled && (
+        <>
+          <dt>{kind === 'LED' ? '출력 핀 이름' : '입력 핀 이름'}</dt>
+          <dd>
+            {readOnly ? (
+              <span className="mono">{part.label}</span>
+            ) : (
+              <CommitInput label="라벨" value={part.label ?? ''} onCommit={(v) => editorStore.getState().updatePart(part.id, { label: v.trim() })} />
+            )}
+          </dd>
+        </>
+      )}
+      {kind === 'CLOCK' && (
+        <>
+          <dt>주파수</dt>
+          <dd className="row">
+            {readOnly ? (
+              <span className="mono">{part.props?.hz ?? 1}</span>
+            ) : (
+              <CommitInput
+                label="클럭 주파수(Hz)"
+                type="number"
+                value={String(part.props?.hz ?? 1)}
+                onCommit={(v) => {
+                  const hz = Number(v);
+                  if (hz > 0) editorStore.getState().updatePart(part.id, { props: { hz } });
+                }}
+              />
+            )}
+            <span className="muted small">Hz</span>
+          </dd>
+        </>
+      )}
+      <dt>지연</dt>
+      <dd>{delayText(part)}</dd>
+      {partPins(part, library).map((pin) => {
+        const wires = circuit.wires.filter((w) =>
+          pin.dir === 'in' ? w.to.partId === part.id && w.to.pin === pin.name : w.from.partId === part.id && w.from.pin === pin.name,
+        );
+        return (
+          <div key={`${pin.dir}${pin.name}`} className="pin-row">
+            <dt className="mono">
+              {pin.dir === 'in' ? '입력' : '출력'} {pin.name}
+            </dt>
+            <dd>
+              <Bit v={value(pin.name)} />{' '}
+              {pin.dir === 'in' ? (
+                wires[0] ? (
+                  <span className="mono muted">
+                    ← {wires[0].from.partId}.{wires[0].from.pin}
+                  </span>
+                ) : (
+                  <span className="warn">연결 안 됨 · 0으로 처리</span>
+                )
+              ) : (
+                <span className="muted">→ {wires.length}개</span>
+              )}
+            </dd>
+          </div>
+        );
+      })}
+    </dl>
+  );
+}
+
+/** 칩으로 만들 때의 입력·출력 핀 순서. 끌어서 또는 ▲▼로 바꾼다. */
+function PinOrderEditor() {
+  const circuit = useEditor((s) => s.circuit);
+  const order = useEditor((s) => s.pinOrder);
+  const io = orderedIO(circuit, order);
+  const [dragging, setDragging] = useState<{ side: 'inputs' | 'outputs'; id: string } | null>(null);
+
+  const move = (side: 'inputs' | 'outputs', id: string, to: number) => {
+    const ids = io[side].map((p) => p.id).filter((x) => x !== id);
+    ids.splice(Math.max(0, Math.min(ids.length, to)), 0, id);
+    editorStore.getState().setPinOrder({ ...order, inputs: io.inputs.map((p) => p.id), outputs: io.outputs.map((p) => p.id), [side]: ids });
+  };
+
+  const list = (side: 'inputs' | 'outputs', title: string) => (
+    <div>
+      <h3 className="sub-title">{title}</h3>
+      {io[side].length === 0 ? (
+        <p className="muted small">없음</p>
+      ) : (
+        <ol className="pin-order" data-testid={`pin-order-${side}`}>
+          {io[side].map((p, i) => (
+            <li
+              key={p.id}
+              draggable
+              onDragStart={(e: DragEvent) => {
+                e.dataTransfer.effectAllowed = 'move';
+                setDragging({ side, id: p.id });
+              }}
+              onDragOver={(e) => dragging?.side === side && e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (dragging?.side === side) move(side, dragging.id, i);
+                setDragging(null);
+              }}
+            >
+              <span className="mono">{p.label ?? p.id}</span>
+              <span className="order-buttons">
+                <button type="button" className="icon-button" aria-label={`${p.label ?? p.id} 위로`} disabled={i === 0} onClick={() => move(side, p.id, i - 1)}>
+                  ▲
+                </button>
+                <button
+                  type="button"
+                  className="icon-button"
+                  aria-label={`${p.label ?? p.id} 아래로`}
+                  disabled={i === io[side].length - 1}
+                  onClick={() => move(side, p.id, i + 1)}
+                >
+                  ▼
+                </button>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="pin-order-grid">
+      {list('inputs', '입력')}
+      {list('outputs', '출력')}
+    </div>
+  );
+}
+
+function AutoTruthTable() {
+  const [force, setForce] = useState(false);
+  const state = useTruthTable(force);
+  return <TruthTableView state={state} onForce={() => setForce(true)} />;
+}
+
+export function Inspector({ prefix = '', readOnly = false, extra }: { prefix?: string; readOnly?: boolean; extra?: ReactNode }) {
   const circuit = useEditor((s) => s.circuit);
   const selection = useEditor((s) => s.selection);
 
@@ -28,41 +220,7 @@ export function Inspector() {
     <aside className="inspector" aria-label="인스펙터">
       <h2 className="panel-title">선택한 부품</h2>
       {part ? (
-        <dl className="props" data-testid="inspector-part">
-          <dt>종류</dt>
-          <dd>{part.kind.type === 'primitive' ? KIND_NAMES[part.kind.kind] : '칩'}</dd>
-          <dt>ID</dt>
-          <dd className="mono">{part.id}</dd>
-          {part.label && (
-            <>
-              <dt>라벨</dt>
-              <dd className="mono">{part.label}</dd>
-            </>
-          )}
-          {partPins(part).map((pin) => {
-            const wires = circuit.wires.filter((w) =>
-              pin.dir === 'in' ? w.to.partId === part.id && w.to.pin === pin.name : w.from.partId === part.id && w.from.pin === pin.name,
-            );
-            return (
-              <div key={pin.name} className="pin-row">
-                <dt className="mono">
-                  {pin.dir === 'in' ? '입력' : '출력'} {pin.name}
-                </dt>
-                <dd>
-                  {pin.dir === 'in' ? (
-                    wires[0] ? (
-                      <span className="mono">← {wires[0].from.partId}.{wires[0].from.pin}</span>
-                    ) : (
-                      <span className="warn">연결 안 됨 · 0으로 처리</span>
-                    )
-                  ) : (
-                    <span>{wires.length}개 연결</span>
-                  )}
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
+        <PartDetails part={part} prefix={prefix} readOnly={readOnly} />
       ) : wire ? (
         <dl className="props">
           <dt>전선</dt>
@@ -77,13 +235,18 @@ export function Inspector() {
       ) : (
         <p className="muted small">부품이나 전선을 선택하세요.</p>
       )}
-      <h2 className="panel-title">도움말</h2>
-      <ul className="help small muted">
-        <li>팔레트에서 부품을 고른 뒤 캔버스를 클릭하거나 끌어다 놓아 배치합니다.</li>
-        <li>출력 핀에서 끌어서 입력 핀에 놓으면 전선이 연결됩니다.</li>
-        <li>빈 곳을 드래그하면 범위 선택, Shift+클릭은 선택 추가입니다.</li>
-        <li>Delete로 삭제, Ctrl+Z로 실행 취소, 휠로 확대·축소합니다.</li>
-      </ul>
+
+      {!readOnly && (
+        <>
+          <h2 className="panel-title">핀 순서</h2>
+          <PinOrderEditor />
+        </>
+      )}
+
+      <h2 className="panel-title">진리표(자동)</h2>
+      <AutoTruthTable />
+
+      {extra}
     </aside>
   );
 }

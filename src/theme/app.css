@@ -145,6 +145,7 @@ button {
   flex: 1;
   min-width: 0;
   display: flex;
+  flex-direction: column;
 }
 
 /* 팔레트 */
@@ -219,6 +220,7 @@ button {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
 }
 
 .board-svg {
@@ -501,4 +503,342 @@ button {
   border-color: var(--sig-on);
   color: var(--bg);
   font-weight: 600;
+}
+
+/* 공통 */
+.panel-title.inline {
+  margin: 0;
+}
+
+.sub-title {
+  margin: 4px 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.field {
+  width: 100%;
+  min-height: 36px;
+  padding: 0 8px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+  font-family: var(--font-mono);
+}
+
+.bit {
+  display: inline-block;
+  min-width: 1.4em;
+  padding: 0 4px;
+  border-radius: 4px;
+  text-align: center;
+  font-family: var(--font-mono);
+}
+
+.bit-0 {
+  color: var(--text-2);
+  background: var(--bg-chip);
+}
+
+.bit-1 {
+  color: var(--bg);
+  background: var(--sig-on);
+  font-weight: 600;
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segmented button {
+  min-height: 36px;
+  padding: 0 12px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--text-2);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--bg-chip);
+  color: var(--text);
+}
+
+.segmented button:disabled {
+  cursor: default;
+  color: var(--sig-off);
+}
+
+.small-button {
+  min-height: 36px;
+  font-size: 12px;
+}
+
+/* 파형 */
+.waveform {
+  flex: none;
+  border-top: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+
+.waveform-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px 0 4px;
+  min-height: 48px;
+}
+
+.waveform-bar .small-button {
+  margin-left: auto;
+}
+
+.waveform-body {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 0 12px 10px;
+}
+
+.wave-rows {
+  --wave-label: 208px;
+  --wave-value: 40px;
+  position: relative;
+  cursor: crosshair;
+}
+
+.wave-row {
+  display: grid;
+  grid-template-columns: 52px 140px 1fr 32px;
+  gap: 8px;
+  align-items: center;
+  height: 28px;
+}
+
+.wave-row.axis {
+  height: 20px;
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.axis-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.kind-badge {
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  text-align: center;
+  border: 1px solid currentColor;
+}
+
+.kind-badge.in {
+  color: var(--sig-in);
+}
+
+.kind-badge.out {
+  color: var(--sig-out);
+}
+
+.kind-badge.fb {
+  color: var(--sig-fb);
+}
+
+.wave-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.wave {
+  width: 100%;
+  height: 22px;
+  background: var(--bg);
+  border-radius: 3px;
+}
+
+.wave path {
+  fill: none;
+  stroke-width: 2;
+}
+
+.kind-in .wave path {
+  stroke: var(--sig-in);
+}
+
+.kind-out .wave path {
+  stroke: var(--sig-out);
+}
+
+.kind-fb .wave path {
+  stroke: var(--sig-fb);
+}
+
+.wave-value {
+  text-align: center;
+  color: var(--text-2);
+}
+
+.wave-value.on {
+  color: var(--sig-on);
+  font-weight: 600;
+}
+
+.wave-cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--text-2);
+  pointer-events: none;
+}
+
+.wave-tooltip {
+  position: absolute;
+  top: 0;
+  right: 48px;
+  padding: 6px 10px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-2);
+  border-radius: 6px;
+  font-size: 11px;
+  pointer-events: none;
+}
+
+/* 진리표 */
+.truth-wrap {
+  overflow-x: auto;
+}
+
+.truth-table {
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.truth-table th,
+.truth-table td {
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+
+.truth-table th.in {
+  color: var(--sig-in);
+}
+
+.truth-table th.out {
+  color: var(--sig-out);
+}
+
+.truth-table td.out:first-of-type,
+.truth-table th.out:first-of-type {
+  border-left: 1px solid var(--border-2);
+}
+
+.truth-table tr.current {
+  background: var(--bg-chip);
+  outline: 1px solid var(--sig-on);
+}
+
+.cell-hold {
+  color: var(--sig-fb);
+}
+
+/* 핀 순서 */
+.pin-order-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pin-order {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pin-order li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 8px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 4px;
+  cursor: grab;
+}
+
+.order-buttons {
+  display: flex;
+}
+
+.order-buttons .icon-button {
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 10px;
+}
+
+/* 대화상자 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  z-index: 10;
+}
+
+.modal {
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-2);
+  border-radius: 12px;
+}
+
+.modal.wide {
+  width: min(720px, calc(100vw - 32px));
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 8px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
 }

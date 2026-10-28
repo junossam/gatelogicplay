@@ -1,0 +1,136 @@
+import { compile } from './compile';
+import { Engine } from './engine';
+import { INPUT_KINDS } from './primitives';
+import type { Bit, Circuit, Library, Part } from './types';
+
+export const AUTO_INPUT_LIMIT = 8;
+
+export type Cell = Bit | 'hold' | 'forbidden' | 'mixed';
+
+export interface TruthRow {
+  inputs: Bit[];
+  outputs: Cell[];
+  forbidden: boolean;
+}
+
+export interface TruthTable {
+  inputs: string[];
+  outputs: string[];
+  /** 피드백 루프가 있으면 순차 회로 */
+  sequential: boolean;
+  rows: TruthRow[];
+}
+
+export interface PinOrder {
+  inputs: string[];
+  outputs: string[];
+}
+
+const byPosition = (a: Part, b: Part) => a.y - b.y || a.x - b.x;
+
+/** 회로의 입력(SWITCH/PUSH)과 출력(LED) 부품. order에 있는 것이 먼저, 나머지는 위→아래 순. */
+export function orderedIO(circuit: Circuit, order?: Partial<PinOrder>): { inputs: Part[]; outputs: Part[] } {
+  const sort = (parts: Part[], ids: string[] = []) => {
+    const pos = new Map(ids.map((id, i) => [id, i]));
+    return [...parts].sort((a, b) => (pos.get(a.id) ?? Infinity) - (pos.get(b.id) ?? Infinity) || byPosition(a, b));
+  };
+  const isKind = (p: Part, pred: (k: string) => boolean) => p.kind.type === 'primitive' && pred(p.kind.kind);
+  return {
+    inputs: sort(
+      circuit.parts.filter((p) => isKind(p, (k) => INPUT_KINDS.has(k as never))),
+      order?.inputs,
+    ),
+    outputs: sort(
+      circuit.parts.filter((p) => isKind(p, (k) => k === 'LED')),
+      order?.outputs,
+    ),
+  };
+}
+
+const MACRON = '̄';
+
+/** Q와 Q̄처럼 서로 반대여야 하는 출력 쌍 */
+function complementPairs(names: string[]): [number, number][] {
+  const pairs: [number, number][] = [];
+  names.forEach((a, i) => {
+    names.forEach((b, j) => {
+      if (i !== j && (b === a + MACRON || b === `${a}'` || b === `${a}n` || b === `${a}_n`)) pairs.push([i, j]);
+    });
+  });
+  return pairs;
+}
+
+function bitsOf(i: number, n: number): Bit[] {
+  return Array.from({ length: n }, (_, k) => ((i >> (n - 1 - k)) & 1) as Bit);
+}
+
+/**
+ * 진리표 자동 생성 (SPEC 7장).
+ * - 조합 회로: 입력 2^n 조합마다 안정될 때까지 돌려 출력을 기록.
+ * - 순차 회로: 다른 입력으로 만든 이전 상태(예: Q=0, Q=1)마다 같은 입력을 시험해서
+ *   모두 같으면 그 값, 이전 출력을 그대로 따르면 '이전 유지', 진동하거나 Q와 Q̄가 같으면 '금지 상태'.
+ */
+export function truthTable(circuit: Circuit, library: Library = {}, order?: Partial<PinOrder>): TruthTable {
+  const io = orderedIO(circuit, order);
+  const netlist = compile(circuit, library);
+  const engine = new Engine(netlist);
+  const inPaths = io.inputs.map((p) => p.id);
+  const outKeys = io.outputs.map((p) => `${p.id}.a`);
+  const outNames = io.outputs.map((p) => p.label ?? p.id);
+  const pairs = complementPairs(outNames);
+  const n = inPaths.length;
+
+  /** 지금 상태에서 입력을 넣고 안정시킨 뒤의 출력. 안정되지 않으면 null. */
+  const apply = (combo: Bit[]): Bit[] | null => {
+    combo.forEach((v, k) => engine.setInput(inPaths[k]!, v));
+    if (!engine.settle()) return null;
+    return outKeys.map((k) => engine.readPin(k));
+  };
+  const forbiddenOutputs = (out: Bit[]) => pairs.some(([i, j]) => out[i] === out[j]);
+
+  const combos = Array.from({ length: 2 ** n }, (_, i) => bitsOf(i, n));
+  const fromReset = (combo: Bit[]) => {
+    engine.reset();
+    return apply(combo);
+  };
+
+  if (!engine.hasFeedback) {
+    return {
+      inputs: io.inputs.map((p) => p.label ?? p.id),
+      outputs: outNames,
+      sequential: false,
+      rows: combos.map((c) => {
+        const out = fromReset(c);
+        return { inputs: c, outputs: out ?? outNames.map(() => 'forbidden' as const), forbidden: out === null };
+      }),
+    };
+  }
+
+  // 이전 상태 후보: 각 입력 조합을 넣고 안정된 상태 중 정상인 것 (출력 벡터가 같으면 하나로)
+  const priors = new Map<string, { combo: Bit[]; out: Bit[] }>();
+  for (const c of combos) {
+    const out = fromReset(c);
+    if (out && !forbiddenOutputs(out) && !priors.has(out.join(''))) priors.set(out.join(''), { combo: c, out });
+  }
+
+  const rows = combos.map((c): TruthRow => {
+    const results: { prior: Bit[]; out: Bit[] | null }[] = [];
+    for (const prior of priors.values()) {
+      engine.reset();
+      apply(prior.combo);
+      results.push({ prior: prior.out, out: apply(c) });
+    }
+    if (results.length === 0) results.push({ prior: [], out: fromReset(c) });
+    const forbidden = results.some((r) => r.out === null || forbiddenOutputs(r.out));
+    const outputs = outNames.map((_, k): Cell => {
+      if (forbidden) return 'forbidden';
+      const vals = results.map((r) => r.out![k]!);
+      if (vals.every((v) => v === vals[0])) return vals[0]!;
+      if (results.every((r) => r.out![k] === r.prior[k])) return 'hold';
+      return 'mixed';
+    });
+    return { inputs: c, outputs, forbidden };
+  });
+
+  return { inputs: io.inputs.map((p) => p.label ?? p.id), outputs: outNames, sequential: true, rows };
+}

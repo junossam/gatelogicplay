@@ -2,6 +2,7 @@ import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 import { compile, CompileError } from '../sim/compile';
 import { Engine } from '../sim/engine';
+import { Recorder } from '../sim/recorder';
 import type { Bit, Circuit, Library } from '../sim/types';
 
 export const MIN_SPEED = 1;
@@ -20,6 +21,27 @@ export interface SimState {
 }
 
 export const engine = new Engine();
+export const recorder = new Recorder();
+engine.onTick = (tick, values) => recorder.pushValues(tick, values);
+
+/** 최상위 Net 외에 추가로 기록할 Net의 접두 경로 (열어 본 칩 내부) */
+let extraWatchPrefix: string | null = null;
+
+function rewatch() {
+  const { netIds, topNets } = engine.netlist;
+  const ids = topNets.map((i) => netIds[i]!);
+  if (extraWatchPrefix) for (const id of netIds) if (id.startsWith(extraWatchPrefix)) ids.push(id);
+  recorder.watch(ids);
+  recorder.bind((id) => engine.indexOf(id));
+  recorder.pushValues(engine.tickCount, engine.values);
+}
+
+/** 칩 내부를 열면 그 칩의 Net도 기록한다 (Recorder 메모리 절약) */
+export function setRecordedPrefix(prefix: string | null) {
+  if (prefix === extraWatchPrefix) return;
+  extraWatchPrefix = prefix;
+  rewatch();
+}
 
 export const simStore = createStore<SimState>(() => ({
   running: true,
@@ -52,6 +74,7 @@ export function loadCircuit(circuit: Circuit, library: Library): void {
     const netlist = compile(circuit, library);
     engine.load(netlist, engine.snapshot());
     engine.setTicksPerSecond(simStore.getState().speed);
+    rewatch();
     simStore.setState({ error: null });
   } catch (e) {
     if (!(e instanceof CompileError)) throw e;
@@ -84,7 +107,13 @@ export const simActions = {
   },
   reset() {
     engine.reset();
+    recorder.reset();
+    recorder.pushValues(0, engine.values);
     engine.setTicksPerSecond(simStore.getState().speed);
+    publish();
+  },
+  clearRecording() {
+    recorder.clear();
     publish();
   },
   setInput(path: string, v: Bit) {

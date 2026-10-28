@@ -1,5 +1,5 @@
 import { PRIMITIVE_PINS, type PinDir } from '../../sim/primitives';
-import type { Part, PrimitiveKind } from '../../sim/types';
+import type { ChipDef, Library, Part, PrimitiveKind, Rotation } from '../../sim/types';
 
 export const GRID = 20;
 
@@ -18,14 +18,23 @@ const SIZES: Record<PrimitiveKind, { w: number; h: number }> = {
   LED: { w: 3, h: 2 },
 };
 
+/** 칩 블록 핀 간격 (격자 칸) */
+export const CHIP_PIN_PITCH = 2;
+export const CHIP_WIDTH = 6;
+
 export function kindSize(kind: PrimitiveKind): { w: number; h: number } {
   return SIZES[kind];
+}
+
+/** 칩 블록 높이 = max(입력 수, 출력 수) × 핀 간격 (SPEC 4.2) */
+export function chipSize(def: Pick<ChipDef, 'inputs' | 'outputs'>): { w: number; h: number } {
+  return { w: CHIP_WIDTH, h: Math.max(def.inputs.length, def.outputs.length, 1) * CHIP_PIN_PITCH };
 }
 
 export interface PinGeom {
   name: string;
   dir: PinDir;
-  /** 부품 왼쪽 위 기준 px 오프셋 */
+  /** 부품 왼쪽 위 기준 px 오프셋 (회전 반영) */
   dx: number;
   dy: number;
 }
@@ -42,6 +51,15 @@ export function kindPins(kind: PrimitiveKind): PinGeom[] {
   return [...place('in', 0), ...place('out', w)];
 }
 
+export function chipPins(def: Pick<ChipDef, 'inputs' | 'outputs'>): PinGeom[] {
+  const { w } = chipSize(def);
+  const at = (i: number) => (i * CHIP_PIN_PITCH + CHIP_PIN_PITCH / 2) * GRID;
+  return [
+    ...def.inputs.map((p, i) => ({ name: p.name, dir: 'in' as const, dx: 0, dy: at(i) })),
+    ...def.outputs.map((p, i) => ({ name: p.name, dir: 'out' as const, dx: w * GRID, dy: at(i) })),
+  ];
+}
+
 export interface Rect {
   x: number;
   y: number;
@@ -49,17 +67,66 @@ export interface Rect {
   h: number;
 }
 
-export function partRect(part: Part): Rect {
-  const size = part.kind.type === 'primitive' ? SIZES[part.kind.kind] : { w: 4, h: 4 };
-  return { x: part.x * GRID, y: part.y * GRID, w: size.w * GRID, h: size.h * GRID };
+/** 회전 전 크기 (격자 칸) */
+export function baseSize(part: Part, library: Library = {}): { w: number; h: number } {
+  if (part.kind.type === 'primitive') return SIZES[part.kind.kind];
+  const def = library[part.kind.chipId];
+  return def ? chipSize(def) : { w: CHIP_WIDTH, h: CHIP_PIN_PITCH };
 }
 
-export function partPins(part: Part): PinGeom[] {
-  return part.kind.type === 'primitive' ? kindPins(part.kind.kind) : [];
+/** 회전 전 핀 */
+export function basePins(part: Part, library: Library = {}): PinGeom[] {
+  if (part.kind.type === 'primitive') return kindPins(part.kind.kind);
+  const def = library[part.kind.chipId];
+  return def ? chipPins(def) : [];
 }
 
-export function pinPoint(part: Part, pin: string): { x: number; y: number } | undefined {
-  const g = partPins(part).find((p) => p.name === pin);
+/**
+ * 시계 방향 회전. 회전한 도형도 같은 왼쪽 위 칸에서 시작하므로
+ * 격자점 위 핀은 회전 후에도 격자점 위에 있다.
+ */
+export function rotatePoint(x: number, y: number, W: number, H: number, rot: Rotation = 0): { x: number; y: number } {
+  switch (rot) {
+    case 90:
+      return { x: H - y, y: x };
+    case 180:
+      return { x: W - x, y: H - y };
+    case 270:
+      return { x: y, y: W - x };
+    default:
+      return { x, y };
+  }
+}
+
+/** SVG에서 회전 전 도형을 그릴 때 쓰는 변환 */
+export function rotationTransform(W: number, H: number, rot: Rotation = 0): string | undefined {
+  switch (rot) {
+    case 90:
+      return `translate(${H} 0) rotate(90)`;
+    case 180:
+      return `translate(${W} ${H}) rotate(180)`;
+    case 270:
+      return `translate(0 ${W}) rotate(270)`;
+    default:
+      return undefined;
+  }
+}
+
+export function partRect(part: Part, library: Library = {}): Rect {
+  const s = baseSize(part, library);
+  const swap = part.rotation === 90 || part.rotation === 270;
+  return { x: part.x * GRID, y: part.y * GRID, w: (swap ? s.h : s.w) * GRID, h: (swap ? s.w : s.h) * GRID };
+}
+
+export function partPins(part: Part, library: Library = {}): PinGeom[] {
+  const s = baseSize(part, library);
+  return basePins(part, library).map((p) => ({ ...p, ...toDelta(rotatePoint(p.dx, p.dy, s.w * GRID, s.h * GRID, part.rotation)) }));
+}
+
+const toDelta = (p: { x: number; y: number }) => ({ dx: p.x, dy: p.y });
+
+export function pinPoint(part: Part, pin: string, library: Library = {}): { x: number; y: number } | undefined {
+  const g = partPins(part, library).find((p) => p.name === pin);
   if (!g) return undefined;
   return { x: part.x * GRID + g.dx, y: part.y * GRID + g.dy };
 }
@@ -76,4 +143,11 @@ export function rectContains(outer: Rect, inner: Rect): boolean {
 
 export function normalizeRect(x1: number, y1: number, x2: number, y2: number): Rect {
   return { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1) };
+}
+
+export function boundsOf(rects: Rect[]): Rect | null {
+  if (rects.length === 0) return null;
+  const x = Math.min(...rects.map((r) => r.x));
+  const y = Math.min(...rects.map((r) => r.y));
+  return { x, y, w: Math.max(...rects.map((r) => r.x + r.w)) - x, h: Math.max(...rects.map((r) => r.y + r.h)) - y };
 }

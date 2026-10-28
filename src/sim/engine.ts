@@ -39,6 +39,8 @@ function popcount(x: number): number {
  */
 export class Engine {
   netlist: Netlist = { netIds: [], nodes: [], pinNet: new Map(), inputs: new Map(), topNets: [] };
+  /** 매 틱이 끝난 뒤 호출 (파형 기록용) */
+  onTick: ((tick: number, values: Uint8Array) => void) | null = null;
   values = new Uint8Array(0);
   tickCount = 0;
 
@@ -202,6 +204,16 @@ export class Engine {
     return this.sccNets.length > 0;
   }
 
+  /** Net이 속한 피드백 루프 번호, 루프가 아니면 -1 */
+  loopOf(netId: string): number {
+    const i = this.netIndex.get(netId);
+    return i === undefined ? -1 : this.netScc[i]!;
+  }
+
+  indexOf(netId: string): number {
+    return this.netIndex.get(netId) ?? -1;
+  }
+
   get oscillating(): readonly string[] {
     return this.oscList;
   }
@@ -297,6 +309,7 @@ export class Engine {
     }
     this.tickCount = t + 1;
     this.updateOscillation();
+    this.onTick?.(this.tickCount, values);
   }
 
   private recordChange(net: number, t: number) {

@@ -2,7 +2,7 @@ import { useStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import { pinDef } from '../sim/primitives';
-import type { Circuit, Part, PinRef, PrimitiveKind } from '../sim/types';
+import type { Circuit, Library, Part, PinRef, PrimitiveKind } from '../sim/types';
 
 const HISTORY_LIMIT = 200;
 
@@ -13,11 +13,15 @@ export interface Selection {
 
 export interface EditorState {
   circuit: Circuit;
+  /** 칩 라이브러리 */
+  library: Library;
   selection: Selection;
   past: Circuit[];
   future: Circuit[];
   /** 드래그 시작 시점의 회로. 드래그 끝에서 한 번만 실행 취소 기록을 남긴다. */
   dragBase: Circuit | null;
+  /** 칩으로 만들 때의 입출력 핀 순서 (부품 id). 없는 id는 무시하고 빠진 부품은 위→아래 순. */
+  pinOrder: { inputs: string[]; outputs: string[] };
 
   load(circuit: Circuit): void;
   addPart(kind: PrimitiveKind, x: number, y: number): string;
@@ -30,6 +34,8 @@ export interface EditorState {
   /** 두 핀을 잇는다. 방향은 자동으로 출력→입력으로 맞춘다. 실패하면 null. */
   connect(a: PinRef, b: PinRef): string | null;
   deleteSelection(): void;
+  updatePart(id: string, patch: Partial<Pick<Part, 'label' | 'props' | 'rotation'>>): void;
+  setPinOrder(order: { inputs: string[]; outputs: string[] }): void;
   undo(): void;
   redo(): void;
 }
@@ -88,14 +94,17 @@ export function createEditorStore(initial: Circuit = EMPTY) {
 
       return {
         circuit: initial,
+        library: {},
         selection: { parts: [], wires: [] },
         past: [],
         future: [],
         dragBase: null,
+        pinOrder: { inputs: [], outputs: [] },
 
         load(circuit) {
           set((s) => {
             s.circuit = circuit;
+            s.pinOrder = { inputs: [], outputs: [] };
             s.selection = { parts: [], wires: [] };
             s.past = [];
             s.future = [];
@@ -206,6 +215,26 @@ export function createEditorStore(initial: Circuit = EMPTY) {
               (w) => !wires.has(w.id) && !parts.has(w.from.partId) && !parts.has(w.to.partId),
             );
             s.selection = { parts: [], wires: [] };
+          });
+        },
+
+        updatePart(id, patch) {
+          const part = get().circuit.parts.find((p) => p.id === id);
+          if (!part) return;
+          const changed = (Object.keys(patch) as (keyof typeof patch)[]).some((k) => JSON.stringify(part[k]) !== JSON.stringify(patch[k]));
+          if (!changed) return;
+          commit((s) => {
+            const draft = s.circuit.parts.find((p) => p.id === id)!;
+            for (const [k, v] of Object.entries(patch)) {
+              if (v === undefined || v === '') delete (draft as unknown as Record<string, unknown>)[k];
+              else (draft as unknown as Record<string, unknown>)[k] = v;
+            }
+          });
+        },
+
+        setPinOrder(order) {
+          set((s) => {
+            s.pinOrder = order;
           });
         },
 

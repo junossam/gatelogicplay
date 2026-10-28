@@ -1,6 +1,7 @@
 import { useSaveStatus } from '../../store/autosave';
 import { useEditor } from '../../store/editorStore';
 import { MAX_SPEED, MIN_SPEED, simActions, useSim } from '../../store/simStore';
+import { useUi } from '../../store/uiStore';
 
 const STATUS_TEXT = { saved: '저장됨', saving: '저장 중…', error: '저장 실패' } as const;
 
@@ -13,6 +14,7 @@ export function Header() {
   const running = useSim((s) => s.running);
   const speed = useSim((s) => s.speed);
   const simError = useSim((s) => s.error);
+  const setTruthOpen = useUi((s) => s.setTruthOpen);
 
   return (
     <header className="header">
@@ -57,6 +59,9 @@ export function Header() {
       </div>
 
       <div className="header-actions">
+        <button type="button" className="text-button" onClick={() => setTruthOpen(true)}>
+          진리표
+        </button>
         <button type="button" className="icon-button" aria-label="실행 취소" title="실행 취소 (Ctrl+Z)" disabled={!canUndo} onClick={undo}>
           ↶
         </button>
