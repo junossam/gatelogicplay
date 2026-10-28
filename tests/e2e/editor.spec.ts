@@ -115,6 +115,20 @@ test('범위 선택 후 일괄 삭제하면 연결된 전선도 지워진다', a
   await expect(page.getByTestId('wire-w1')).toHaveCount(0);
 });
 
+test('팔레트에서 NAND, NOR, XNOR를 배치하고 연결할 수 있다', async ({ page }) => {
+  await placeByClick(page, 'SWITCH', 100, 200);
+  await placeByClick(page, 'NAND', 300, 120);
+  await placeByClick(page, 'NOR', 300, 260);
+  await placeByClick(page, 'XNOR', 300, 400);
+  for (const id of ['nand1', 'nor1', 'xnor1']) {
+    await expect(page.getByTestId(`part-${id}`)).toBeVisible();
+    await dragWire(page, 'switch1:y', `${id}:a`);
+  }
+  await expect(page.getByTestId('statusbar')).toContainText('게이트 3 · 전선 3');
+  await page.getByTestId('part-nor1').click({ position: { x: 40, y: 40 } });
+  await expect(page.getByTestId('inspector-part')).toContainText('NOR 게이트');
+});
+
 test('입력 필드에서는 단축키가 동작하지 않는다', async ({ page }) => {
   await placeByClick(page, 'AND', 200, 200);
   await page.getByLabel('부품 검색').fill('xor');

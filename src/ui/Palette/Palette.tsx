@@ -11,8 +11,11 @@ interface Item {
 
 const GATES: Item[] = [
   { kind: 'AND', name: 'AND' },
+  { kind: 'NAND', name: 'NAND' },
   { kind: 'OR', name: 'OR' },
+  { kind: 'NOR', name: 'NOR' },
   { kind: 'XOR', name: 'XOR' },
+  { kind: 'XNOR', name: 'XNOR' },
   { kind: 'NOT', name: 'NOT' },
 ];
 

@@ -6,7 +6,7 @@ const and: Part = { id: 'and1', kind: { type: 'primitive', kind: 'AND' }, x: 2, 
 
 describe('부품 기하', () => {
   it('모든 핀은 격자점 위에 놓인다', () => {
-    for (const kind of ['AND', 'OR', 'XOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK'] as const) {
+    for (const kind of ['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK'] as const) {
       for (const pin of kindPins(kind)) {
         expect(pin.dx % GRID, `${kind}.${pin.name}`).toBe(0);
         expect(pin.dy % GRID, `${kind}.${pin.name}`).toBe(0);

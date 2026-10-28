@@ -29,6 +29,16 @@ describe('부품 배치', () => {
     expect(labels).toEqual([undefined, undefined, 'A', 'B', 'Y1']);
   });
 
+  it('NAND/NOR/XNOR도 2입력 게이트로 배치하고 연결한다', () => {
+    const sw = s().addPart('SWITCH', 0, 0);
+    for (const kind of ['NAND', 'NOR', 'XNOR'] as const) {
+      const id = s().addPart(kind, 6, 0);
+      expect(id).toBe(`${kind.toLowerCase()}1`);
+      expect(s().connect({ partId: sw, pin: 'y' }, { partId: id, pin: 'b' })).not.toBeNull();
+    }
+    expect(s().circuit.wires).toHaveLength(3);
+  });
+
   it('격자 좌표는 정수로 맞춘다', () => {
     const id = s().addPart('NOT', 1.4, 2.6);
     expect(s().circuit.parts.find((p) => p.id === id)).toMatchObject({ x: 1, y: 3 });

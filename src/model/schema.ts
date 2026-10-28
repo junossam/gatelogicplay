@@ -4,7 +4,7 @@ import type { Circuit } from '../sim/types';
 export const FORMAT = 'logiclab';
 export const VERSION = 1;
 
-const primitiveKind = z.enum(['AND', 'OR', 'XOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK']);
+const primitiveKind = z.enum(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK']);
 
 const partKind = z.discriminatedUnion('type', [
   z.object({ type: z.literal('primitive'), kind: primitiveKind }),

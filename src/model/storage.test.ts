@@ -64,7 +64,7 @@ describe('스키마 검증', () => {
   });
 
   it('문제가 있는 필드 경로를 알려준다', () => {
-    const bad = { ...circuit, parts: [{ ...circuit.parts[0], kind: { type: 'primitive', kind: 'NAND' } }] };
+    const bad = { ...circuit, parts: [{ ...circuit.parts[0], kind: { type: 'primitive', kind: 'MUX' } }] };
     const r = parseWorkspace(JSON.stringify({ format: 'logiclab', version: 1, workspace: bad, openChipId: null }));
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toContain('workspace.parts.0.kind');

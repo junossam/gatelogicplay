@@ -1,6 +1,6 @@
 # LogicLab 구현 명세서
 
-기본 게이트(AND, OR, XOR, NOT)와 입력(스위치, 푸시 버튼), 출력(LED)만 가지고 플립플롭이나 가산기 같은 회로를 직접 조립하는 웹 시뮬레이터입니다. 만든 회로는 **칩**으로 저장해서 다른 회로 안에 다시 넣을 수 있습니다.
+기본 게이트(AND, OR, XOR, NAND, NOR, XNOR, NOT)와 입력(스위치, 푸시 버튼), 출력(LED)만 가지고 플립플롭이나 가산기 같은 회로를 직접 조립하는 웹 시뮬레이터입니다. 만든 회로는 **칩**으로 저장해서 다른 회로 안에 다시 넣을 수 있습니다.
 
 > 목업: Design 캔버스의 "메인 편집 화면"과 "칩으로 저장 대화상자"를 기준으로 합니다.
 
@@ -9,7 +9,7 @@
 ## 1. 목표와 범위
 
 ### 1.1 MVP에 포함
-- 기본 부품 7종: `AND`, `OR`, `XOR`, `NOT`, `SWITCH`(토글), `PUSH`(누르는 동안만 켜짐), `LED`
+- 기본 부품 10종: `AND`, `OR`, `XOR`, `NAND`, `NOR`, `XNOR`, `NOT`, `SWITCH`(토글), `PUSH`(누르는 동안만 켜짐), `LED`
 - 선택 부품: `CLOCK` (설정에서 켜고 끌 수 있음)
 - 캔버스 편집: 부품 배치와 이동, 전선 연결과 삭제, 다중 선택, 실행 취소와 다시 실행
 - 이벤트 기반 시뮬레이션: 게이트마다 1틱 지연, 피드백 루프 지원, 진동 감지
@@ -79,7 +79,7 @@ src/
 ```ts
 type Bit = 0 | 1;
 
-type PrimitiveKind = 'AND' | 'OR' | 'XOR' | 'NOT' | 'SWITCH' | 'PUSH' | 'LED' | 'CLOCK';
+type PrimitiveKind = 'AND' | 'OR' | 'XOR' | 'NAND' | 'NOR' | 'XNOR' | 'NOT' | 'SWITCH' | 'PUSH' | 'LED' | 'CLOCK';
 
 type PartKind =
   | { type: 'primitive'; kind: PrimitiveKind }
@@ -187,6 +187,9 @@ interface TickResult { tick: number; changed: string[]; oscillating: string[] }
 | AND | a, b | y = a & b |
 | OR | a, b | y = a \| b |
 | XOR | a, b | y = a ^ b |
+| NAND | a, b | y = 1 − (a & b) |
+| NOR | a, b | y = 1 − (a \| b) |
+| XNOR | a, b | y = 1 − (a ^ b) |
 | NOT | a | y = 1 − a |
 | SWITCH | (사용자) | y = 저장된 상태 |
 | PUSH | (사용자) | y = 누르고 있으면 1 |
@@ -207,7 +210,7 @@ interface TickResult { tick: number; changed: string[]; oscillating: string[] }
 ### 6.2 왼쪽 팔레트
 - 검색 입력
 - **기본 게이트**: 2열 격자입니다. 각 버튼 안에 표준 게이트 기호(SVG)와 이름을 넣습니다.
-  - AND: D자 모양, OR: 방패 모양, XOR: OR 앞에 곡선 하나 추가, NOT: 삼각형과 작은 원
+  - AND: D자 모양, OR: 방패 모양, XOR: OR 앞에 곡선 하나 추가, NAND/NOR/XNOR: AND/OR/XOR 끝에 작은 원(버블), NOT: 삼각형과 작은 원
 - **입력 · 출력**
   - 스위치: 온오프 토글 스위치 아이콘, 설명은 "누르면 켜짐 유지"
   - 푸시 버튼: 받침 위에 볼록한 캡이 있는 아이콘, 설명은 "누르는 동안만 켜짐"

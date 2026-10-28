@@ -39,6 +39,38 @@ export function PartShape({ kind }: { kind: PrimitiveKind }) {
           <path d="M22 10 Q40 40 22 70 Q54 70 74 40 Q54 10 22 10 Z" {...body} />
         </g>
       );
+    // 부정 게이트: 원래 기호 끝에 작은 원(버블)을 붙인다
+    case 'NAND':
+      return (
+        <g>
+          <line x1={0} y1={20} x2={14} y2={20} {...lead} />
+          <line x1={0} y1={60} x2={14} y2={60} {...lead} />
+          <line x1={72} y1={40} x2={80} y2={40} {...lead} />
+          <path d="M14 10 H34 A30 30 0 0 1 34 70 H14 Z" {...body} />
+          <circle cx={68} cy={40} r={4} {...body} />
+        </g>
+      );
+    case 'NOR':
+      return (
+        <g>
+          <line x1={0} y1={20} x2={18} y2={20} {...lead} />
+          <line x1={0} y1={60} x2={18} y2={60} {...lead} />
+          <line x1={70} y1={40} x2={80} y2={40} {...lead} />
+          <path d="M10 10 Q28 40 10 70 Q42 70 62 40 Q42 10 10 10 Z" {...body} />
+          <circle cx={66} cy={40} r={4} {...body} />
+        </g>
+      );
+    case 'XNOR':
+      return (
+        <g>
+          <line x1={0} y1={20} x2={22} y2={20} {...lead} />
+          <line x1={0} y1={60} x2={22} y2={60} {...lead} />
+          <line x1={70} y1={40} x2={80} y2={40} {...lead} />
+          <path d="M6 10 Q24 40 6 70" fill="none" {...lead} />
+          <path d="M14 10 Q32 40 14 70 Q44 70 62 40 Q44 10 14 10 Z" {...body} />
+          <circle cx={66} cy={40} r={4} {...body} />
+        </g>
+      );
     case 'NOT':
       return (
         <g>
