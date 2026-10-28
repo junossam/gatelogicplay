@@ -4,11 +4,15 @@ import { App } from './App';
 import { loadWorkspace, saveWorkspace } from './model/storage';
 import { saveStatusStore, startAutosave } from './store/autosave';
 import { editorStore } from './store/editorStore';
+import { bindSimulation } from './store/simBinding';
+import { startSimLoop } from './store/simStore';
 import './theme/tokens.css';
 import './theme/app.css';
 
 editorStore.getState().load(loadWorkspace(localStorage));
 startAutosave(editorStore, localStorage);
+bindSimulation(editorStore);
+startSimLoop();
 
 // 1초 대기 중에 페이지를 떠나면 바로 저장
 window.addEventListener('pagehide', () => {

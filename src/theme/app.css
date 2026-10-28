@@ -94,7 +94,6 @@ button {
 .header-actions {
   display: flex;
   gap: 4px;
-  margin-left: auto;
 }
 
 .icon-button {
@@ -386,4 +385,120 @@ button {
 .help {
   padding-left: 18px;
   line-height: 1.6;
+}
+
+/* 시뮬레이션 값 표시: 0/1은 색과 밝기(굵기) 둘 다로 구분 */
+.wire.on .wire-line {
+  stroke: var(--sig-on);
+  stroke-width: 3.5;
+}
+
+.wire.on .wire-branch {
+  fill: var(--sig-on);
+}
+
+.wire.selected .wire-line {
+  stroke-dasharray: 8 4;
+}
+
+.wire.osc .wire-line {
+  animation: wire-blink 0.6s steps(2, jump-none) infinite;
+}
+
+@keyframes wire-blink {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wire.osc .wire-line {
+    animation: none;
+    stroke-dasharray: 2 4;
+  }
+}
+
+.part-hit.toggle {
+  cursor: pointer;
+}
+
+.push-hit {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.board {
+  position: relative;
+}
+
+.canvas-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-2);
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--text-2);
+  pointer-events: none;
+}
+
+.canvas-badge.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.sim-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.speed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.speed input {
+  width: 110px;
+  accent-color: var(--sig-on);
+}
+
+.speed output {
+  min-width: 36px;
+}
+
+.text-button {
+  min-height: 44px;
+  padding: 0 14px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.text-button:hover:not(:disabled) {
+  border-color: var(--border-2);
+}
+
+.text-button:disabled {
+  color: var(--sig-off);
+  cursor: default;
+}
+
+.text-button.primary {
+  background: var(--sig-on);
+  border-color: var(--sig-on);
+  color: var(--bg);
+  font-weight: 600;
 }

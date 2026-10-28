@@ -1,0 +1,187 @@
+// 테스트용 회로 빌더와 예제 회로 (SPEC 14장). 단위 테스트와 E2E가 함께 쓴다.
+import type { ChipDef, Circuit, Part, PrimitiveKind } from '../../src/sim/types';
+
+export class CircuitBuilder {
+  parts: Part[] = [];
+  wires: Circuit['wires'] = [];
+
+  add(kind: PrimitiveKind, id: string, x = 0, y = 0, label?: string): this {
+    const part: Part = { id, kind: { type: 'primitive', kind }, x, y };
+    if (label) part.label = label;
+    this.parts.push(part);
+    return this;
+  }
+
+  chip(chipId: string, id: string, x = 0, y = 0): this {
+    this.parts.push({ id, kind: { type: 'chip', chipId }, x, y });
+    return this;
+  }
+
+  /** 'or1.y' → 'not1.a' */
+  wire(from: string, to: string): this {
+    const [fp, fpin] = from.split('.') as [string, string];
+    const [tp, tpin] = to.split('.') as [string, string];
+    this.wires.push({ id: `w${this.wires.length + 1}`, from: { partId: fp, pin: fpin }, to: { partId: tp, pin: tpin } });
+    return this;
+  }
+
+  build(): Circuit {
+    return { parts: this.parts, wires: this.wires };
+  }
+}
+
+/** OR 2개 + NOT 2개 SR 래치. R/S는 푸시 버튼, Q/Q̄는 LED. */
+export function srLatch(): Circuit {
+  return new CircuitBuilder()
+    .add('PUSH', 'r', 0, 2, 'R')
+    .add('PUSH', 's', 0, 10, 'S')
+    .add('OR', 'or1', 6, 1)
+    .add('NOT', 'not1', 13, 2)
+    .add('OR', 'or2', 6, 9)
+    .add('NOT', 'not2', 13, 10)
+    .add('LED', 'q', 21, 2, 'Q')
+    .add('LED', 'qn', 21, 10, 'Q̄')
+    .wire('r.y', 'or1.a')
+    .wire('not2.y', 'or1.b')
+    .wire('or1.y', 'not1.a')
+    .wire('not1.y', 'q.a')
+    .wire('s.y', 'or2.a')
+    .wire('not1.y', 'or2.b')
+    .wire('or2.y', 'not2.a')
+    .wire('not2.y', 'qn.a')
+    .build();
+}
+
+export function notRing(n = 3): Circuit {
+  const b = new CircuitBuilder();
+  for (let i = 1; i <= n; i++) b.add('NOT', `not${i}`, i * 6, 2);
+  for (let i = 1; i <= n; i++) b.wire(`not${i}.y`, `not${(i % n) + 1}.a`);
+  b.add('LED', 'led1', 6 * n + 6, 2, 'Y');
+  b.wire(`not${n}.y`, 'led1.a');
+  return b.build();
+}
+
+export function halfAdder(): Circuit {
+  return new CircuitBuilder()
+    .add('SWITCH', 'a', 0, 0, 'A')
+    .add('SWITCH', 'b', 0, 6, 'B')
+    .add('XOR', 'xor1', 6, 0)
+    .add('AND', 'and1', 6, 6)
+    .add('LED', 's', 14, 1, 'S')
+    .add('LED', 'c', 14, 7, 'C')
+    .wire('a.y', 'xor1.a')
+    .wire('b.y', 'xor1.b')
+    .wire('a.y', 'and1.a')
+    .wire('b.y', 'and1.b')
+    .wire('xor1.y', 's.a')
+    .wire('and1.y', 'c.a')
+    .build();
+}
+
+const STAMP = '2026-01-01T00:00:00.000Z';
+
+export function chipDef(id: string, name: string, circuit: Circuit, inputs: [string, string][], outputs: [string, string][]): ChipDef {
+  return {
+    id,
+    name,
+    color: 'chip-1',
+    inputs: inputs.map(([pinName, partId]) => ({ name: pinName, partId })),
+    outputs: outputs.map(([pinName, partId]) => ({ name: pinName, partId })),
+    circuit,
+    createdAt: STAMP,
+    updatedAt: STAMP,
+    revision: 1,
+  };
+}
+
+/** SR 래치 칩: 입력 R, S / 출력 Q, Q̄ */
+export function srLatchChip(id = 'chip-sr'): ChipDef {
+  return chipDef(id, 'SR 래치', srLatch(), [['R', 'r'], ['S', 's']], [['Q', 'q'], ['Q̄', 'qn']]);
+}
+
+/** D 래치 = SR 래치 칩 + AND 2 + NOT. CLK=1이면 Q가 D를 따름. */
+export function dLatchChip(srId = 'chip-sr', id = 'chip-dlatch'): ChipDef {
+  const c = new CircuitBuilder()
+    .add('SWITCH', 'd', 0, 2, 'D')
+    .add('SWITCH', 'clk', 0, 8, 'CLK')
+    .add('NOT', 'notd', 5, 0)
+    .add('AND', 'andr', 11, 0)
+    .add('AND', 'ands', 11, 6)
+    .chip(srId, 'latch', 18, 2)
+    .add('LED', 'q', 26, 2, 'Q')
+    .add('LED', 'qn', 26, 6, 'Q̄')
+    .wire('d.y', 'notd.a')
+    .wire('notd.y', 'andr.a')
+    .wire('clk.y', 'andr.b')
+    .wire('d.y', 'ands.a')
+    .wire('clk.y', 'ands.b')
+    .wire('andr.y', 'latch.R')
+    .wire('ands.y', 'latch.S')
+    .wire('latch.Q', 'q.a')
+    .wire('latch.Q̄', 'qn.a')
+    .build();
+  return chipDef(id, 'D 래치', c, [['D', 'd'], ['CLK', 'clk']], [['Q', 'q'], ['Q̄', 'qn']]);
+}
+
+/** 마스터-슬레이브 D 플립플롭: 상승 에지에서 저장 */
+export function dffChip(dLatchId = 'chip-dlatch', id = 'chip-dff'): ChipDef {
+  const c = new CircuitBuilder()
+    .add('SWITCH', 'd', 0, 2, 'D')
+    .add('SWITCH', 'clk', 0, 8, 'CLK')
+    .add('NOT', 'nclk', 5, 8)
+    .chip(dLatchId, 'master', 11, 2)
+    .chip(dLatchId, 'slave', 19, 2)
+    .add('LED', 'q', 27, 2, 'Q')
+    .wire('d.y', 'master.D')
+    .wire('nclk.y', 'master.CLK')
+    .wire('clk.y', 'nclk.a')
+    .wire('master.Q', 'slave.D')
+    .wire('clk.y', 'slave.CLK')
+    .wire('slave.Q', 'q.a')
+    .build();
+  return chipDef(id, 'D 플립플롭', c, [['D', 'd'], ['CLK', 'clk']], [['Q', 'q']]);
+}
+
+/** 4비트 레지스터 = D 플립플롭 4개, 공통 CLK */
+export function register4Chip(dffId = 'chip-dff', id = 'chip-reg4'): ChipDef {
+  const b = new CircuitBuilder().add('SWITCH', 'clk', 0, 20, 'CLK');
+  for (let i = 0; i < 4; i++) {
+    b.add('SWITCH', `d${i}`, 0, i * 4, `D${i}`)
+      .chip(dffId, `dff${i}`, 8, i * 5)
+      .add('LED', `q${i}`, 18, i * 5, `Q${i}`)
+      .wire(`d${i}.y`, `dff${i}.D`)
+      .wire('clk.y', `dff${i}.CLK`)
+      .wire(`dff${i}.Q`, `q${i}.a`);
+  }
+  return chipDef(
+    id,
+    '4비트 레지스터',
+    b.build(),
+    [['D0', 'd0'], ['D1', 'd1'], ['D2', 'd2'], ['D3', 'd3'], ['CLK', 'clk']],
+    [['Q0', 'q0'], ['Q1', 'q1'], ['Q2', 'q2'], ['Q3', 'q3']],
+  );
+}
+
+export function nestedLibrary(): Record<string, ChipDef> {
+  const defs = [srLatchChip(), dLatchChip(), dffChip(), register4Chip()];
+  return Object.fromEntries(defs.map((d) => [d.id, d]));
+}
+
+/** 게이트 n개짜리 성능 측정용 회로: 스위치 하나가 XOR 사슬 여러 줄을 구동 */
+export function bigCircuit(gates: number, cols = 50): Circuit {
+  const b = new CircuitBuilder().add('SWITCH', 'in', 0, 0, 'A');
+  const rows = Math.ceil(gates / cols);
+  let count = 0;
+  for (let r = 0; r < rows && count < gates; r++) {
+    for (let c = 0; c < cols && count < gates; c++, count++) {
+      const id = `g${r}_${c}`;
+      b.add(c % 2 ? 'XOR' : 'NOT', id, 4 + c * 5, r * 5);
+      if (c === 0) b.wire('in.y', `${id}.a`);
+      else {
+        b.wire(`g${r}_${c - 1}.y`, `${id}.a`);
+        if (c % 2) b.wire('in.y', `${id}.b`);
+      }
+    }
+  }
+  return b.build();
+}

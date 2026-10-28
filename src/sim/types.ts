@@ -37,3 +37,19 @@ export interface Circuit {
   parts: Part[];
   wires: Wire[];
 }
+
+/** 칩 정의 (SPEC 4.2). 입력 핀은 내부 SWITCH/PUSH, 출력 핀은 내부 LED. */
+export interface ChipDef {
+  id: string;
+  name: string;
+  /** 팔레트 스와치 키 (예: 'chip-1' → var(--chip-1)) */
+  color: string;
+  inputs: { name: string; partId: string }[];
+  outputs: { name: string; partId: string }[];
+  circuit: Circuit;
+  createdAt: string;
+  updatedAt: string;
+  revision: number;
+}
+
+export type Library = Record<string, ChipDef>;

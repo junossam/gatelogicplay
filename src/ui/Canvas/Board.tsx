@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
-import type { PinRef, PrimitiveKind } from '../../sim/types';
+import type { Part, PinRef, PrimitiveKind } from '../../sim/types';
 import { GATE_KINDS } from '../../sim/primitives';
 import { editorStore, useEditor } from '../../store/editorStore';
+import { engine, simActions, useSim } from '../../store/simStore';
 import { PART_DRAG_MIME, useUi } from '../../store/uiStore';
 import { GRID, kindSize, normalizeRect, partRect, pinPoint, rectContains, wirePath, type Rect } from './geometry';
 import { PartView } from './PartView';
@@ -13,7 +14,7 @@ const MAX_ZOOM = 4;
 type Point = { x: number; y: number };
 
 type Gesture =
-  | { type: 'drag'; start: Point; pointerId: number }
+  | { type: 'drag'; start: Point; pointerId: number; partId: string; moved: boolean }
   | { type: 'wire'; from: PinRef; start: Point; pointerId: number }
   | { type: 'box'; start: Point; additive: boolean; pointerId: number }
   | { type: 'pan'; start: Point; pan: Point; pointerId: number };
@@ -32,6 +33,11 @@ export function Board() {
   const selection = useEditor((s) => s.selection);
   const armedKind = useUi((s) => s.armedKind);
   const zoom = useUi((s) => s.zoom);
+  useSim((s) => s.version); // 틱마다 다시 그려 값 표시
+  const oscillating = useSim((s) => s.oscillating);
+  const hasFeedback = useSim((s) => s.hasFeedback);
+  const simError = useSim((s) => s.error);
+  const tick = useSim((s) => s.tick);
 
   const [pan, setPan] = useState<Point>({ x: 40, y: 40 });
   const [size, setSize] = useState({ w: 800, h: 600 });
@@ -114,7 +120,7 @@ export function Board() {
     }
     if (!store.selection.parts.includes(partId)) store.setSelection({ parts: [partId] });
     store.beginDrag();
-    setGesture({ type: 'drag', start: toWorld(e.clientX, e.clientY), pointerId: e.pointerId });
+    setGesture({ type: 'drag', start: toWorld(e.clientX, e.clientY), pointerId: e.pointerId, partId, moved: false });
   };
 
   const onPinDown = (e: PointerEvent, ref: PinRef) => {
@@ -124,6 +130,18 @@ export function Board() {
     const world = toWorld(e.clientX, e.clientY);
     setCursor(world);
     setGesture({ type: 'wire', from: ref, start: world, pointerId: e.pointerId });
+  };
+
+  const onPush = (partId: string, v: 0 | 1) => {
+    if (engine.inputValue(partId) !== v) simActions.setInput(partId, v);
+  };
+
+  const partValue = (p: Part): 0 | 1 => {
+    if (p.kind.type !== 'primitive') return 0;
+    const k = p.kind.kind;
+    if (k === 'SWITCH' || k === 'PUSH') return engine.inputValue(p.id);
+    if (k === 'LED') return engine.readPin(`${p.id}.a`);
+    return 0;
   };
 
   const onWireDown = (e: PointerEvent, wireId: string) => {
@@ -143,7 +161,10 @@ export function Board() {
     }
     const world = toWorld(e.clientX, e.clientY);
     if (gesture.type === 'drag') {
-      editorStore.getState().dragBy(Math.round((world.x - gesture.start.x) / GRID), Math.round((world.y - gesture.start.y) / GRID));
+      const dx = Math.round((world.x - gesture.start.x) / GRID);
+      const dy = Math.round((world.y - gesture.start.y) / GRID);
+      if ((dx || dy) && !gesture.moved) setGesture({ ...gesture, moved: true });
+      editorStore.getState().dragBy(dx, dy);
     } else {
       setCursor(world);
     }
@@ -154,6 +175,9 @@ export function Board() {
     const store = editorStore.getState();
     if (gesture.type === 'drag') {
       store.endDrag();
+      // 끌지 않고 클릭만 했으면 스위치를 토글
+      const part = circuit.parts.find((p) => p.id === gesture.partId);
+      if (!gesture.moved && part?.kind.type === 'primitive' && part.kind.kind === 'SWITCH') simActions.toggleSwitch(part.id);
     } else if (gesture.type === 'wire') {
       const target = parsePin(document.elementFromPoint(e.clientX, e.clientY));
       if (target) store.connect(gesture.from, target);
@@ -271,19 +295,30 @@ export function Board() {
             const a = fp && pinPoint(fp, w.from.pin);
             const b = tp && pinPoint(tp, w.to.pin);
             if (!a || !b) return null;
+            const net = engine.netlist.pinNet.get(`${w.from.partId}.${w.from.pin}`) ?? -1;
             return (
               <WireView
                 key={w.id}
                 id={w.id}
                 d={wirePath(a, b)}
                 selected={selectedWires.has(w.id)}
+                value={engine.readNet(net)}
+                oscillating={net >= 0 && oscillating.has(engine.netlist.netIds[net]!)}
                 branch={(fanout.get(`${w.from.partId}:${w.from.pin}`) ?? 0) > 1 ? a : undefined}
                 onPointerDown={onWireDown}
               />
             );
           })}
           {circuit.parts.map((p) => (
-            <PartView key={p.id} part={p} selected={selectedParts.has(p.id)} onPartDown={onPartDown} onPinDown={onPinDown} />
+            <PartView
+              key={p.id}
+              part={p}
+              selected={selectedParts.has(p.id)}
+              value={partValue(p)}
+              onPartDown={onPartDown}
+              onPinDown={onPinDown}
+              onPush={onPush}
+            />
           ))}
           {preview && <path d={preview} className="wire-preview" />}
           {box && (
@@ -296,8 +331,13 @@ export function Board() {
           )}
         </g>
       </svg>
+      {(simError || hasFeedback) && (
+        <div className={`canvas-badge${simError || oscillating.size ? ' danger' : ''}`} role="status" data-testid="sim-badge">
+          {simError ?? (oscillating.size ? '진동 중' : '피드백 루프 감지됨 · 안정')}
+        </div>
+      )}
       <footer className="statusbar" data-testid="statusbar">
-        <span>틱 0</span>
+        <span data-testid="tick">틱 {tick}</span>
         <span>
           게이트 {gateCount} · 전선 {circuit.wires.length}
         </span>

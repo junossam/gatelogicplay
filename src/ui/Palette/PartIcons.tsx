@@ -5,7 +5,7 @@ import { kindSize, GRID } from '../Canvas/geometry';
  * 부품 기호. 캔버스와 팔레트가 같은 도형을 쓴다.
  * 좌표계는 부품 크기(격자 칸 × 20px) 그대로이며, 핀 리드 선이 핀 위치까지 이어진다.
  */
-export function PartShape({ kind }: { kind: PrimitiveKind }) {
+export function PartShape({ kind, on = false }: { kind: PrimitiveKind; on?: boolean }) {
   const stroke = 'var(--text-2)';
   const body = { fill: 'var(--bg-chip)', stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };
   const lead = { stroke, strokeWidth: 2 };
@@ -84,15 +84,21 @@ export function PartShape({ kind }: { kind: PrimitiveKind }) {
       return (
         <g>
           <line x1={44} y1={20} x2={60} y2={20} {...lead} />
-          <rect x={6} y={10} width={38} height={20} rx={10} {...body} />
-          <circle cx={16} cy={20} r={6} fill="var(--sig-off)" />
+          <rect x={6} y={10} width={38} height={20} rx={10} {...body} fill={on ? 'var(--sig-on)' : 'var(--bg-chip)'} />
+          <circle cx={on ? 34 : 16} cy={20} r={6} fill={on ? 'var(--bg)' : 'var(--sig-off)'} />
         </g>
       );
     case 'PUSH':
       return (
         <g>
           <line x1={46} y1={20} x2={60} y2={20} {...lead} />
-          <path d="M14 26 Q26 4 38 26 Z" fill="var(--push-cap)" stroke={stroke} strokeWidth={2} strokeLinejoin="round" />
+          <path
+            d={on ? 'M14 26 Q26 14 38 26 Z' : 'M14 26 Q26 4 38 26 Z'}
+            fill="var(--push-cap)"
+            stroke={on ? 'var(--sig-on)' : stroke}
+            strokeWidth={2}
+            strokeLinejoin="round"
+          />
           <rect x={6} y={26} width={40} height={8} rx={2} {...body} />
         </g>
       );
@@ -100,7 +106,8 @@ export function PartShape({ kind }: { kind: PrimitiveKind }) {
       return (
         <g>
           <line x1={0} y1={20} x2={24} y2={20} {...lead} />
-          <circle cx={38} cy={20} r={13} fill="var(--sig-off)" stroke={stroke} strokeWidth={2} />
+          {on && <circle cx={38} cy={20} r={18} fill="var(--sig-on)" opacity={0.25} />}
+          <circle cx={38} cy={20} r={13} fill={on ? 'var(--sig-on)' : 'var(--sig-off)'} stroke={on ? 'var(--sig-on)' : stroke} strokeWidth={2} />
         </g>
       );
     case 'CLOCK':

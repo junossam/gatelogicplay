@@ -1,4 +1,4 @@
-import type { PrimitiveKind } from './types';
+import type { Bit, PrimitiveKind } from './types';
 
 export type PinDir = 'in' | 'out';
 
@@ -36,3 +36,27 @@ export function pinDef(kind: PrimitiveKind, pin: string): PinDef | undefined {
 }
 
 export const GATE_KINDS = new Set<PrimitiveKind>(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT']);
+
+export const INPUT_KINDS = new Set<PrimitiveKind>(['SWITCH', 'PUSH']);
+
+/** 2입력(또는 NOT) 게이트 평가 (SPEC 5.4). 연결 안 된 입력은 0으로 들어온다. */
+export function evalGate(kind: PrimitiveKind, a: number, b: number): Bit {
+  switch (kind) {
+    case 'AND':
+      return (a & b) as Bit;
+    case 'OR':
+      return (a | b) as Bit;
+    case 'XOR':
+      return (a ^ b) as Bit;
+    case 'NAND':
+      return (1 - (a & b)) as Bit;
+    case 'NOR':
+      return (1 - (a | b)) as Bit;
+    case 'XNOR':
+      return (1 - (a ^ b)) as Bit;
+    case 'NOT':
+      return (1 - a) as Bit;
+    default:
+      return 0;
+  }
+}
