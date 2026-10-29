@@ -3,7 +3,7 @@ import type { Circuit } from '../sim/types';
 
 export const FORMAT = 'logiclab';
 /** 2: 다중 비트 버스 (SPLIT/MERGE, props.bits), 3: 게이트 입력 수(props.inputs)와 칩 분류(category) */
-export const VERSION = 5;
+export const VERSION = 6;
 
 const primitiveKind = z.enum(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK', 'SPLIT', 'MERGE', 'SEG8', 'VCC', 'GND']);
 
@@ -39,9 +39,14 @@ export const wireSchema = z.object({
   points: z.array(point).optional(),
 });
 
+const groupSchema = z.object({ id: z.string().min(1), name: z.string(), parts: z.array(z.string()) });
+const noteSchema = z.object({ id: z.string().min(1), x: z.number(), y: z.number(), text: z.string() });
+
 export const circuitSchema: z.ZodType<Circuit> = z.object({
   parts: z.array(partSchema),
   wires: z.array(wireSchema),
+  groups: z.array(groupSchema).optional(),
+  notes: z.array(noteSchema).optional(),
 });
 
 /** localStorage `logiclab:v1:workspace`에 저장하는 문서 */

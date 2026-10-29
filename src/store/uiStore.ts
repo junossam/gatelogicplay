@@ -22,6 +22,12 @@ interface UiState {
   challengesOpen: boolean;
   shareOpen: boolean;
   samplesOpen: boolean;
+  /** 그룹 대화상자: 선택을 새 그룹으로, 또는 그룹 이름 바꾸기 */
+  groupEdit: { create: true } | { id: string } | null;
+  /** 지금 글을 고치고 있는 메모 */
+  editingNote: string | null;
+  /** 캔버스가 지금 보여 주는 가운데 (격자 칸). 메뉴에서 메모를 놓을 때 쓴다. */
+  canvasCenter: () => { x: number; y: number };
   /** 분류 대화상자: 칩 하나의 분류 바꾸기, 또는 분류 이름 바꾸기 */
   categoryEdit: { chipId: string } | { rename: string } | null;
   message: Message | null;
@@ -34,6 +40,8 @@ interface UiState {
   setChallengesOpen(open: boolean): void;
   setShareOpen(open: boolean): void;
   setSamplesOpen(open: boolean): void;
+  setGroupEdit(edit: { create: true } | { id: string } | null): void;
+  setEditingNote(id: string | null): void;
   setCategoryEdit(edit: { chipId: string } | { rename: string } | null): void;
   setMessage(message: Message | null): void;
   setPendingImport(bundle: Bundle | null): void;
@@ -51,6 +59,9 @@ export const useUi = create<UiState>((set) => ({
   challengesOpen: false,
   shareOpen: false,
   samplesOpen: false,
+  groupEdit: null,
+  editingNote: null,
+  canvasCenter: () => ({ x: 10, y: 10 }),
   categoryEdit: null,
   message: null,
   pendingImport: null,
@@ -61,6 +72,8 @@ export const useUi = create<UiState>((set) => ({
   setChallengesOpen: (challengesOpen) => set({ challengesOpen }),
   setShareOpen: (shareOpen) => set({ shareOpen }),
   setSamplesOpen: (samplesOpen) => set({ samplesOpen }),
+  setGroupEdit: (groupEdit) => set({ groupEdit }),
+  setEditingNote: (editingNote) => set({ editingNote }),
   setCategoryEdit: (categoryEdit) => set({ categoryEdit }),
   setMessage: (message) => set({ message }),
   setPendingImport: (pendingImport) => set({ pendingImport }),

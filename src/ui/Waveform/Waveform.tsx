@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { bitKey } from '../../sim/pins';
 import { RECORD_SIZE } from '../../sim/recorder';
 import type { Bit } from '../../sim/types';
-import { useEditor, useView } from '../../store/editorStore';
+import { groupOfSelection, useEditor, useView } from '../../store/editorStore';
 import { engine, recorder, simActions, useSim } from '../../store/simStore';
 import { useUi } from '../../store/uiStore';
 import { channelsFor, effectiveMode, type Channel, type NetLookup, type WaveMode } from './channels';
@@ -49,6 +49,9 @@ export function Waveform() {
   const { circuit, prefix, readOnly } = useView();
   const library = useEditor((s) => s.library);
   const selected = useEditor((s) => s.selection.parts);
+  const selection = useEditor((s) => s.selection);
+  // 그룹 전체를 골랐으면 부품이 하나여도 그룹 경계를 드나드는 신호를 보인다
+  const group = groupOfSelection(circuit, selection);
   const editOrder = useEditor((s) => s.pinOrder);
   const pinOrder = readOnly ? undefined : editOrder;
   const running = useSim((s) => s.running);
@@ -70,7 +73,7 @@ export function Waveform() {
     if (running) setOffset(0);
   }, [running]);
 
-  const mode = effectiveMode(selected.length, override);
+  const mode = effectiveMode(selected.length, override ?? (group ? 'range' : null));
   const nets: NetLookup = useMemo(
     () => ({
       pinNetId: (partId, pin, bit = 0) => {
@@ -155,7 +158,9 @@ export function Waveform() {
             </button>
           ))}
         </div>
-        <span className="muted small">{mode === null ? '모든 입력과 출력' : `채널 ${channels.length}개`}</span>
+        <span className="muted small" data-testid="wave-summary">
+          {mode === null ? '모든 입력과 출력' : `${group && mode === 'range' ? `그룹 "${group.name}" 경계 · ` : ''}채널 ${channels.length}개`}
+        </span>
         <button type="button" className="text-button small-button" onClick={simActions.clearRecording}>
           기록 지우기
         </button>

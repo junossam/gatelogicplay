@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { partPinSpecs } from '../sim/pins';
-import { createEditorStore, type EditorStore } from './editorStore';
+import { createEditorStore, groupOfSelection, type EditorStore } from './editorStore';
+import { halfAdderChip, harness } from '../../tests/fixtures/circuits';
 
 let store: EditorStore;
 const s = () => store.getState();
@@ -47,7 +48,7 @@ describe('부품 배치', () => {
 
   it('배치한 부품을 선택한다', () => {
     const id = s().addPart('OR', 0, 0);
-    expect(s().selection).toEqual({ parts: [id], wires: [] });
+    expect(s().selection).toEqual({ parts: [id], wires: [], notes: [] });
   });
 });
 
@@ -153,7 +154,7 @@ describe('삭제', () => {
     s().deleteSelection();
     expect(s().circuit.parts.map((p) => p.id)).toEqual(['switch1', 'led1']);
     expect(s().circuit.wires).toHaveLength(0);
-    expect(s().selection).toEqual({ parts: [], wires: [] });
+    expect(s().selection).toEqual({ parts: [], wires: [], notes: [] });
   });
 
   it('전선만 지울 수 있다', () => {
@@ -245,7 +246,7 @@ describe('load', () => {
     other.getState().load(saved);
     expect(other.getState().circuit).toEqual(saved);
     expect(other.getState().past).toHaveLength(0);
-    expect(other.getState().selection).toEqual({ parts: [], wires: [] });
+    expect(other.getState().selection).toEqual({ parts: [], wires: [], notes: [] });
   });
 });
 
@@ -387,5 +388,84 @@ describe('게이트 입력 수와 칩 분류', () => {
     expect([s().library[a]!.category, s().library[b]!.category]).toEqual(['기억 소자', '기억 소자']);
     s().setChipCategory(b, '');
     expect(s().library[b]!.category).toBeUndefined();
+  });
+});
+
+describe('그룹', () => {
+  it('선택한 부품을 이름 붙인 그룹으로 묶고, 이름 바꾸기·풀기·실행 취소가 된다', () => {
+    const store = createEditorStore();
+    const s = () => store.getState();
+    const a = s().addPart('AND', 0, 0);
+    const b = s().addPart('OR', 6, 0);
+    s().addPart('NOT', 12, 0);
+    s().setSelection({ parts: [a, b] });
+    const g = s().groupSelection('  덧셈부 ')!;
+    expect(s().circuit.groups).toEqual([{ id: g, name: '덧셈부', parts: [a, b] }]);
+    expect(groupOfSelection(s().circuit, s().selection)?.id).toBe(g);
+    s().setSelection({ parts: [a] });
+    expect(groupOfSelection(s().circuit, s().selection)).toBeUndefined();
+    s().renameGroup(g, '가산부');
+    expect(s().circuit.groups![0]!.name).toBe('가산부');
+    s().ungroup(g);
+    expect(s().circuit.groups).toBeUndefined();
+    s().undo();
+    expect(s().circuit.groups![0]!.name).toBe('가산부');
+  });
+
+  it('이름을 비우면 "그룹 N", 부품을 지우면 그룹에서 빠지고 빈 그룹은 사라진다', () => {
+    const store = createEditorStore();
+    const s = () => store.getState();
+    const a = s().addPart('AND', 0, 0);
+    const b = s().addPart('OR', 6, 0);
+    s().setSelection({ parts: [a, b] });
+    s().groupSelection('');
+    expect(s().circuit.groups![0]!.name).toBe('그룹 1');
+    s().setSelection({ parts: [a] });
+    s().deleteSelection();
+    expect(s().circuit.groups![0]!.parts).toEqual([b]);
+    s().setSelection({ parts: [b] });
+    s().deleteSelection();
+    expect(s().circuit.groups).toBeUndefined();
+  });
+});
+
+describe('메모', () => {
+  it('메모를 놓고, 글을 고치고, 부품과 함께 끌어 옮기고, 지운다', () => {
+    const store = createEditorStore();
+    const s = () => store.getState();
+    const a = s().addPart('AND', 0, 0);
+    const n = s().addNote(4.4, 8.6, '설명');
+    expect(s().circuit.notes).toEqual([{ id: n, x: 4, y: 9, text: '설명' }]);
+    expect(s().selection.notes).toEqual([n]);
+    s().updateNote(n, '반가산기 입력');
+    expect(s().circuit.notes![0]!.text).toBe('반가산기 입력');
+    s().setSelection({ parts: [a], notes: [n] });
+    s().beginDrag();
+    s().dragBy(2, 3);
+    s().endDrag();
+    expect(s().circuit.notes![0]).toMatchObject({ x: 6, y: 12 });
+    expect(s().circuit.parts[0]).toMatchObject({ x: 2, y: 3 });
+    s().undo();
+    expect(s().circuit.notes![0]).toMatchObject({ x: 4, y: 9 });
+    s().setSelection({ notes: [n] });
+    s().deleteSelection();
+    expect(s().circuit.notes).toBeUndefined();
+  });
+});
+
+describe('초기화', () => {
+  it('회로 비우기는 실행 취소할 수 있고, 모두 초기화는 내 칩까지 지운다', () => {
+    const store = createEditorStore();
+    const s = () => store.getState();
+    s().loadAll(harness(halfAdderChip()), { [halfAdderChip().id]: halfAdderChip() }, null);
+    s().addNote(0, 0, '메모');
+    s().clearCircuit();
+    expect(s().circuit).toEqual({ parts: [], wires: [] });
+    s().undo();
+    expect(s().circuit.parts.length).toBeGreaterThan(0);
+    s().resetAll();
+    expect(s().circuit).toEqual({ parts: [], wires: [] });
+    expect(s().library).toEqual({});
+    expect(s().past).toEqual([]);
   });
 });

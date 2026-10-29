@@ -2,12 +2,13 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { bitKey, partBits } from '../../sim/pins';
 import { GATE_KINDS } from '../../sim/primitives';
 import type { Circuit, Library, Part, PartKind, PinRef } from '../../sim/types';
-import { editorStore, pinOf, useEditor, useView } from '../../store/editorStore';
+import { editorStore, groupOfSelection, pinOf, useEditor, useView } from '../../store/editorStore';
 import { engine, simActions, simStore, useSim } from '../../store/simStore';
 import { decodeKind, PART_DRAG_MIME, useUi } from '../../store/uiStore';
 import { confirmLeaveChip } from '../Palette/Palette';
 import { baseSize, boundsOf, GRID, normalizeRect, partRect, pinPoint, rectContains, type Rect } from './geometry';
 import { challengeById, isAllowedIn } from '../../model/challenges';
+import { GroupsLayer, noteRect, NotesLayer } from './Annotations';
 import { PartView } from './PartView';
 import { moveSegment, toPath } from './router';
 import { layoutWires, type WireLayout } from './wireLayout';
@@ -24,6 +25,7 @@ type Point = { x: number; y: number };
 type GridPt = { x: number; y: number };
 
 type Gesture =
+  /** partId: 누른 부품 (그룹 이름표·메모를 끌 때는 '') */
   | { type: 'drag'; start: Point; pointerId: number; partId: string; moved: boolean }
   | { type: 'wire'; from: PinRef; start: Point; pointerId: number }
   | { type: 'box'; start: Point; additive: boolean; pointerId: number }
@@ -45,7 +47,7 @@ export function escapeAction() {
   const ui = useUi.getState();
   const st = editorStore.getState();
   if (ui.armed) return ui.setArmed(null);
-  if (st.selection.parts.length || st.selection.wires.length) return st.clearSelection();
+  if (st.selection.parts.length || st.selection.wires.length || st.selection.notes.length) return st.clearSelection();
   if (st.viewPath.length) return st.setViewPath(st.viewPath.slice(0, -1));
   if (st.openChipId) confirmLeaveChip(() => editorStore.getState().closeChip());
 }
@@ -84,8 +86,19 @@ export function Board() {
   const [gesture, setGesture] = useState<Gesture | null>(null);
   const [cursor, setCursor] = useState<Point>({ x: 0, y: 0 });
   const space = useRef({ held: false, panned: false });
-  const view = useRef({ pan, zoom });
-  view.current = { pan, zoom };
+  const view = useRef({ pan, zoom, size });
+  view.current = { pan, zoom, size };
+  const editingNote = useUi((s) => s.editingNote);
+
+  // 메뉴에서 메모를 놓을 자리: 지금 보이는 화면 가운데
+  useEffect(() => {
+    useUi.setState({
+      canvasCenter: () => {
+        const { pan: p, zoom: z, size: sz } = view.current;
+        return { x: Math.round((sz.w / 2 - p.x) / z / GRID), y: Math.round((sz.h / 2 - p.y) / z / GRID) };
+      },
+    });
+  }, []);
 
   useLayoutEffect(() => {
     const svg = svgRef.current;
@@ -184,6 +197,53 @@ export function Board() {
     [readOnly],
   );
 
+  /** 그룹 이름표: 그룹 전체를 선택하고 끌면 함께 옮긴다 */
+  const onGroupDown = useCallback(
+    (e: PointerEvent, groupId: string) => {
+      if (e.button !== 0 || space.current.held) return;
+      e.stopPropagation();
+      svgRef.current?.setPointerCapture(e.pointerId);
+      focusCanvas();
+      const store = editorStore.getState();
+      const group = viewCircuit.current.groups?.find((g) => g.id === groupId);
+      if (!group) return;
+      if (e.shiftKey) {
+        store.toggleSelection({ parts: group.parts.filter((id) => !store.selection.parts.includes(id)) });
+        return;
+      }
+      store.setSelection({ parts: group.parts });
+      if (readOnly) return;
+      store.beginDrag();
+      setGesture({ type: 'drag', start: toWorld(e.clientX, e.clientY), pointerId: e.pointerId, partId: '', moved: false });
+    },
+    [readOnly],
+  );
+
+  const onNoteDown = useCallback(
+    (e: PointerEvent, noteId: string) => {
+      if (e.button !== 0 || space.current.held) return;
+      e.stopPropagation();
+      svgRef.current?.setPointerCapture(e.pointerId);
+      focusCanvas();
+      const store = editorStore.getState();
+      if (e.shiftKey) {
+        store.toggleSelection({ notes: [noteId] });
+        return;
+      }
+      if (!store.selection.notes.includes(noteId)) store.setSelection({ notes: [noteId] });
+      if (readOnly) return;
+      store.beginDrag();
+      setGesture({ type: 'drag', start: toWorld(e.clientX, e.clientY), pointerId: e.pointerId, partId: '', moved: false });
+    },
+    [readOnly],
+  );
+
+  const onNoteEditDone = useCallback((noteId: string, text: string) => {
+    editorStore.getState().updateNote(noteId, text);
+    useUi.getState().setEditingNote(null);
+    focusCanvas();
+  }, []);
+
   const onPinDown = useCallback((e: PointerEvent, ref: PinRef) => {
     if (e.button !== 0 || space.current.held) return;
     e.stopPropagation();
@@ -200,8 +260,20 @@ export function Board() {
   }, []);
 
   // 포인터 캡처 때문에 dblclick은 svg로 오므로 좌표로 부품을 찾는다
+  // 메모는 바로 고치기, 그룹 이름표는 이름 바꾸기, 칩은 안으로 들어가기
   const onDoubleClick = (e: MouseEvent) => {
-    const id = document.elementFromPoint(e.clientX, e.clientY)?.closest('[data-part-id]')?.getAttribute('data-part-id');
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const noteId = el?.closest('[data-note-id]')?.getAttribute('data-note-id');
+    if (noteId) {
+      if (!readOnly) useUi.getState().setEditingNote(noteId);
+      return;
+    }
+    const groupId = el?.closest('[data-group-id]')?.getAttribute('data-group-id');
+    if (groupId) {
+      if (!readOnly) useUi.getState().setGroupEdit({ id: groupId });
+      return;
+    }
+    const id = el?.closest('[data-part-id]')?.getAttribute('data-part-id');
     if (id) editorStore.getState().enterInstance(id);
   };
 
@@ -261,8 +333,10 @@ export function Board() {
         if (!gesture.additive) store.clearSelection();
       } else {
         const ids = circuit.parts.filter((p) => rectContains(box, partRect(p, library))).map((p) => p.id);
-        if (gesture.additive) store.toggleSelection({ parts: ids.filter((id) => !store.selection.parts.includes(id)) });
-        else store.setSelection({ parts: ids });
+        const noteIds = (circuit.notes ?? []).filter((n) => rectContains(box, noteRect(n))).map((n) => n.id);
+        if (gesture.additive)
+          store.toggleSelection({ parts: ids.filter((id) => !store.selection.parts.includes(id)), notes: noteIds.filter((id) => !store.selection.notes.includes(id)) });
+        else store.setSelection({ parts: ids, notes: noteIds });
       }
     }
     setGesture(null);
@@ -275,6 +349,8 @@ export function Board() {
 
   // 단축키는 캔버스에 포커스가 있을 때만 (SPEC 11장)
   const onKeyDown = (e: KeyboardEvent) => {
+    // 메모를 쓰는 중이면 단축키를 쓰지 않는다
+    if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) return;
     const store = editorStore.getState();
     const mod = e.ctrlKey || e.metaKey;
     const key = e.key.toLowerCase();
@@ -291,6 +367,9 @@ export function Board() {
     } else if (mod && key === 'y') {
       e.preventDefault();
       store.redo();
+    } else if (mod && e.shiftKey && key === 'g') {
+      e.preventDefault();
+      if (!readOnly && store.selection.parts.length) useUi.getState().setGroupEdit({ create: true });
     } else if (mod && key === 'g') {
       e.preventDefault();
       if (!readOnly) store.makeChipFromSelection();
@@ -317,6 +396,8 @@ export function Board() {
   };
 
   const partById = useMemo(() => new Map(circuit.parts.map((p) => [p.id, p])), [circuit.parts]);
+  const viewCircuit = useRef(circuit);
+  viewCircuit.current = circuit;
   // 전선 경로는 회로가 바뀔 때만 찾고, 매 틱에는 값만 읽는다 (게이트 5천 개에서 60fps)
   // 부품을 끄는 동안은 움직인 전선만 단순 경로로, 놓으면 전체를 다시 찾는다
   const lastLayout = useRef<WireLayout | null>(null);
@@ -354,6 +435,8 @@ export function Board() {
   // 전선 하나만 선택했으면 구간 손잡이를 보인다
   const selectedWireGeom = selection.wires.length === 1 && selection.parts.length === 0 ? layout.byId.get(selection.wires[0]!) : undefined;
   const partRects = useMemo(() => circuit.parts.map((p) => partRect(p, library)), [circuit.parts, library]);
+  const rectById = useMemo(() => new Map(circuit.parts.map((p, i) => [p.id, partRects[i]!])), [circuit.parts, partRects]);
+  const selectedGroup = groupOfSelection(circuit, selection);
 
   /** 모든 부품이 화면에 들어오게 배율과 위치를 맞춘다 (100%보다 크게 확대하지는 않음) */
   const fitView = useCallback(() => {
@@ -412,6 +495,7 @@ export function Board() {
 
   const selectedParts = new Set(selection.parts);
   const selectedWires = new Set(selection.wires);
+  const selectedNotes = new Set(selection.notes);
 
   const visible: Rect = { x: -pan.x / zoom, y: -pan.y / zoom, w: size.w / zoom, h: size.h / zoom };
   // 화면 밖 부품과 전선은 그리지 않는다 (큰 회로에서 SVG 노드 수를 줄여 60fps 유지)
@@ -464,6 +548,7 @@ export function Board() {
         }}
       >
         <g transform={`translate(${pan.x} ${pan.y}) scale(${zoom})`}>
+          {circuit.groups && <GroupsLayer groups={circuit.groups} rects={rectById} selectedId={selectedGroup?.id ?? null} onLabelDown={onGroupDown} />}
           {shownWires.map((g) => (
             <WireView
               key={g.id}
@@ -526,6 +611,16 @@ export function Board() {
               onPush={onPush}
             />
           ))}
+          {circuit.notes && (
+            <NotesLayer
+              notes={circuit.notes}
+              selected={selectedNotes}
+              editingId={editingNote}
+              readOnly={readOnly}
+              onNoteDown={onNoteDown}
+              onEditDone={onNoteEditDone}
+            />
+          )}
           {preview && <path d={preview} className="wire-preview" />}
           {box && (
             <g pointerEvents="none">

@@ -3,7 +3,9 @@ import { GATE_KINDS, INPUT_KINDS } from '../../sim/primitives';
 import { orderedIO } from '../../sim/truthTable';
 import type { Part } from '../../sim/types';
 import { circuitUses, usedBy } from '../../model/library';
-import { editorStore, useEditor, useView, workspaceOf } from '../../store/editorStore';
+import { editorStore, groupOfSelection, useEditor, useView, workspaceOf } from '../../store/editorStore';
+import { useUi } from '../../store/uiStore';
+import type { Group, Note } from '../../sim/types';
 import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs } from '../../sim/pins';
 import { engine, inputNumber, readPinNumber, simActions, useSim } from '../../store/simStore';
 import { partPins } from '../Canvas/geometry';
@@ -324,13 +326,92 @@ function UsedBy({ chipId }: { chipId: string }) {
   );
 }
 
+/** 그룹 전체를 골랐을 때: 이름 바꾸기, 그룹 풀기 */
+function GroupDetails({ group, readOnly }: { group: Group; readOnly: boolean }) {
+  const [name, setName] = useState(group.name);
+  const [prevId, setPrevId] = useState(group.id);
+  if (prevId !== group.id) {
+    setPrevId(group.id);
+    setName(group.name);
+  }
+  const commit = () => {
+    if (name.trim()) editorStore.getState().renameGroup(group.id, name);
+    else setName(group.name);
+  };
+  return (
+    <>
+      <dl className="props">
+        <dt>그룹</dt>
+        <dd>
+          {readOnly ? (
+            group.name
+          ) : (
+            <input
+              className="field"
+              aria-label="그룹 이름"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={commit}
+              onKeyDown={(e) => e.key === 'Enter' && commit()}
+            />
+          )}
+        </dd>
+        <dt>부품</dt>
+        <dd>{group.parts.length}개</dd>
+      </dl>
+      <p className="muted small">파형에는 이 그룹 경계를 드나드는 신호가 보입니다. 이름표를 끌면 그룹 전체가 움직입니다.</p>
+      {!readOnly && (
+        <button type="button" className="text-button wide-button" onClick={() => editorStore.getState().ungroup(group.id)}>
+          그룹 풀기
+        </button>
+      )}
+    </>
+  );
+}
+
+/** 메모 하나를 골랐을 때: 내용 고치기 */
+function NoteDetails({ note, readOnly }: { note: Note; readOnly: boolean }) {
+  const [text, setText] = useState(note.text);
+  const [prev, setPrev] = useState(note);
+  if (prev !== note) {
+    setPrev(note);
+    setText(note.text);
+  }
+  return (
+    <>
+      <label className="field-label">
+        메모
+        <textarea
+          className="field note-field"
+          aria-label="메모 내용 편집"
+          rows={5}
+          value={text}
+          readOnly={readOnly}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={() => editorStore.getState().updateNote(note.id, text)}
+        />
+      </label>
+      {!readOnly && (
+        <button type="button" className="text-button wide-button" onClick={() => editorStore.getState().deleteSelection()}>
+          메모 지우기
+        </button>
+      )}
+    </>
+  );
+}
+
 export function Inspector({ top, extra }: { top?: ReactNode; extra?: ReactNode }) {
   const { circuit, prefix, readOnly, chain } = useView();
   const openChipId = useEditor((s) => s.openChipId);
   const selection = useEditor((s) => s.selection);
 
   const selectedParts = circuit.parts.filter((p) => selection.parts.includes(p.id));
-  const part = selectedParts.length === 1 && selection.wires.length === 0 ? selectedParts[0] : undefined;
+  const group = groupOfSelection(circuit, selection);
+  const note =
+    selection.notes.length === 1 && !selection.parts.length && !selection.wires.length
+      ? circuit.notes?.find((n) => n.id === selection.notes[0])
+      : undefined;
+  const part = !group && selectedParts.length === 1 && selection.wires.length === 0 && !selection.notes.length ? selectedParts[0] : undefined;
   const wire =
     selection.wires.length === 1 && selection.parts.length === 0 ? circuit.wires.find((w) => w.id === selection.wires[0]) : undefined;
 
@@ -338,7 +419,11 @@ export function Inspector({ top, extra }: { top?: ReactNode; extra?: ReactNode }
     <aside className="inspector" aria-label="인스펙터">
       {top}
       <h2 className="panel-title">선택한 부품</h2>
-      {part ? (
+      {group ? (
+        <GroupDetails group={group} readOnly={readOnly} />
+      ) : note ? (
+        <NoteDetails note={note} readOnly={readOnly} />
+      ) : part ? (
         <PartDetails part={part} prefix={prefix} readOnly={readOnly} />
       ) : wire ? (
         <>
@@ -359,12 +444,17 @@ export function Inspector({ top, extra }: { top?: ReactNode; extra?: ReactNode }
             </button>
           ) : null}
         </>
-      ) : selectedParts.length > 1 || selection.wires.length > 1 ? (
+      ) : selectedParts.length > 1 || selection.wires.length > 1 || selection.notes.length > 0 ? (
         <p className="muted small">
-          부품 {selectedParts.length}개, 전선 {selection.wires.length}개 선택됨
+          부품 {selectedParts.length}개, 전선 {selection.wires.length}개{selection.notes.length ? `, 메모 ${selection.notes.length}개` : ''} 선택됨
         </p>
       ) : (
         <p className="muted small">부품이나 전선을 선택하세요.</p>
+      )}
+      {!readOnly && selectedParts.length > 0 && !group && (
+        <button type="button" className="text-button wide-button" onClick={() => useUi.getState().setGroupEdit({ create: true })} title="Ctrl+Shift+G">
+          그룹으로 묶기
+        </button>
       )}
       {!readOnly && selectedParts.length > 0 && (
         <button type="button" className="text-button wide-button" onClick={() => editorStore.getState().makeChipFromSelection()} title="Ctrl+G">

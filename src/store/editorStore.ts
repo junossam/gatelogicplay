@@ -19,13 +19,15 @@ import {
 } from '../model/library';
 import { findChipCycle } from '../sim/compile';
 import { BUS_DEFAULT_BITS, pinSpec } from '../sim/pins';
-import type { ChipDef, Circuit, Library, Part, PinRef, PrimitiveKind, Rotation } from '../sim/types';
+import type { ChipDef, Circuit, Group, Library, Part, PinRef, PrimitiveKind, Rotation } from '../sim/types';
 
 const HISTORY_LIMIT = 200;
 
 export interface Selection {
   parts: string[];
   wires: string[];
+  /** 메모 id */
+  notes: string[];
 }
 
 export interface PinOrder {
@@ -105,6 +107,17 @@ export interface EditorState {
   /** 분류 이름을 바꾼다 (그 분류의 칩 전부). 빈 이름이면 분류 없음으로 */
   renameCategory(from: string, to: string): void;
   importLibrary(library: Library, mode: ConflictMode, workspace?: Circuit): number;
+  /** 지금 회로(작업 공간 또는 편집 중인 칩)를 비운다. 실행 취소 가능. */
+  clearCircuit(): void;
+  /** 작업 공간과 내 칩을 모두 지운다 (되돌릴 수 없음) */
+  resetAll(): void;
+  /** 선택한 부품을 그룹으로 묶는다. 그룹 id, 부품이 없으면 null */
+  groupSelection(name: string): string | null;
+  renameGroup(id: string, name: string): void;
+  ungroup(id: string): void;
+  /** 메모를 놓고 선택한다 */
+  addNote(x: number, y: number, text?: string): string;
+  updateNote(id: string, text: string): void;
   undo(): void;
   redo(): void;
 }
@@ -164,6 +177,24 @@ export function viewTarget(state: Pick<EditorState, 'circuit' | 'library' | 'vie
   return { circuit, chain };
 }
 
+/** 그룹에서 사라진 부품을 빼고, 빈 그룹과 빈 목록은 지운다 */
+function tidyGroups(circuit: Circuit) {
+  if (circuit.groups) {
+    const ids = new Set(circuit.parts.map((p) => p.id));
+    for (const g of circuit.groups) g.parts = g.parts.filter((id) => ids.has(id));
+    circuit.groups = circuit.groups.filter((g) => g.parts.length > 0);
+    if (!circuit.groups.length) delete circuit.groups;
+  }
+  if (circuit.notes && !circuit.notes.length) delete circuit.notes;
+}
+
+/** 선택한 부품이 정확히 한 그룹의 부품 전체면 그 그룹 */
+export function groupOfSelection(circuit: Circuit, selection: Selection): Group | undefined {
+  if (!selection.parts.length || selection.wires.length || selection.notes.length) return undefined;
+  const sel = new Set(selection.parts);
+  return circuit.groups?.find((g) => g.parts.length === sel.size && g.parts.every((id) => sel.has(id)));
+}
+
 export function isChipDirty(state: Pick<EditorState, 'openChipId' | 'circuit' | 'openedCircuit'>): boolean {
   return state.openChipId !== null && state.circuit !== state.openedCircuit;
 }
@@ -187,6 +218,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
         const before = get().circuit;
         set((s) => {
           mutate(s);
+          tidyGroups(s.circuit);
           pushHistory(s, before);
         });
       };
@@ -196,12 +228,14 @@ export function createEditorStore(initial: Circuit = EMPTY) {
         const wires = new Set(s.circuit.wires.map((w) => w.id));
         s.selection.parts = s.selection.parts.filter((id) => parts.has(id));
         s.selection.wires = s.selection.wires.filter((id) => wires.has(id));
+        const notes = new Set((s.circuit.notes ?? []).map((n) => n.id));
+        s.selection.notes = s.selection.notes.filter((id) => notes.has(id));
       };
 
       return {
         circuit: initial,
         library: {},
-        selection: { parts: [], wires: [] },
+        selection: { parts: [], wires: [], notes: [] },
         past: [],
         future: [],
         dragBase: null,
@@ -216,7 +250,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           set((s) => {
             s.circuit = circuit;
             s.pinOrder = NO_ORDER;
-            s.selection = { parts: [], wires: [] };
+            s.selection = { parts: [], wires: [], notes: [] };
             s.past = [];
             s.future = [];
             s.dragBase = null;
@@ -252,7 +286,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           if (kind === 'SPLIT' || kind === 'MERGE') part.props = { bits: BUS_DEFAULT_BITS };
           commit((s) => {
             s.circuit.parts.push(part);
-            s.selection = { parts: [id], wires: [] };
+            s.selection = { parts: [id], wires: [], notes: [] };
           });
           return id;
         },
@@ -264,20 +298,20 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           const id = nextPartId(instancePrefix(def), circuit.parts);
           commit((s) => {
             s.circuit.parts.push({ id, kind: { type: 'chip', chipId }, x: Math.round(x), y: Math.round(y) });
-            s.selection = { parts: [id], wires: [] };
+            s.selection = { parts: [id], wires: [], notes: [] };
           });
           return id;
         },
 
         setSelection(sel) {
           set((s) => {
-            s.selection = { parts: sel.parts ?? [], wires: sel.wires ?? [] };
+            s.selection = { parts: sel.parts ?? [], wires: sel.wires ?? [], notes: sel.notes ?? [] };
           });
         },
 
         toggleSelection(sel) {
           set((s) => {
-            for (const key of ['parts', 'wires'] as const) {
+            for (const key of ['parts', 'wires', 'notes'] as const) {
               for (const id of sel[key] ?? []) {
                 const list = s.selection[key];
                 const i = list.indexOf(id);
@@ -290,7 +324,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
 
         clearSelection() {
           set((s) => {
-            s.selection = { parts: [], wires: [] };
+            s.selection = { parts: [], wires: [], notes: [] };
           });
         },
 
@@ -305,6 +339,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           const base = get().dragBase;
           if (!base) return;
           const moving = new Set(get().selection.parts);
+          const movingNotes = new Set(get().selection.notes);
           set((s) => {
             for (const part of s.circuit.parts) {
               if (!moving.has(part.id)) continue;
@@ -313,16 +348,28 @@ export function createEditorStore(initial: Circuit = EMPTY) {
               part.x = orig.x + Math.round(dx);
               part.y = orig.y + Math.round(dy);
             }
+            for (const note of s.circuit.notes ?? []) {
+              if (!movingNotes.has(note.id)) continue;
+              const orig = base.notes?.find((n) => n.id === note.id);
+              if (!orig) continue;
+              note.x = orig.x + Math.round(dx);
+              note.y = orig.y + Math.round(dy);
+            }
           });
         },
 
         endDrag() {
           const { dragBase, circuit } = get();
           if (!dragBase) return;
-          const moved = circuit.parts.some((p) => {
-            const orig = dragBase.parts.find((o) => o.id === p.id);
-            return orig !== undefined && (orig.x !== p.x || orig.y !== p.y);
-          });
+          const moved =
+            circuit.parts.some((p) => {
+              const orig = dragBase.parts.find((o) => o.id === p.id);
+              return orig !== undefined && (orig.x !== p.x || orig.y !== p.y);
+            }) ||
+            (circuit.notes ?? []).some((n) => {
+              const orig = dragBase.notes?.find((o) => o.id === n.id);
+              return orig !== undefined && (orig.x !== n.x || orig.y !== n.y);
+            });
           set((s) => {
             s.dragBase = null;
             if (moved) pushHistory(s, dragBase);
@@ -346,22 +393,24 @@ export function createEditorStore(initial: Circuit = EMPTY) {
             // 입력 핀에는 전선 하나만: 기존 전선은 새 전선으로 교체
             if (existing) s.circuit.wires = s.circuit.wires.filter((w) => w.id !== existing.id);
             s.circuit.wires.push({ id, from: { partId: from.partId, pin: from.pin }, to: { partId: to.partId, pin: to.pin } });
-            s.selection = { parts: [], wires: [id] };
+            s.selection = { parts: [], wires: [id], notes: [] };
           });
           return id;
         },
 
         deleteSelection() {
           const { selection } = get();
-          if (selection.parts.length === 0 && selection.wires.length === 0) return;
+          if (selection.parts.length === 0 && selection.wires.length === 0 && selection.notes.length === 0) return;
           const parts = new Set(selection.parts);
           const wires = new Set(selection.wires);
+          const notes = new Set(selection.notes);
           commit((s) => {
+            if (s.circuit.notes) s.circuit.notes = s.circuit.notes.filter((n) => !notes.has(n.id));
             s.circuit.parts = s.circuit.parts.filter((p) => !parts.has(p.id));
             s.circuit.wires = s.circuit.wires.filter(
               (w) => !wires.has(w.id) && !parts.has(w.from.partId) && !parts.has(w.to.partId),
             );
-            s.selection = { parts: [], wires: [] };
+            s.selection = { parts: [], wires: [], notes: [] };
           });
         },
 
@@ -423,7 +472,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
             s.openedCircuit = def.circuit;
             s.past = [];
             s.future = [];
-            s.selection = { parts: [], wires: [] };
+            s.selection = { parts: [], wires: [], notes: [] };
             s.viewPath = [];
             s.pinOrder = { inputs: def.inputs.map((p) => p.partId), outputs: def.outputs.map((p) => p.partId) };
           });
@@ -439,7 +488,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
             s.circuit = circuit;
             s.past = [];
             s.future = [];
-            s.selection = { parts: [], wires: [] };
+            s.selection = { parts: [], wires: [], notes: [] };
             s.viewPath = [];
             s.pinOrder = NO_ORDER;
           });
@@ -464,7 +513,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
             s.stash = null;
             s.openChipId = null;
             s.openedCircuit = null;
-            s.selection = { parts: [], wires: [] };
+            s.selection = { parts: [], wires: [], notes: [] };
             s.viewPath = [];
           });
         },
@@ -475,7 +524,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           if (part?.kind.type !== 'chip' || !get().library[part.kind.chipId]) return false;
           set((s) => {
             s.viewPath.push(partId);
-            s.selection = { parts: [], wires: [] };
+            s.selection = { parts: [], wires: [], notes: [] };
           });
           return true;
         },
@@ -483,7 +532,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
         setViewPath(path) {
           set((s) => {
             s.viewPath = path;
-            s.selection = { parts: [], wires: [] };
+            s.selection = { parts: [], wires: [], notes: [] };
           });
         },
 
@@ -556,7 +605,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           });
           commit((s) => {
             s.circuit = circuit;
-            s.selection = { parts: [instanceId], wires: [] };
+            s.selection = { parts: [instanceId], wires: [], notes: [] };
           });
           return chip.id;
         },
@@ -617,6 +666,67 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           });
           if (merged.workspace) get().load(merged.workspace);
           return merged.added;
+        },
+
+        clearCircuit() {
+          const { circuit } = get();
+          if (!circuit.parts.length && !circuit.wires.length && !circuit.groups?.length && !circuit.notes?.length) return;
+          commit((s) => {
+            s.circuit = { parts: [], wires: [] };
+            s.selection = { parts: [], wires: [], notes: [] };
+          });
+        },
+
+        resetAll() {
+          get().load({ parts: [], wires: [] });
+          set((s) => {
+            s.library = {};
+          });
+        },
+
+        groupSelection(name) {
+          const ids = get().selection.parts;
+          if (ids.length === 0) return null;
+          const groups = get().circuit.groups ?? [];
+          const id = nextId('g', groups.map((g) => g.id));
+          const finalName = name.trim() || `그룹 ${groups.length + 1}`;
+          commit((s) => {
+            (s.circuit.groups ??= []).push({ id, name: finalName, parts: [...ids] });
+          });
+          return id;
+        },
+
+        renameGroup(id, name) {
+          const g = get().circuit.groups?.find((x) => x.id === id);
+          const next = name.trim();
+          if (!g || !next || g.name === next) return;
+          commit((s) => {
+            s.circuit.groups!.find((x) => x.id === id)!.name = next;
+          });
+        },
+
+        ungroup(id) {
+          if (!get().circuit.groups?.some((g) => g.id === id)) return;
+          commit((s) => {
+            s.circuit.groups = s.circuit.groups!.filter((g) => g.id !== id);
+          });
+        },
+
+        addNote(x, y, text = '') {
+          const id = nextId('note', (get().circuit.notes ?? []).map((n) => n.id));
+          commit((s) => {
+            (s.circuit.notes ??= []).push({ id, x: Math.round(x), y: Math.round(y), text });
+            s.selection = { parts: [], wires: [], notes: [id] };
+          });
+          return id;
+        },
+
+        updateNote(id, text) {
+          const n = get().circuit.notes?.find((x) => x.id === id);
+          if (!n || n.text === text) return;
+          commit((s) => {
+            s.circuit.notes!.find((x) => x.id === id)!.text = text;
+          });
         },
 
         undo() {

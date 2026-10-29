@@ -34,9 +34,27 @@ export interface Wire {
   points?: { x: number; y: number }[];
 }
 
+/** 부품 묶음: 캔버스에 점선 사각형과 이름으로 표시. 시뮬레이션에는 영향 없음. */
+export interface Group {
+  id: string;
+  name: string;
+  /** 묶은 부품 id */
+  parts: string[];
+}
+
+/** 캔버스 메모 (격자 좌표). 시뮬레이션에는 영향 없음. */
+export interface Note {
+  id: string;
+  x: number;
+  y: number;
+  text: string;
+}
+
 export interface Circuit {
   parts: Part[];
   wires: Wire[];
+  groups?: Group[];
+  notes?: Note[];
 }
 
 /** 칩 정의 (SPEC 4.2). 입력 핀은 내부 SWITCH/PUSH, 출력 핀은 내부 LED. */

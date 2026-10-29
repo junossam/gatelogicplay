@@ -90,7 +90,7 @@ export function Header() {
   const challengeId = useEditor((s) => s.openChallengeId);
   // 칩 내부를 읽기 전용으로 보는 중이면 편집 메뉴를 막는다
   const readOnly = useEditor((s) => s.viewPath.length > 0);
-  const hasSelection = useEditor((s) => s.selection.parts.length + s.selection.wires.length > 0);
+  const hasSelection = useEditor((s) => s.selection.parts.length + s.selection.wires.length + s.selection.notes.length > 0);
   const hasParts = useEditor((s) => s.selection.parts.length > 0);
   const undo = useEditor((s) => s.undo);
   const redo = useEditor((s) => s.redo);
@@ -99,6 +99,31 @@ export function Header() {
   const simError = useSim((s) => s.error);
   const fileRef = useRef<HTMLInputElement>(null);
   const ui = useUi.getState;
+  const library = useEditor((s) => s.library);
+  const addNote = () => {
+    const c = ui().canvasCenter();
+    const id = editorStore.getState().addNote(c.x - 5, c.y - 1);
+    ui().setEditingNote(id);
+  };
+  const confirmClear = () => {
+    const c = editorStore.getState().circuit;
+    ui().setMessage({
+      title: openChipId ? '칩 회로 비우기' : '작업 공간 비우기',
+      body: `${openChipId ? '편집 중인 칩' : '작업 공간'}의 부품 ${c.parts.length}개, 전선 ${c.wires.length}개와 그룹·메모를 모두 지웁니다. 내 칩은 그대로 남고, 실행 취소(Ctrl+Z)로 되돌릴 수 있습니다.`,
+      confirmLabel: '비우기',
+      danger: true,
+      onConfirm: () => editorStore.getState().clearCircuit(),
+    });
+  };
+  const confirmResetAll = () => {
+    ui().setMessage({
+      title: '모두 초기화',
+      body: `작업 공간과 내 칩 ${Object.keys(library).length}개를 모두 지웁니다. 되돌릴 수 없으니 필요하면 먼저 내보내기로 저장해 두세요. (챌린지 기록은 남습니다.)`,
+      confirmLabel: '모두 지우기',
+      danger: true,
+      onConfirm: () => editorStore.getState().resetAll(),
+    });
+  };
   const closeDoc = () => (challengeId ? exitChallenge() : confirmLeaveChip(() => editorStore.getState().closeChip()));
 
   // 자주 쓰지 않는 기능은 메뉴로, 실행 조작·실행 취소·가져오기/내보내기·칩으로 저장만 버튼으로 둔다
@@ -111,6 +136,9 @@ export function Header() {
         null,
         { label: '예제', disabled: !!challengeId, run: () => ui().setSamplesOpen(true) },
         { label: '공유 링크', disabled: !!challengeId, run: () => ui().setShareOpen(true) },
+        null,
+        { label: openChipId ? '칩 회로 비우기' : '작업 공간 비우기', disabled: !!challengeId || readOnly, run: confirmClear },
+        { label: '모두 초기화 (내 칩까지)', disabled: !!challengeId, run: confirmResetAll },
       ],
     },
     {
@@ -121,6 +149,9 @@ export function Header() {
         null,
         { label: '선택 회전', shortcut: 'R', disabled: readOnly || !hasParts, run: () => editorStore.getState().rotateSelection() },
         { label: '선택 삭제', shortcut: 'Delete', disabled: readOnly || !hasSelection, run: () => editorStore.getState().deleteSelection() },
+        null,
+        { label: '선택을 그룹으로 묶기', shortcut: 'Ctrl+Shift+G', disabled: readOnly || !hasParts, run: () => ui().setGroupEdit({ create: true }) },
+        { label: '메모 추가', disabled: readOnly, run: addNote },
         null,
         {
           label: '선택 범위를 칩으로',

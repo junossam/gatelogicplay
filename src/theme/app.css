@@ -1595,3 +1595,79 @@ button {
   height: 24px;
   background: var(--border);
 }
+
+/* 그룹: 점선 사각형과 이름표 */
+.group-rect {
+  fill: none;
+  stroke: var(--text-2);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 5;
+}
+
+.group.selected .group-rect {
+  stroke: var(--sig-on);
+  stroke-width: 2;
+}
+
+.group-label {
+  cursor: pointer;
+}
+
+.group-label-bg {
+  fill: var(--bg-raised);
+  stroke: var(--border-2);
+}
+
+.group.selected .group-label-bg {
+  stroke: var(--sig-on);
+}
+
+.group-label-text {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* 메모 */
+.note {
+  pointer-events: auto;
+  display: inline-block;
+  max-width: 100%;
+  min-width: 80px;
+  padding: 8px 10px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-2);
+  border-left: 4px solid var(--chip-2);
+  border-radius: var(--radius);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text);
+  cursor: move;
+}
+
+.note.selected {
+  border-color: var(--sig-on);
+}
+
+.note-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.note-edit {
+  display: block;
+  width: 176px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  font: inherit;
+  color: inherit;
+}
+
+.note-field {
+  width: 100%;
+  resize: vertical;
+  font: inherit;
+}

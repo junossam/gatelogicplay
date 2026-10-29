@@ -17,7 +17,7 @@ test('상단 메뉴바: 파일·편집·시뮬레이션·도구 메뉴와 핵심
   // 마우스로 열고, 다른 메뉴 이름에 올리면 그 메뉴로 바뀐다
   await bar.getByRole('menuitem', { name: '파일' }).click();
   const file = page.getByRole('menu', { name: '파일' });
-  await expect(file.getByRole('menuitem')).toHaveText(['가져오기', '내보내기', '예제', '공유 링크']);
+  await expect(file.getByRole('menuitem')).toHaveText(['가져오기', '내보내기', '예제', '공유 링크', '작업 공간 비우기', '모두 초기화 (내 칩까지)']);
   await bar.getByRole('menuitem', { name: '도구' }).hover();
   await expect(page.getByRole('menu', { name: '도구' })).toBeVisible();
   await expect(file).toHaveCount(0);

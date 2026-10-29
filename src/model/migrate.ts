@@ -13,6 +13,8 @@ const steps: Record<number, (doc: Record<string, unknown>) => Record<string, unk
   3: (doc) => ({ ...doc, version: 4 }),
   // 4 → 5: 상수 부품 VCC(항상 1)·GND(항상 0) 추가. 버전만 올린다.
   4: (doc) => ({ ...doc, version: 5 }),
+  // 5 → 6: 부품 그룹(groups)과 메모(notes) 추가. 없으면 기존과 같으므로 버전만 올린다.
+  5: (doc) => ({ ...doc, version: 6 }),
 };
 
 export class MigrationError extends Error {}
