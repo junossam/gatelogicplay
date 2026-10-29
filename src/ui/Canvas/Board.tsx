@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react';
 import { bitKey, partBits } from '../../sim/pins';
 import { GATE_KINDS } from '../../sim/primitives';
-import type { Part, PartKind, PinRef } from '../../sim/types';
-import { editorStore, useEditor, useView } from '../../store/editorStore';
+import type { Circuit, Library, Part, PartKind, PinRef } from '../../sim/types';
+import { editorStore, pinOf, useEditor, useView } from '../../store/editorStore';
 import { engine, simActions, simStore, useSim } from '../../store/simStore';
 import { decodeKind, PART_DRAG_MIME, useUi } from '../../store/uiStore';
 import { confirmLeaveChip } from '../Palette/Palette';
@@ -48,6 +48,16 @@ export function escapeAction() {
   if (st.selection.parts.length || st.selection.wires.length) return st.clearSelection();
   if (st.viewPath.length) return st.setViewPath(st.viewPath.slice(0, -1));
   if (st.openChipId) confirmLeaveChip(() => editorStore.getState().closeChip());
+}
+
+/** 전선을 이을 수 없었던 이유 (같은 핀이나 이미 있는 전선이면 null) */
+function connectProblem(circuit: Circuit, a: PinRef, b: PinRef, library: Library): string | null {
+  const pa = pinOf(circuit, a, library);
+  const pb = pinOf(circuit, b, library);
+  if (!pa || !pb || (a.partId === b.partId && a.pin === b.pin)) return null;
+  if (pa.dir === pb.dir) return pa.dir === 'out' ? '출력 핀끼리는 연결할 수 없습니다. 출력에서 입력으로 이으세요.' : '입력 핀끼리는 연결할 수 없습니다. 출력에서 입력으로 이으세요.';
+  if (pa.width !== pb.width) return `비트 수가 달라 연결할 수 없습니다 (${pa.width}비트 ↔ ${pb.width}비트). 나누기·묶기 부품으로 비트를 맞추세요.`;
+  return null;
 }
 
 function TickCount() {
@@ -243,7 +253,7 @@ export function Board() {
       if (!gesture.moved && part?.kind.type === 'primitive' && part.kind.kind === 'SWITCH') simActions.toggleSwitch(part.id, partBits(part));
     } else if (gesture.type === 'wire') {
       const target = parsePin(document.elementFromPoint(e.clientX, e.clientY));
-      if (target) store.connect(gesture.from, target);
+      if (target && !store.connect(gesture.from, target)) setNotice(connectProblem(store.circuit, gesture.from, target, store.library));
     } else if (gesture.type === 'box') {
       const world = toWorld(e.clientX, e.clientY);
       const box = normalizeRect(gesture.start.x, gesture.start.y, world.x, world.y);
@@ -334,6 +344,13 @@ export function Board() {
     return new Map([...m].map(([k, v]) => [k, [...v].sort().join(',')]));
   }, [circuit.wires]);
   const [hoverNet, setHoverNet] = useState<string | null>(null);
+  // 전선을 놓았는데 연결할 수 없을 때 잠깐 보여 주는 이유
+  const [notice, setNotice] = useState<string | null>(null);
+  useEffect(() => {
+    if (!notice) return;
+    const t = setTimeout(() => setNotice(null), 4000);
+    return () => clearTimeout(t);
+  }, [notice]);
   // 전선 하나만 선택했으면 구간 손잡이를 보인다
   const selectedWireGeom = selection.wires.length === 1 && selection.parts.length === 0 ? layout.byId.get(selection.wires[0]!) : undefined;
   const partRects = useMemo(() => circuit.parts.map((p) => partRect(p, library)), [circuit.parts, library]);
@@ -552,7 +569,13 @@ export function Board() {
           <span className="legend-swatch off" aria-hidden="true" /> 0
           <span className="legend-swatch on" aria-hidden="true" /> 1
         </span>
-        <span className="hint">드래그: 화면 이동 · Shift+드래그: 범위 선택</span>
+        {notice ? (
+          <span className="hint notice" role="alert">
+            {notice}
+          </span>
+        ) : (
+          <span className="hint">드래그: 화면 이동 · Shift+드래그: 범위 선택</span>
+        )}
         <span className="zoom">{Math.round(zoom * 100)}%</span>
       </footer>
     </div>

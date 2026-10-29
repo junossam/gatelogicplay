@@ -8,6 +8,7 @@ import { bindSimulation } from './store/simBinding';
 import { startSimLoop } from './store/simStore';
 import { challengeStore, loadChallenges, saveChallenges, startChallengeAutosave } from './store/challengeStore';
 import { bindChallenges, startChallenge } from './ui/challenges/actions';
+import { openSampleLink } from './ui/dialogs/SamplesDialog';
 import { openShareLink } from './ui/dialogs/ShareDialog';
 import './theme/tokens.css';
 import './theme/app.css';
@@ -23,8 +24,9 @@ const active = challengeStore.getState().active;
 if (active) startChallenge(active);
 bindSimulation(editorStore);
 startSimLoop();
-// 공유 링크로 열었으면 가져오기 대화상자를 띄운다
+// 공유 링크나 예제 링크로 열었으면 가져오기 대화상자를 띄운다
 void openShareLink();
+void openSampleLink();
 
 // 1초 대기 중에 페이지를 떠나면 바로 저장
 window.addEventListener('pagehide', () => {

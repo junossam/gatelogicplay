@@ -16,7 +16,7 @@ test('플립플롭 예제 파일을 가져오면 T 플립플롭이 CLR 후 클�
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByTestId('import-file').setInputFiles(resolve('examples/flipflops.gatelogicplay.json'));
+  await page.getByTestId('import-file').setInputFiles(resolve('samples/기억 소자/플립플롭 모음.json'));
   const dialog = page.getByRole('dialog', { name: '가져오기' });
   await expect(dialog).toContainText('칩 6개');
   await dialog.getByRole('button', { name: '가져오기' }).click();

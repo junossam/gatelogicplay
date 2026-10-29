@@ -24,10 +24,12 @@ export const KIND_NAMES: Record<string, string> = {
   SPLIT: '나누기 (버스 → 비트)',
   MERGE: '묶기 (비트 → 버스)',
   SEG8: '8세그먼트 표시기',
+  VCC: 'VCC (항상 1)',
+  GND: 'GND (항상 0)',
 };
 
 /** 비트 수를 바꿀 수 있는 부품 (푸시 버튼·클럭은 1비트만) */
-const BITS_KINDS = new Set(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'LED', 'SPLIT', 'MERGE']);
+const BITS_KINDS = new Set(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'LED', 'SPLIT', 'MERGE', 'VCC', 'GND']);
 
 /** N비트 값: 10진수와 2진수 */
 function MultiBit({ v, width }: { v: number; width: number }) {

@@ -1,6 +1,8 @@
 {
   "format": "logiclab",
   "version": 1,
+  "title": "플립플롭 모음",
+  "description": "SR 래치, D 래치와 상승 에지 SR·D·JK·T 플립플롭 칩. 작업 공간에서 바로 눌러 볼 수 있습니다.",
   "library": {
     "ff-sr-latch": {
       "id": "ff-sr-latch",

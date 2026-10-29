@@ -21,6 +21,8 @@ const SIZES: Record<PrimitiveKind, { w: number; h: number }> = {
   MERGE: { w: 2, h: 8 },
   // 세그먼트 핀 8개를 1칸 간격으로
   SEG8: { w: 5, h: 9 },
+  VCC: { w: 3, h: 2 },
+  GND: { w: 3, h: 2 },
 };
 
 /** 칩 블록 핀 간격 (격자 칸) */

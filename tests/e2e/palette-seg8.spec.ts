@@ -85,3 +85,31 @@ test('8세그먼트: 스위치를 세그먼트 핀에 연결하면 그 세그먼
   await page.locator('.canvas-area svg').first().click({ position: { x: 500, y: 300 } });
   await expect(page.locator('[data-testid^="part-"][data-value]')).toHaveCount(4);
 });
+
+test('VCC·GND: 기본 게이트에 있고, VCC는 1·GND는 0을 낸다', async ({ page }) => {
+  await seed(
+    page,
+    new CircuitBuilder().add('VCC', 'v', 0, 0).add('GND', 'g', 0, 4).add('LED', 'y1', 6, 0, 'Y1').add('LED', 'y2', 6, 4, 'Y2').wire('v.y', 'y1.a').wire('g.y', 'y2.a').build(),
+  );
+  await expect(page.getByTestId('palette-VCC')).toBeVisible();
+  await expect(page.getByTestId('palette-GND')).toBeVisible();
+  await expect(page.getByTestId('part-y1')).toHaveAttribute('data-value', '1');
+  await expect(page.getByTestId('part-y2')).toHaveAttribute('data-value', '0');
+});
+
+test('비트 수가 다른 핀이나 출력끼리 이으려 하면 상태 표시줄에 이유가 나온다', async ({ page }) => {
+  await seed(page, new CircuitBuilder().add('SWITCH', 'a', 0, 1, 'A').bits(4).add('SEG8', 'seg', 8, 0).add('SWITCH', 'b', 0, 8, 'B').build());
+  const drag = async (from: string, to: string) => {
+    const p = (await page.locator(`[data-pin="${from}"]`).boundingBox())!;
+    const q = (await page.locator(`[data-pin="${to}"]`).boundingBox())!;
+    await page.mouse.move(p.x + p.width / 2, p.y + p.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(q.x + q.width / 2, q.y + q.height / 2, { steps: 5 });
+    await page.mouse.up();
+  };
+  await drag('a:y', 'seg:a');
+  await expect(page.getByTestId('statusbar').getByRole('alert')).toContainText('비트 수가 달라 연결할 수 없습니다 (4비트 ↔ 1비트)');
+  await drag('a:y', 'b:y');
+  await expect(page.getByTestId('statusbar').getByRole('alert')).toContainText('출력 핀끼리는 연결할 수 없습니다');
+  await expect(page.locator('[data-testid^="wire-"]')).toHaveCount(0);
+});

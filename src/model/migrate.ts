@@ -11,6 +11,8 @@ const steps: Record<number, (doc: Record<string, unknown>) => Record<string, unk
   2: (doc) => ({ ...doc, version: 3 }),
   // 3 → 4: 8세그먼트 표시기(SEG8) 부품 추가. 기존 문서에는 없으므로 버전만 올린다.
   3: (doc) => ({ ...doc, version: 4 }),
+  // 4 → 5: 상수 부품 VCC(항상 1)·GND(항상 0) 추가. 버전만 올린다.
+  4: (doc) => ({ ...doc, version: 5 }),
 };
 
 export class MigrationError extends Error {}

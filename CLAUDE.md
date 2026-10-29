@@ -20,6 +20,7 @@ src/model/   저장 스키마, 칩 라이브러리, localStorage, 마이그레�
 src/store/   editorStore(문서·선택·undo), simStore(실행·속도·틱)
 src/ui/      Header, Palette, Canvas, Inspector, Waveform, dialogs
 src/theme/   tokens.css
+samples/     운영자 예제 JSON (빌드 때 scripts/samples-plugin.ts가 검증·목록 생성)
 ```
 
 ## 꼭 지킬 규칙

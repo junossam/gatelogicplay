@@ -28,7 +28,7 @@ describe('작업 공간 저장', () => {
   it('format, version 필드를 넣어 저장한다', () => {
     const doc = JSON.parse(serializeWorkspace(circuit));
     expect(doc.format).toBe('logiclab');
-    expect(doc.version).toBe(4);
+    expect(doc.version).toBe(5);
     expect(doc.openChipId).toBeNull();
     expect(doc.workspace).toEqual(circuit);
   });

@@ -22,6 +22,8 @@ const GATES: Item[] = [
   { kind: 'XOR', name: 'XOR' },
   { kind: 'XNOR', name: 'XNOR' },
   { kind: 'NOT', name: 'NOT' },
+  { kind: 'VCC', name: 'VCC', desc: '항상 1' },
+  { kind: 'GND', name: 'GND', desc: '항상 0' },
 ];
 
 const IO: Item[] = [

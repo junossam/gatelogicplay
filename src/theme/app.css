@@ -1465,3 +1465,55 @@ button {
   min-height: 36px;
   font-size: 13px;
 }
+
+/* 예제 */
+.sample-group + .sample-group {
+  margin-top: 12px;
+}
+
+.sample-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sample-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.sample-card p {
+  margin: 0;
+}
+
+.sample-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+/* 상수 VCC·GND */
+.const-label {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.const-label.on {
+  fill: var(--sig-on);
+}
+
+/* 연결할 수 없을 때 상태 표시줄 안내 */
+.statusbar .hint.notice {
+  color: var(--danger);
+}

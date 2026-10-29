@@ -289,3 +289,40 @@ describe('8세그먼트 표시기', () => {
     expect(e.readPin('seg.dp')).toBe(0);
   });
 });
+
+describe('상수 VCC·GND', () => {
+  it('VCC는 첫 틱 뒤 1, GND는 늘 0이고 게이트 입력으로 쓸 수 있다', () => {
+    const c = new CircuitBuilder()
+      .add('VCC', 'v', 0, 0)
+      .add('GND', 'g', 0, 4)
+      .add('AND', 'and1', 6, 0)
+      .add('OR', 'or1', 6, 6)
+      .add('LED', 'y1', 14, 0, 'Y1')
+      .add('LED', 'y2', 14, 6, 'Y2')
+      .wire('v.y', 'and1.a')
+      .wire('v.y', 'and1.b')
+      .wire('g.y', 'or1.a')
+      .wire('g.y', 'or1.b')
+      .wire('and1.y', 'y1.a')
+      .wire('or1.y', 'y2.a')
+      .build();
+    const e = new Engine(compile(c));
+    expect(e.readPin('v.y')).toBe(0);
+    e.tick(1);
+    expect(e.readPin('v.y')).toBe(1);
+    e.tick(2);
+    expect([led(e, 'y1'), led(e, 'y2'), e.readPin('g.y')]).toEqual([1, 0, 0]);
+    // 초기화하면 다시 0에서 시작해 첫 틱 뒤 1
+    e.reset();
+    expect(e.readPin('v.y')).toBe(0);
+    e.tick(1);
+    expect(e.readPin('v.y')).toBe(1);
+  });
+
+  it('여러 비트 VCC는 모든 비트가 1', () => {
+    const c = new CircuitBuilder().add('VCC', 'v', 0, 0).bits(4).add('LED', 'y', 6, 0, 'Y').bits(4).wire('v.y', 'y.a').build();
+    const e = new Engine(compile(c));
+    e.tick(1);
+    expect([0, 1, 2, 3].map((k) => e.readPin(k ? `y.a[${k}]` : 'y.a'))).toEqual([1, 1, 1, 1]);
+  });
+});

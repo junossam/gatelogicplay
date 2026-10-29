@@ -140,6 +140,11 @@ export function Header() {
       </div>
 
       <div className="header-actions">
+        {!challengeId && (
+          <button type="button" className="text-button" onClick={() => useUi.getState().setSamplesOpen(true)}>
+            예제
+          </button>
+        )}
         <button type="button" className="text-button" onClick={() => useUi.getState().setChallengesOpen(true)}>
           챌린지
         </button>

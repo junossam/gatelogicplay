@@ -182,6 +182,10 @@ export function compile(circuit: Circuit, library: Library = {}): Netlist {
         const ins = specs.filter((p) => p.dir === 'in').map((p) => pinNets(path, p.name, bits));
         const outs = pinNets(path, 'y', bits);
         for (let k = 0; k < bits; k++) nodes.push({ path: bitKey(path, k), kind, ins: ins.map((v) => v[k]!), out: outs[k]! });
+      } else if (kind === 'VCC') {
+        // 비트마다 상수 1 노드. GND는 노드 없이 Net이 0으로 남는다.
+        const outs = pinNets(path, 'y', bits);
+        for (let k = 0; k < bits; k++) nodes.push({ path: bitKey(path, k), kind, ins: [], out: outs[k]! });
       } else if (kind === 'CLOCK') {
         nodes.push({ path, kind, ins: [], out: pinNet.get(pinKey(path, 'y'))!, hz: part.props?.hz ?? 1 });
       } else if (INPUT_KINDS.has(kind)) {

@@ -1,4 +1,4 @@
-// examples/flipflops.gatelogicplay.json 이 가져오기 검증을 통과하고, 각 플립플롭이 상승 에지에서만 바르게 동작하는지
+// samples/기억 소자/플립플롭 모음.json 이 가져오기 검증을 통과하고, 각 플립플롭이 상승 에지에서만 바르게 동작하는지
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -7,7 +7,7 @@ import { compile, findChipCycle } from '../../src/sim/compile';
 import { Engine } from '../../src/sim/engine';
 import type { Bit } from '../../src/sim/types';
 
-const json = readFileSync(join(__dirname, '..', '..', 'examples', 'flipflops.gatelogicplay.json'), 'utf8');
+const json = readFileSync(join(__dirname, '..', '..', 'samples', '기억 소자', '플립플롭 모음.json'), 'utf8');
 const parsed = parseBundle(json);
 if (!parsed.ok) throw new Error(parsed.error);
 const { library, workspace } = parsed.data;

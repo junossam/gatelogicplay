@@ -22,9 +22,10 @@ export interface TickResult {
 const OSC_WINDOW = 32;
 const OSC_CHANGES = 16;
 
-const KIND_CODE = { AND: 1, OR: 2, XOR: 3, NAND: 4, NOR: 5, XNOR: 6, NOT: 7 } as const;
+// VCC는 입력 없이 1을 내는 노드 — 다른 게이트처럼 첫 틱이 지나면 1이 된다 (초기 Net은 모두 0)
+const KIND_CODE = { AND: 1, OR: 2, XOR: 3, NAND: 4, NOR: 5, XNOR: 6, NOT: 7, VCC: 8 } as const;
 type GateCode = (typeof KIND_CODE)[keyof typeof KIND_CODE];
-const CODE_KIND = ['', 'AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT'] as const;
+const CODE_KIND = ['', 'AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'VCC'] as const;
 
 function popcount(x: number): number {
   x = x - ((x >>> 1) & 0x55555555);

@@ -200,6 +200,20 @@ export function PartShape({
           <circle cx={38} cy={20} r={13} fill={on ? 'var(--sig-on)' : 'var(--sig-off)'} stroke={on ? 'var(--sig-on)' : stroke} strokeWidth={2} />
         </g>
       );
+    case 'VCC':
+    case 'GND': {
+      // 상수: 몸체에 이름, VCC는 1 색, GND는 0 색
+      const vcc = kind === 'VCC';
+      return (
+        <g>
+          <line x1={44} y1={20} x2={60} y2={20} {...lead} />
+          <rect x={4} y={8} width={40} height={24} rx={4} {...body} stroke={vcc ? 'var(--sig-on)' : stroke} />
+          <text x={24} y={24} textAnchor="middle" className={`const-label${vcc ? ' on' : ''}`}>
+            {kind}
+          </text>
+        </g>
+      );
+    }
     case 'CLOCK':
       return (
         <g>

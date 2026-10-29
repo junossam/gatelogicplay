@@ -37,6 +37,9 @@ export const PRIMITIVE_PINS: Record<PrimitiveKind, readonly PinDef[]> = {
   MERGE: [...[0, 1, 2, 3].map((k) => ({ name: `a${k}`, dir: 'in' as const })), { name: 'y', dir: 'out' }],
   // 8세그먼트 표시기: 세그먼트 a~g와 점(dp). 출력 없이 값만 보여 준다.
   SEG8: SEGMENTS.map((name) => ({ name, dir: 'in' as const })),
+  // 상수: VCC는 항상 1, GND는 항상 0
+  VCC: [{ name: 'y', dir: 'out' }],
+  GND: [{ name: 'y', dir: 'out' }],
 };
 
 export function pinDef(kind: PrimitiveKind, pin: string): PinDef | undefined {
@@ -67,6 +70,8 @@ export function evalGateCount(kind: PrimitiveKind, ones: number, n: number): Bit
       return (1 - (ones & 1)) as Bit;
     case 'NOT':
       return ones ? 0 : 1;
+    case 'VCC':
+      return 1;
     default:
       return 0;
   }
