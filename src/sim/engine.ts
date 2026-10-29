@@ -144,6 +144,18 @@ export class Engine {
     }
   }
 
+  /** 같은 넷리스트에서 찍어 둔 상태로 되돌린다 (진리표 탐색용) */
+  restore(snap: EngineSnapshot): void {
+    this.values.set(snap.values);
+    this.tickCount = snap.tickCount;
+    // 틱을 되감으므로 "이번 틱에 평가함" 표시도 지운다
+    this.gateStamp.fill(-1);
+    this.pending.clear();
+    this.dirtyLen = 0;
+    this.evalAll = true;
+    for (const [path, v] of snap.inputs) this.setInput(path, v);
+  }
+
   snapshot(): EngineSnapshot {
     return {
       netIds: this.netlist.netIds,

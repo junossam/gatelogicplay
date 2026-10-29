@@ -1,9 +1,12 @@
 import { compile } from './compile';
-import { Engine } from './engine';
+import { Engine, type EngineSnapshot } from './engine';
 import { INPUT_KINDS } from './primitives';
 import type { Bit, Circuit, Library, Part } from './types';
 
 export const AUTO_INPUT_LIMIT = 8;
+/** 순차 회로의 이전 상태 탐색 범위 */
+const SEARCH_DEPTH = 3;
+const SEARCH_WIDTH = 24;
 
 export type Cell = Bit | 'hold' | 'forbidden' | 'mixed';
 
@@ -106,18 +109,35 @@ export function truthTable(circuit: Circuit, library: Library = {}, order?: Part
     };
   }
 
-  // 이전 상태 후보: 각 입력 조합을 넣고 안정된 상태 중 정상인 것 (출력 벡터가 같으면 하나로)
-  const priors = new Map<string, { combo: Bit[]; out: Bit[] }>();
-  for (const c of combos) {
-    const out = fromReset(c);
-    if (out && !forbiddenOutputs(out) && !priors.has(out.join(''))) priors.set(out.join(''), { combo: c, out });
+  // 이전 상태 후보: 초기 상태에서 입력 조합을 차례로 넣어 도달하는 상태 중 안정되고 정상인 것.
+  // 플립플롭처럼 처음(모두 0)에는 안정되지 않는 회로도 "클럭 0 → 1"처럼 두세 번 넣으면 정상 상태에 닿는다.
+  // 출력 벡터(Q)가 같은 상태는 하나로 본다.
+  const priors = new Map<string, { snap: EngineSnapshot; out: Bit[] }>();
+  engine.reset();
+  let frontier: EngineSnapshot[] = [engine.snapshot()];
+  const seen = new Set<string>();
+  for (let depth = 0; depth < SEARCH_DEPTH && frontier.length; depth++) {
+    const next: EngineSnapshot[] = [];
+    for (const state of frontier) {
+      for (const c of combos) {
+        engine.restore(state);
+        const out = apply(c);
+        const snap = engine.snapshot();
+        const key = snap.values.join('');
+        if (seen.has(key)) continue;
+        seen.add(key);
+        if (out && !forbiddenOutputs(out) && !priors.has(out.join(''))) priors.set(out.join(''), { snap, out });
+        next.push(snap);
+      }
+    }
+    // 앞쪽 조합에만 치우치지 않게 고르게 골라 다음 단계로
+    frontier = next.length <= SEARCH_WIDTH ? next : Array.from({ length: SEARCH_WIDTH }, (_, i) => next[Math.floor((i * next.length) / SEARCH_WIDTH)]!);
   }
 
   const rows = combos.map((c): TruthRow => {
     const results: { prior: Bit[]; out: Bit[] | null }[] = [];
     for (const prior of priors.values()) {
-      engine.reset();
-      apply(prior.combo);
+      engine.restore(prior.snap);
       results.push({ prior: prior.out, out: apply(c) });
     }
     if (results.length === 0) results.push({ prior: [], out: fromReset(c) });

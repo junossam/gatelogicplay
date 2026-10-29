@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { CompileError } from '../../sim/compile';
 import { AUTO_INPUT_LIMIT, orderedIO, truthTable, type Cell, type TruthTable } from '../../sim/truthTable';
 import type { Circuit, Library } from '../../sim/types';
-import { useEditor } from '../../store/editorStore';
+import { useEditor, useView } from '../../store/editorStore';
 import { sameTopology } from '../../store/simBinding';
 import { engine, useSim } from '../../store/simStore';
 
@@ -10,10 +10,14 @@ import { engine, useSim } from '../../store/simStore';
 const AUTO_NODE_LIMIT = 2000;
 
 export type TableState =
-  | { status: 'ok'; table: TruthTable; inputIds: string[] }
+  | { status: 'ok'; table: TruthTable; inputIds: string[]; prefix?: string }
   | { status: 'empty' }
   | { status: 'manual'; reason: string }
   | { status: 'error'; message: string };
+
+const NO_ORDER = { inputs: [], outputs: [] };
+
+const withPrefix = (s: TableState, prefix: string): TableState => (s.status === 'ok' && s.prefix !== prefix ? { ...s, prefix } : s);
 
 function sameStructure(a: Circuit, b: Circuit): boolean {
   if (!sameTopology(a, b)) return false;
@@ -38,15 +42,16 @@ export function computeTable(circuit: Circuit, library: Library, order: { inputs
 
 /** 구조(연결·라벨·순서)가 바뀔 때만 다시 계산 */
 export function useTruthTable(force: boolean): TableState {
-  const circuit = useEditor((s) => s.circuit);
+  const { circuit, prefix, readOnly } = useView();
   const library = useEditor((s) => s.library);
-  const order = useEditor((s) => s.pinOrder);
+  const editOrder = useEditor((s) => s.pinOrder);
+  const order = readOnly ? NO_ORDER : editOrder;
   const cache = useRef<{ circuit: Circuit; library: Library; order: unknown; force: boolean; state: TableState } | null>(null);
   const c = cache.current;
-  if (c && c.library === library && c.order === order && c.force === force && sameStructure(c.circuit, circuit)) return c.state;
+  if (c && c.library === library && c.order === order && c.force === force && sameStructure(c.circuit, circuit)) return withPrefix(c.state, prefix);
   const state = computeTable(circuit, library, order, force);
   cache.current = { circuit, library, order, force, state };
-  return state;
+  return withPrefix(state, prefix);
 }
 
 function CellView({ cell }: { cell: Cell }) {
@@ -70,8 +75,9 @@ export function TruthTableView({ state, onForce }: { state: TableState; onForce?
       </div>
     );
 
-  const { table, inputIds } = state;
-  const current = inputIds.reduce((acc, id) => acc * 2 + engine.inputValue(id), 0);
+  const { table, inputIds, prefix = '' } = state;
+  // 현재 입력 조합 행 (칩 내부를 볼 때는 바깥에서 들어오는 실제 값)
+  const current = inputIds.reduce((acc, id) => acc * 2 + (prefix ? engine.readPin(`${prefix}${id}.y`) : engine.inputValue(id)), 0);
   return (
     <div className="truth-wrap">
       <table className="truth-table mono" data-testid="truth-table">

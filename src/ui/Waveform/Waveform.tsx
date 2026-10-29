@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { RECORD_SIZE } from '../../sim/recorder';
 import type { Bit } from '../../sim/types';
-import { useEditor } from '../../store/editorStore';
+import { useEditor, useView } from '../../store/editorStore';
 import { engine, recorder, simActions, useSim } from '../../store/simStore';
 import { useUi } from '../../store/uiStore';
 import { channelsFor, effectiveMode, type Channel, type NetLookup, type WaveMode } from './channels';
@@ -19,11 +19,12 @@ export function wavePath(bits: Bit[]): string {
   return `${d} H${bits.length}`;
 }
 
-export function Waveform({ prefix = '' }: { prefix?: string }) {
-  const circuit = useEditor((s) => s.circuit);
+export function Waveform() {
+  const { circuit, prefix, readOnly } = useView();
   const library = useEditor((s) => s.library);
   const selected = useEditor((s) => s.selection.parts);
-  const pinOrder = useEditor((s) => s.pinOrder);
+  const editOrder = useEditor((s) => s.pinOrder);
+  const pinOrder = readOnly ? undefined : editOrder;
   const running = useSim((s) => s.running);
   useSim((s) => s.version);
   const open = useUi((s) => s.waveOpen);

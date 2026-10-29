@@ -185,3 +185,66 @@ export function bigCircuit(gates: number, cols = 50): Circuit {
   }
   return b.build();
 }
+
+export function halfAdderChip(id = 'chip-ha'): ChipDef {
+  return chipDef(id, '반가산기', halfAdder(), [['A', 'a'], ['B', 'b']], [['S', 's'], ['C', 'c']]);
+}
+
+/** 전가산기 = 반가산기 칩 2개 + OR */
+export function fullAdderChip(haId = 'chip-ha', id = 'chip-fa'): ChipDef {
+  const c = new CircuitBuilder()
+    .add('SWITCH', 'a', 0, 0, 'A')
+    .add('SWITCH', 'b', 0, 4, 'B')
+    .add('SWITCH', 'cin', 0, 8, 'Cin')
+    .chip(haId, 'ha1', 5, 0)
+    .chip(haId, 'ha2', 13, 4)
+    .add('OR', 'or1', 21, 6)
+    .add('LED', 's', 28, 0, 'S')
+    .add('LED', 'cout', 28, 6, 'Cout')
+    .wire('a.y', 'ha1.A')
+    .wire('b.y', 'ha1.B')
+    .wire('ha1.S', 'ha2.A')
+    .wire('cin.y', 'ha2.B')
+    .wire('ha2.S', 's.a')
+    .wire('ha1.C', 'or1.a')
+    .wire('ha2.C', 'or1.b')
+    .wire('or1.y', 'cout.a')
+    .build();
+  return chipDef(id, '전가산기', c, [['A', 'a'], ['B', 'b'], ['Cin', 'cin']], [['S', 's'], ['Cout', 'cout']]);
+}
+
+/** 4비트 리플 캐리 가산기 = 전가산기 칩 4개 (Cin은 연결 안 함 = 0) */
+export function adder4Chip(faId = 'chip-fa', id = 'chip-add4'): ChipDef {
+  const b = new CircuitBuilder();
+  for (let i = 0; i < 4; i++) {
+    b.add('SWITCH', `a${i}`, 0, i * 8, `A${i}`)
+      .add('SWITCH', `b${i}`, 0, i * 8 + 3, `B${i}`)
+      .chip(faId, `fa${i}`, 6, i * 8)
+      .add('LED', `s${i}`, 16, i * 8, `S${i}`)
+      .wire(`a${i}.y`, `fa${i}.A`)
+      .wire(`b${i}.y`, `fa${i}.B`)
+      .wire(`fa${i}.S`, `s${i}.a`);
+    if (i > 0) b.wire(`fa${i - 1}.Cout`, `fa${i}.Cin`);
+  }
+  b.add('LED', 'cout', 16, 32, 'Cout').wire('fa3.Cout', 'cout.a');
+  return chipDef(
+    id,
+    '4비트 가산기',
+    b.build(),
+    [0, 1, 2, 3].flatMap((i) => [[`A${i}`, `a${i}`] as [string, string], [`B${i}`, `b${i}`] as [string, string]]),
+    [...[0, 1, 2, 3].map((i) => [`S${i}`, `s${i}`] as [string, string]), ['Cout', 'cout']],
+  );
+}
+
+export function adderLibrary(): Record<string, ChipDef> {
+  const defs = [halfAdderChip(), fullAdderChip(), adder4Chip()];
+  return Object.fromEntries(defs.map((d) => [d.id, d]));
+}
+
+/** 칩 하나를 쓰고 입력마다 SWITCH, 출력마다 LED를 붙인 최상위 회로 */
+export function harness(def: ChipDef, instanceId = 'u1'): Circuit {
+  const b = new CircuitBuilder().chip(def.id, instanceId, 8, 0);
+  def.inputs.forEach((p, i) => b.add('SWITCH', `in_${p.name}`, 0, i * 3, p.name).wire(`in_${p.name}.y`, `${instanceId}.${p.name}`));
+  def.outputs.forEach((p, i) => b.add('LED', `out_${p.name}`, 20, i * 3, p.name).wire(`${instanceId}.${p.name}`, `out_${p.name}.a`));
+  return b.build();
+}

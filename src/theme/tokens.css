@@ -17,6 +17,13 @@
   --radius:    8px;
   --grid:      20px;
 
+  /* 칩 색상 스와치 */
+  --chip-1:    #F5A524;
+  --chip-2:    #3FB8FF;
+  --chip-3:    #B79CFF;
+  --chip-4:    #5FD39A;
+  --chip-5:    #F27BB0;
+
   /* 파생 토큰 */
   --select:    var(--sig-in);
   --font-sans: 'IBM Plex Sans KR', system-ui, sans-serif;

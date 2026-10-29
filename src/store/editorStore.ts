@@ -1,8 +1,25 @@
 import { useStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
+import {
+  chipPinsFrom,
+  circuitUses,
+  instancePrefix,
+  mergeImport,
+  newId,
+  nextPartId,
+  pinNameErrors,
+  pruneDangling,
+  pruneLibrary,
+  rangeToChip,
+  uniqueName,
+  usedBy,
+  wouldCreateCycle,
+  type ConflictMode,
+} from '../model/library';
+import { findChipCycle } from '../sim/compile';
 import { pinDef } from '../sim/primitives';
-import type { Circuit, Library, Part, PinRef, PrimitiveKind } from '../sim/types';
+import type { ChipDef, Circuit, Library, Part, PinRef, PrimitiveKind, Rotation } from '../sim/types';
 
 const HISTORY_LIMIT = 200;
 
@@ -11,7 +28,25 @@ export interface Selection {
   wires: string[];
 }
 
+export interface PinOrder {
+  inputs: string[];
+  outputs: string[];
+}
+
+export interface SaveChipInput {
+  name: string;
+  color: string;
+  /** 입력/출력 부품 id → 핀 이름 */
+  names: Record<string, string>;
+  order: PinOrder;
+  /** 편집 중인 칩을 저장할 때: 쓰는 칩에도 반영(같은 id 갱신) / 끄면 "이름 (2)"로 새 칩 */
+  propagate: boolean;
+}
+
+export type SaveChipResult = { ok: true; id: string } | { ok: false; errors: string[] };
+
 export interface EditorState {
+  /** 편집 중인 회로: 작업 공간 또는 열어 둔 칩 정의 */
   circuit: Circuit;
   /** 칩 라이브러리 */
   library: Library;
@@ -21,10 +56,21 @@ export interface EditorState {
   /** 드래그 시작 시점의 회로. 드래그 끝에서 한 번만 실행 취소 기록을 남긴다. */
   dragBase: Circuit | null;
   /** 칩으로 만들 때의 입출력 핀 순서 (부품 id). 없는 id는 무시하고 빠진 부품은 위→아래 순. */
-  pinOrder: { inputs: string[]; outputs: string[] };
+  pinOrder: PinOrder;
+  /** 편집 중인 칩 정의 (null = 작업 공간) */
+  openChipId: string | null;
+  /** 칩을 편집하는 동안 맡겨 둔 작업 공간 */
+  stash: { circuit: Circuit; past: Circuit[]; future: Circuit[]; pinOrder: PinOrder } | null;
+  /** 칩을 연 시점의 회로 — 저장 안 된 변경 감지용 */
+  openedCircuit: Circuit | null;
+  /** 읽기 전용으로 들어가 본 칩 인스턴스 경로 (부품 id 목록) */
+  viewPath: string[];
 
   load(circuit: Circuit): void;
+  loadAll(workspace: Circuit, library: Library, openChipId: string | null): void;
+  setLibrary(library: Library): void;
   addPart(kind: PrimitiveKind, x: number, y: number): string;
+  addChip(chipId: string, x: number, y: number): string | null;
   setSelection(sel: Partial<Selection>): void;
   toggleSelection(sel: Partial<Selection>): void;
   clearSelection(): void;
@@ -35,12 +81,22 @@ export interface EditorState {
   connect(a: PinRef, b: PinRef): string | null;
   deleteSelection(): void;
   updatePart(id: string, patch: Partial<Pick<Part, 'label' | 'props' | 'rotation'>>): void;
-  setPinOrder(order: { inputs: string[]; outputs: string[] }): void;
+  rotateSelection(): void;
+  setPinOrder(order: PinOrder): void;
+  openChip(chipId: string): void;
+  closeChip(): void;
+  enterInstance(partId: string): boolean;
+  setViewPath(path: string[]): void;
+  saveChip(input: SaveChipInput): SaveChipResult;
+  makeChipFromSelection(): string | null;
+  deleteChip(chipId: string): { ok: true } | { ok: false; users: string[] };
+  importLibrary(library: Library, mode: ConflictMode, workspace?: Circuit): number;
   undo(): void;
   redo(): void;
 }
 
 const EMPTY: Circuit = { parts: [], wires: [] };
+const NO_ORDER: PinOrder = { inputs: [], outputs: [] };
 
 function nextId(prefix: string, taken: Iterable<string | undefined>): string {
   const used = new Set(taken);
@@ -61,10 +117,39 @@ function nextLabel(kind: PrimitiveKind, parts: Part[]): string | undefined {
   return undefined;
 }
 
-export function pinDirection(circuit: Circuit, ref: PinRef): 'in' | 'out' | undefined {
+export function pinDirection(circuit: Circuit, ref: PinRef, library: Library = {}): 'in' | 'out' | undefined {
   const part = circuit.parts.find((p) => p.id === ref.partId);
-  if (!part || part.kind.type !== 'primitive') return undefined;
+  if (!part) return undefined;
+  if (part.kind.type === 'chip') {
+    const def = library[part.kind.chipId];
+    if (def?.inputs.some((p) => p.name === ref.pin)) return 'in';
+    if (def?.outputs.some((p) => p.name === ref.pin)) return 'out';
+    return undefined;
+  }
   return pinDef(part.kind.kind, ref.pin)?.dir;
+}
+
+/** 지금 보고 있는 회로: 작업 공간(또는 편집 중인 칩) → viewPath를 따라 들어간 칩 내부 */
+export function viewTarget(state: Pick<EditorState, 'circuit' | 'library' | 'viewPath'>): { circuit: Circuit; chain: ChipDef[] } {
+  let circuit = state.circuit;
+  const chain: ChipDef[] = [];
+  for (const id of state.viewPath) {
+    const part = circuit.parts.find((p) => p.id === id);
+    const def = part?.kind.type === 'chip' ? state.library[part.kind.chipId] : undefined;
+    if (!def) break;
+    chain.push(def);
+    circuit = def.circuit;
+  }
+  return { circuit, chain };
+}
+
+export function isChipDirty(state: Pick<EditorState, 'openChipId' | 'circuit' | 'openedCircuit'>): boolean {
+  return state.openChipId !== null && state.circuit !== state.openedCircuit;
+}
+
+/** 작업 공간 회로 (칩을 편집 중이면 맡겨 둔 것) */
+export function workspaceOf(state: Pick<EditorState, 'circuit' | 'stash' | 'openChipId'>): Circuit {
+  return state.stash?.circuit ?? state.circuit;
 }
 
 export function createEditorStore(initial: Circuit = EMPTY) {
@@ -99,16 +184,38 @@ export function createEditorStore(initial: Circuit = EMPTY) {
         past: [],
         future: [],
         dragBase: null,
-        pinOrder: { inputs: [], outputs: [] },
+        pinOrder: NO_ORDER,
+        openChipId: null,
+        stash: null,
+        openedCircuit: null,
+        viewPath: [],
 
         load(circuit) {
           set((s) => {
             s.circuit = circuit;
-            s.pinOrder = { inputs: [], outputs: [] };
+            s.pinOrder = NO_ORDER;
             s.selection = { parts: [], wires: [] };
             s.past = [];
             s.future = [];
             s.dragBase = null;
+            s.openChipId = null;
+            s.stash = null;
+            s.openedCircuit = null;
+            s.viewPath = [];
+          });
+        },
+
+        loadAll(workspace, library, openChipId) {
+          get().load(workspace);
+          set((s) => {
+            s.library = library;
+          });
+          if (openChipId && library[openChipId]) get().openChip(openChipId);
+        },
+
+        setLibrary(library) {
+          set((s) => {
+            s.library = library;
           });
         },
 
@@ -118,8 +225,21 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           const part: Part = { id, kind: { type: 'primitive', kind }, x: Math.round(x), y: Math.round(y) };
           const label = nextLabel(kind, parts);
           if (label) part.label = label;
+          if (kind === 'CLOCK') part.props = { hz: 1 };
           commit((s) => {
             s.circuit.parts.push(part);
+            s.selection = { parts: [id], wires: [] };
+          });
+          return id;
+        },
+
+        addChip(chipId, x, y) {
+          const { library, openChipId, circuit } = get();
+          const def = library[chipId];
+          if (!def || wouldCreateCycle(openChipId, chipId, library)) return null;
+          const id = nextPartId(instancePrefix(def), circuit.parts);
+          commit((s) => {
+            s.circuit.parts.push({ id, kind: { type: 'chip', chipId }, x: Math.round(x), y: Math.round(y) });
             s.selection = { parts: [id], wires: [] };
           });
           return id;
@@ -186,9 +306,9 @@ export function createEditorStore(initial: Circuit = EMPTY) {
         },
 
         connect(a, b) {
-          const circuit = get().circuit;
-          const da = pinDirection(circuit, a);
-          const db = pinDirection(circuit, b);
+          const { circuit, library } = get();
+          const da = pinDirection(circuit, a, library);
+          const db = pinDirection(circuit, b, library);
           if (!da || !db || da === db) return null;
           const from = da === 'out' ? a : b;
           const to = da === 'out' ? b : a;
@@ -226,8 +346,21 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           commit((s) => {
             const draft = s.circuit.parts.find((p) => p.id === id)!;
             for (const [k, v] of Object.entries(patch)) {
-              if (v === undefined || v === '') delete (draft as unknown as Record<string, unknown>)[k];
+              if (v === undefined || v === '' || (k === 'rotation' && v === 0)) delete (draft as unknown as Record<string, unknown>)[k];
               else (draft as unknown as Record<string, unknown>)[k] = v;
+            }
+          });
+        },
+
+        rotateSelection() {
+          const ids = new Set(get().selection.parts);
+          if (ids.size === 0) return;
+          commit((s) => {
+            for (const p of s.circuit.parts) {
+              if (!ids.has(p.id)) continue;
+              const next = (((p.rotation ?? 0) + 90) % 360) as Rotation;
+              if (next === 0) delete p.rotation;
+              else p.rotation = next;
             }
           });
         },
@@ -236,6 +369,153 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           set((s) => {
             s.pinOrder = order;
           });
+        },
+
+        openChip(chipId) {
+          const st = get();
+          const def = st.library[chipId];
+          if (!def) return;
+          set((s) => {
+            if (!s.stash) s.stash = { circuit: st.circuit, past: st.past, future: st.future, pinOrder: st.pinOrder };
+            s.openChipId = chipId;
+            s.circuit = def.circuit;
+            s.openedCircuit = def.circuit;
+            s.past = [];
+            s.future = [];
+            s.selection = { parts: [], wires: [] };
+            s.viewPath = [];
+            s.pinOrder = { inputs: def.inputs.map((p) => p.partId), outputs: def.outputs.map((p) => p.partId) };
+          });
+        },
+
+        closeChip() {
+          const { stash } = get();
+          if (!stash) return;
+          set((s) => {
+            s.circuit = stash.circuit;
+            s.past = stash.past;
+            s.future = stash.future;
+            s.pinOrder = stash.pinOrder;
+            s.stash = null;
+            s.openChipId = null;
+            s.openedCircuit = null;
+            s.selection = { parts: [], wires: [] };
+            s.viewPath = [];
+          });
+        },
+
+        enterInstance(partId) {
+          const target = viewTarget(get()).circuit;
+          const part = target.parts.find((p) => p.id === partId);
+          if (part?.kind.type !== 'chip' || !get().library[part.kind.chipId]) return false;
+          set((s) => {
+            s.viewPath.push(partId);
+            s.selection = { parts: [], wires: [] };
+          });
+          return true;
+        },
+
+        setViewPath(path) {
+          set((s) => {
+            s.viewPath = path;
+            s.selection = { parts: [], wires: [] };
+          });
+        },
+
+        saveChip(input) {
+          const st = get();
+          const name = input.name.trim();
+          const pins = chipPinsFrom(st.circuit, { names: input.names, order: input.order });
+          const errors = pinNameErrors(pins);
+          if (!name) errors.unshift('이름을 입력하세요.');
+          if (pins.inputs.length + pins.outputs.length === 0) errors.push('입력(스위치·푸시 버튼)이나 출력(LED)이 하나 이상 있어야 합니다.');
+          const updating = st.openChipId !== null && input.propagate ? st.openChipId : null;
+          const finalName = st.openChipId !== null && !input.propagate ? uniqueName(name, st.library) : name;
+          if (name && Object.values(st.library).some((d) => d.name === finalName && d.id !== updating)) {
+            errors.push(`같은 이름의 칩이 이미 있습니다: ${finalName}`);
+          }
+          if (errors.length) return { ok: false, errors };
+
+          // 핀 이름은 내부 부품의 라벨로 저장
+          const named = new Map([...pins.inputs, ...pins.outputs].map((p) => [p.partId, p.name]));
+          const circuit: Circuit = {
+            ...st.circuit,
+            parts: st.circuit.parts.map((p) => (named.has(p.id) && p.label !== named.get(p.id) ? { ...p, label: named.get(p.id) } : p)),
+          };
+          const now = new Date().toISOString();
+          const prev = updating ? st.library[updating] : undefined;
+          const def: ChipDef = {
+            id: updating ?? newId(),
+            name: finalName,
+            color: input.color,
+            inputs: pins.inputs,
+            outputs: pins.outputs,
+            circuit,
+            createdAt: prev?.createdAt ?? now,
+            updatedAt: now,
+            revision: (prev?.revision ?? 0) + 1,
+          };
+          const library = pruneLibrary({ ...st.library, [def.id]: def });
+          const cycle = findChipCycle(library);
+          if (cycle) return { ok: false, errors: [`칩 순환 참조가 생깁니다: ${cycle.map((id) => library[id]?.name ?? id).join(' → ')}`] };
+          set((s) => {
+            s.library = library;
+            if (s.openChipId !== null) {
+              // 편집 중인 칩 저장: 이제 저장된 칩(또는 복사본)을 편집하는 상태
+              s.openChipId = def.id;
+              s.circuit = library[def.id]!.circuit;
+              s.openedCircuit = library[def.id]!.circuit;
+              if (s.stash) s.stash.circuit = pruneDangling(s.stash.circuit, library);
+            } else {
+              s.circuit = pruneDangling(circuit, library);
+            }
+            s.pinOrder = { inputs: def.inputs.map((p) => p.partId), outputs: def.outputs.map((p) => p.partId) };
+          });
+          return { ok: true, id: def.id };
+        },
+
+        makeChipFromSelection() {
+          const st = get();
+          if (st.selection.parts.length === 0) return null;
+          const { chip, circuit, instanceId } = rangeToChip(st.circuit, st.selection.parts, st.library, {
+            id: newId(),
+            name: uniqueName('새 칩', st.library),
+            color: 'chip-1',
+            now: new Date().toISOString(),
+          });
+          set((s) => {
+            s.library = { ...st.library, [chip.id]: chip };
+          });
+          commit((s) => {
+            s.circuit = circuit;
+            s.selection = { parts: [instanceId], wires: [] };
+          });
+          return chip.id;
+        },
+
+        deleteChip(chipId) {
+          const st = get();
+          const users = usedBy(chipId, st.library).map((d) => d.name);
+          if (circuitUses(workspaceOf(st), chipId)) users.push('작업 공간');
+          if (st.openChipId !== null && st.openChipId !== chipId && circuitUses(st.circuit, chipId)) users.push('편집 중인 칩');
+          if (users.length) return { ok: false, users };
+          if (st.openChipId === chipId) get().closeChip();
+          set((s) => {
+            const lib = { ...s.library };
+            delete lib[chipId];
+            s.library = lib;
+          });
+          return { ok: true };
+        },
+
+        importLibrary(incoming, mode, workspace) {
+          const st = get();
+          const merged = mergeImport(st.library, incoming, mode, workspace);
+          if (merged.workspace) get().load(merged.workspace);
+          set((s) => {
+            s.library = merged.library;
+          });
+          return merged.added;
         },
 
         undo() {
@@ -272,4 +552,14 @@ export const editorStore = createEditorStore();
 
 export function useEditor<T>(selector: (s: EditorState) => T): T {
   return useStore(editorStore, selector);
+}
+
+/** 캔버스·인스펙터·파형이 함께 쓰는 "지금 보고 있는 회로" */
+export function useView(): { circuit: Circuit; chain: ChipDef[]; prefix: string; readOnly: boolean } {
+  const circuit = useEditor((s) => s.circuit);
+  const library = useEditor((s) => s.library);
+  const viewPath = useEditor((s) => s.viewPath);
+  if (viewPath.length === 0) return { circuit, chain: [], prefix: '', readOnly: false };
+  const target = viewTarget({ circuit, library, viewPath });
+  return { ...target, prefix: `${viewPath.join('/')}/`, readOnly: true };
 }

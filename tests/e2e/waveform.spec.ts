@@ -17,7 +17,7 @@ async function clickPart(page: Page, id: string, modifiers: ('Shift')[] = []) {
 test('3단계 완료 기준: SR 래치의 OR 하나를 선택하면 입력 2개와 출력 1개 파형', async ({ page }) => {
   await seed(page, srLatch());
   await clickPart(page, 'or1');
-  await expect(page.getByRole('button', { name: '선택한 부품' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: '선택한 부품', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(channels(page)).toHaveCount(3);
   // 입력 a는 R에서, b는 NOT#2에서 되돌아오는 피드백
   await expect(channels(page).nth(0)).toHaveAttribute('data-kind', 'in');
@@ -41,7 +41,7 @@ test('3단계 완료 기준: 래치 전체를 범위로 선택하면 R, S, Q, Q�
   await expect(page.getByText('범위 선택 · 부품 4개')).toBeVisible();
   await page.mouse.up();
 
-  await expect(page.getByRole('button', { name: '선택 범위' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: '선택 범위', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(channels(page)).toHaveCount(4);
   await expect(page.locator('.wave-name')).toHaveText(['R', 'S', 'Q', 'Q̄']);
   for (const [i, kind] of ['in', 'in', 'out', 'out'].entries()) await expect(channels(page).nth(i)).toHaveAttribute('data-kind', kind);

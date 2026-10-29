@@ -68,10 +68,33 @@ button {
   color: var(--sig-on);
 }
 
-.breadcrumb {
+.breadcrumb ol {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
   color: var(--text-2);
+}
+
+.breadcrumb li + li::before {
+  content: '/';
+  margin: 0 6px;
+  color: var(--border-2);
+}
+
+.crumb {
+  min-height: 44px;
+  padding: 0 4px;
+  background: none;
+  border: 0;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.crumb:hover {
+  color: var(--text);
+  text-decoration: underline;
 }
 
 .breadcrumb .current {
@@ -841,4 +864,246 @@ button {
   gap: 8px;
   padding: 12px 20px;
   border-top: 1px solid var(--border);
+}
+
+/* 칩 */
+.chip-body {
+  fill: var(--bg-chip);
+  stroke-width: 2;
+}
+
+.chip-pin-name {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.part-label.chip-name {
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+.preview-lead {
+  stroke: var(--text-2);
+  stroke-width: 2;
+}
+
+.chip-preview {
+  width: 100%;
+  max-height: 220px;
+}
+
+.chip-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.chip-item {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.chip-item .chip-button {
+  flex: 1;
+  min-width: 0;
+}
+
+.chip-item.open .chip-button {
+  border-color: var(--sig-on);
+}
+
+.chip-item .icon-button {
+  min-width: 36px;
+  font-size: 14px;
+}
+
+.chip-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chip-swatch {
+  width: 14px;
+  height: 28px;
+  border-radius: 3px;
+  flex: none;
+}
+
+.palette-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.save-badge.dirty {
+  border-color: var(--sig-on);
+  color: var(--sig-on);
+}
+
+.canvas-overlay {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.canvas-overlay .canvas-badge {
+  position: static;
+}
+
+.view-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding: 4px 4px 4px 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--sig-in);
+  border-radius: var(--radius);
+  font-size: 13px;
+  pointer-events: auto;
+}
+
+.board-svg.readonly .part-hit {
+  cursor: default;
+}
+
+.wide-button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.text-button.danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.used-by {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+
+/* 칩 저장 대화상자 */
+.save-grid {
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 20px;
+}
+
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.swatches,
+.pin-fields,
+.conflicts {
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.swatches legend,
+.pin-fields legend,
+.conflicts legend {
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.swatches {
+  display: flex;
+  gap: 4px;
+}
+
+.swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+}
+
+.swatch input {
+  position: absolute;
+  opacity: 0;
+}
+
+.swatch span {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+.swatch input:checked + span {
+  border-color: var(--text);
+  box-shadow: 0 0 0 2px var(--bg-panel) inset;
+}
+
+.swatch input:focus-visible + span {
+  outline: 2px solid var(--select);
+  outline-offset: 2px;
+}
+
+.pin-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pin-field {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.pin-field .icon-button {
+  min-width: 32px;
+  font-size: 10px;
+}
+
+.propagate {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+}
+
+.check,
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.check input,
+.radio input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--sig-on);
+}
+
+.errors {
+  margin: 12px 0 0;
+  padding-left: 18px;
 }

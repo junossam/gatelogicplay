@@ -247,3 +247,78 @@ describe('load', () => {
     expect(other.getState().selection).toEqual({ parts: [], wires: [] });
   });
 });
+
+describe('칩 편집 (4단계)', () => {
+  it('작업 공간을 칩으로 저장하고, 칩을 열어 고친 뒤 저장하면 같은 id로 갱신된다', () => {
+    const sw = s().addPart('SWITCH', 0, 0);
+    const not = s().addPart('NOT', 5, 0);
+    const led = s().addPart('LED', 10, 0);
+    s().connect({ partId: sw, pin: 'y' }, { partId: not, pin: 'a' });
+    s().connect({ partId: not, pin: 'y' }, { partId: led, pin: 'a' });
+    const r = s().saveChip({ name: '인버터', color: 'chip-2', names: { [sw]: 'IN', [led]: 'OUT' }, order: { inputs: [], outputs: [] }, propagate: true });
+    expect(r.ok).toBe(true);
+    const id = (r as { id: string }).id;
+    expect(s().library[id]).toMatchObject({ name: '인버터', revision: 1, inputs: [{ name: 'IN' }], outputs: [{ name: 'OUT' }] });
+    // 핀 이름은 내부 부품 라벨로 저장된다
+    expect(s().circuit.parts.find((p) => p.id === sw)!.label).toBe('IN');
+
+    const workspace = s().circuit;
+    s().addChip(id, 20, 0);
+    s().openChip(id);
+    expect(s().openChipId).toBe(id);
+    s().addPart('NOT', 7, 6);
+    const r2 = s().saveChip({ name: '인버터', color: 'chip-2', names: {}, order: { inputs: [], outputs: [] }, propagate: true });
+    expect(r2).toEqual({ ok: true, id });
+    expect(s().library[id]!.revision).toBe(2);
+    expect(s().library[id]!.circuit.parts).toHaveLength(4);
+    s().closeChip();
+    expect(s().openChipId).toBeNull();
+    expect(s().circuit.parts).toHaveLength(workspace.parts.length + 1);
+  });
+
+  it('반영을 끄면 "이름 (2)" 새 칩으로 저장하고 그 칩을 편집하는 상태가 된다', () => {
+    s().addPart('SWITCH', 0, 0);
+    const r = s().saveChip({ name: 'X', color: 'chip-1', names: {}, order: { inputs: [], outputs: [] }, propagate: true });
+    const id = (r as { id: string }).id;
+    s().openChip(id);
+    const r2 = s().saveChip({ name: 'X', color: 'chip-1', names: {}, order: { inputs: [], outputs: [] }, propagate: false });
+    expect(r2.ok).toBe(true);
+    const copy = (r2 as { id: string }).id;
+    expect(copy).not.toBe(id);
+    expect(s().library[copy]!.name).toBe('X (2)');
+    expect(s().openChipId).toBe(copy);
+  });
+
+  it('편집 중인 칩 자신이나 그 칩을 포함하는 칩은 넣을 수 없다', () => {
+    s().addPart('SWITCH', 0, 0);
+    const a = (s().saveChip({ name: 'A', color: 'chip-1', names: {}, order: { inputs: [], outputs: [] }, propagate: true }) as { id: string }).id;
+    s().load({ parts: [], wires: [] });
+    s().setLibrary(s().library);
+    s().addChip(a, 0, 0);
+    s().addPart('SWITCH', 0, 6);
+    const b = (s().saveChip({ name: 'B', color: 'chip-1', names: {}, order: { inputs: [], outputs: [] }, propagate: true }) as { id: string }).id;
+    s().openChip(a);
+    expect(s().addChip(a, 0, 0)).toBeNull();
+    expect(s().addChip(b, 0, 0)).toBeNull();
+  });
+
+  it('쓰는 곳이 있으면 삭제를 막는다', () => {
+    s().addPart('SWITCH', 0, 0);
+    const a = (s().saveChip({ name: 'A', color: 'chip-1', names: {}, order: { inputs: [], outputs: [] }, propagate: true }) as { id: string }).id;
+    s().addChip(a, 5, 5);
+    expect(s().deleteChip(a)).toEqual({ ok: false, users: ['작업 공간'] });
+    s().undo();
+    expect(s().deleteChip(a)).toEqual({ ok: true });
+    expect(s().library[a]).toBeUndefined();
+  });
+
+  it('R: 선택 부품을 90°씩 회전, 네 번이면 원래대로', () => {
+    const id = s().addPart('AND', 0, 0);
+    s().rotateSelection();
+    expect(s().circuit.parts[0]!.rotation).toBe(90);
+    s().rotateSelection();
+    s().rotateSelection();
+    s().rotateSelection();
+    expect(s().circuit.parts.find((p) => p.id === id)!.rotation).toBeUndefined();
+  });
+});

@@ -46,3 +46,41 @@ export const workspaceFileSchema = z.object({
 });
 
 export type WorkspaceFile = z.infer<typeof workspaceFileSchema>;
+
+const pinSpec = z.object({ name: z.string().min(1), partId: z.string().min(1) });
+
+export const chipDefSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  color: z.string(),
+  inputs: z.array(pinSpec),
+  outputs: z.array(pinSpec),
+  circuit: circuitSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  revision: z.number().int().nonnegative(),
+});
+
+const librarySchema = z.record(z.string(), chipDefSchema).superRefine((lib, ctx) => {
+  for (const [key, def] of Object.entries(lib)) {
+    if (def.id !== key) ctx.addIssue({ code: z.ZodIssueCode.custom, path: [key, 'id'], message: `키(${key})와 id(${def.id})가 다릅니다` });
+  }
+});
+
+/** localStorage `logiclab:v1:library` */
+export const libraryFileSchema = z.object({
+  format: z.literal(FORMAT),
+  version: z.literal(VERSION),
+  library: librarySchema,
+});
+
+/** 내보내기/가져오기 파일 (SPEC 4.3) */
+export const bundleSchema = z.object({
+  format: z.literal(FORMAT),
+  version: z.literal(VERSION),
+  library: librarySchema,
+  workspace: circuitSchema,
+  openChipId: z.string().nullable(),
+});
+
+export type Bundle = z.infer<typeof bundleSchema>;

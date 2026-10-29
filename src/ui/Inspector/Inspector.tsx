@@ -2,7 +2,8 @@ import { useState, type DragEvent, type ReactNode } from 'react';
 import { GATE_KINDS, INPUT_KINDS } from '../../sim/primitives';
 import { orderedIO } from '../../sim/truthTable';
 import type { Part } from '../../sim/types';
-import { editorStore, useEditor } from '../../store/editorStore';
+import { circuitUses, usedBy } from '../../model/library';
+import { editorStore, useEditor, useView, workspaceOf } from '../../store/editorStore';
 import { engine, useSim } from '../../store/simStore';
 import { partPins } from '../Canvas/geometry';
 import { TruthTableView, useTruthTable } from '../TruthTable/TruthTableView';
@@ -59,7 +60,7 @@ function CommitInput({ value, onCommit, label, type = 'text' }: { value: string;
 }
 
 function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; readOnly: boolean }) {
-  const circuit = useEditor((s) => s.circuit);
+  const { circuit } = useView();
   const library = useEditor((s) => s.library);
   useSim((s) => s.version);
   const kind = part.kind.type === 'primitive' ? part.kind.kind : null;
@@ -207,8 +208,32 @@ function AutoTruthTable() {
   return <TruthTableView state={state} onForce={() => setForce(true)} />;
 }
 
-export function Inspector({ prefix = '', readOnly = false, extra }: { prefix?: string; readOnly?: boolean; extra?: ReactNode }) {
-  const circuit = useEditor((s) => s.circuit);
+/** 이 칩을 포함하는 다른 칩 (SPEC 6.4) */
+function UsedBy({ chipId }: { chipId: string }) {
+  const library = useEditor((s) => s.library);
+  const ws = useEditor(workspaceOf);
+  const def = library[chipId];
+  if (!def) return null;
+  const users = [...usedBy(chipId, library).map((d) => d.name), ...(circuitUses(ws, chipId) ? ['작업 공간'] : [])];
+  return (
+    <>
+      <h2 className="panel-title">사용 중인 곳 · {def.name}</h2>
+      {users.length ? (
+        <ul className="used-by" data-testid="used-by">
+          {users.map((u) => (
+            <li key={u}>{u}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="muted small">이 칩을 쓰는 곳이 없습니다.</p>
+      )}
+    </>
+  );
+}
+
+export function Inspector({ extra }: { extra?: ReactNode }) {
+  const { circuit, prefix, readOnly, chain } = useView();
+  const openChipId = useEditor((s) => s.openChipId);
   const selection = useEditor((s) => s.selection);
 
   const selectedParts = circuit.parts.filter((p) => selection.parts.includes(p.id));
@@ -235,6 +260,11 @@ export function Inspector({ prefix = '', readOnly = false, extra }: { prefix?: s
       ) : (
         <p className="muted small">부품이나 전선을 선택하세요.</p>
       )}
+      {!readOnly && selectedParts.length > 0 && (
+        <button type="button" className="text-button wide-button" onClick={() => editorStore.getState().makeChipFromSelection()} title="Ctrl+G">
+          선택 범위를 칩으로 만들기
+        </button>
+      )}
 
       {!readOnly && (
         <>
@@ -245,6 +275,13 @@ export function Inspector({ prefix = '', readOnly = false, extra }: { prefix?: s
 
       <h2 className="panel-title">진리표(자동)</h2>
       <AutoTruthTable />
+
+      {(() => {
+        // 보고 있는 칩, 편집 중인 칩, 또는 선택한 칩 부품의 사용처
+        const selectedChip = part?.kind.type === 'chip' ? part.kind.chipId : null;
+        const id = chain[chain.length - 1]?.id ?? selectedChip ?? openChipId;
+        return id ? <UsedBy chipId={id} /> : null;
+      })()}
 
       {extra}
     </aside>
