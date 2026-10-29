@@ -14,6 +14,8 @@ interface Props {
   /** 칩 부품이면 그 정의 */
   chip?: ChipDef;
   selected: boolean;
+  /** 전선이 꽂힌 핀 이름들 ("a,y") */
+  connected: string;
   /** 칩 내부를 볼 때의 경로 접두어 */
   prefix: string;
   /** 칩 내부를 읽기 전용으로 볼 때: 조작·연결 불가 */
@@ -63,7 +65,8 @@ function usePartValue(part: Part, prefix: string, readOnly: boolean): 0 | 1 {
   });
 }
 
-export const PartView = memo(function PartView({ part, chip, selected, prefix, readOnly, onPartDown, onPinDown, onPush }: Props) {
+export const PartView = memo(function PartView({ part, chip, selected, connected, prefix, readOnly, onPartDown, onPinDown, onPush }: Props) {
+  const wired = new Set(connected.split(','));
   const value = usePartValue(part, prefix, readOnly);
   const lib = chip && part.kind.type === 'chip' ? { [part.kind.chipId]: chip } : {};
   const r = partRect(part, lib);
@@ -122,7 +125,7 @@ export const PartView = memo(function PartView({ part, chip, selected, prefix, r
         </text>
       )}
       {partPins(part, lib).map((pin) => (
-        <g key={`${pin.dir}${pin.name}`} className={`pin pin-${pin.dir}`}>
+        <g key={`${pin.dir}${pin.name}`} className={`pin pin-${pin.dir}${wired.has(pin.name) ? ' connected' : ''}`}>
           <circle cx={pin.dx} cy={pin.dy} r={4} className="pin-dot" pointerEvents="none" />
           {!readOnly && (
             <circle

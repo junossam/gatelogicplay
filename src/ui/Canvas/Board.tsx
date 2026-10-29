@@ -5,8 +5,9 @@ import { editorStore, useEditor, useView } from '../../store/editorStore';
 import { engine, simActions, simStore, useSim } from '../../store/simStore';
 import { decodeKind, PART_DRAG_MIME, useUi } from '../../store/uiStore';
 import { confirmLeaveChip } from '../Palette/Palette';
-import { baseSize, GRID, normalizeRect, partRect, pinPoint, rectContains, wirePath, type Rect } from './geometry';
+import { baseSize, GRID, normalizeRect, partRect, pinPoint, rectContains, type Rect } from './geometry';
 import { PartView } from './PartView';
+import { layoutWires, type WireLayout } from './wireLayout';
 import { WireView } from './WireView';
 
 const MIN_ZOOM = 0.25;
@@ -52,6 +53,7 @@ export function Board() {
   const { circuit, chain, prefix, readOnly } = useView();
   const library = useEditor((s) => s.library);
   const selection = useEditor((s) => s.selection);
+  const dragging = useEditor((s) => s.dragBase !== null);
   const armed = useUi((s) => s.armed);
   const zoom = useUi((s) => s.zoom);
   const oscillating = useSim((s) => s.oscillating);
@@ -277,25 +279,33 @@ export function Board() {
   };
 
   const partById = useMemo(() => new Map(circuit.parts.map((p) => [p.id, p])), [circuit.parts]);
-  // 전선 모양은 회로가 바뀔 때만 계산하고, 매 틱에는 값만 읽는다 (게이트 5천 개에서 60fps)
-  const wireGeom = useMemo(() => {
-    // 갈라지는 출력 핀(전선 2개 이상)에 점을 찍는다
-    const fanout = new Map<string, number>();
+  // 전선 경로는 회로가 바뀔 때만 찾고, 매 틱에는 값만 읽는다 (게이트 5천 개에서 60fps)
+  // 부품을 끄는 동안은 움직인 전선만 단순 경로로, 놓으면 전체를 다시 찾는다
+  const lastLayout = useRef<WireLayout | null>(null);
+  const layout = useMemo(
+    () => layoutWires(circuit, library, dragging ? lastLayout.current : null),
+    // circuit 전체가 아니라 부품·전선 배열이 바뀔 때만
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [circuit.parts, circuit.wires, library, dragging],
+  );
+  useEffect(() => {
+    lastLayout.current = layout;
+  }, [layout]);
+  const wireGeom = layout.wires;
+  // 전선이 꽂힌 핀은 채운 점으로 (부품별 "a,y" 같은 문자열 — PartView memo가 깨지지 않게)
+  const connectedPins = useMemo(() => {
+    const m = new Map<string, Set<string>>();
+    const add = (part: string, pin: string) => {
+      if (!m.has(part)) m.set(part, new Set());
+      m.get(part)!.add(pin);
+    };
     for (const w of circuit.wires) {
-      const key = `${w.from.partId}.${w.from.pin}`;
-      fanout.set(key, (fanout.get(key) ?? 0) + 1);
+      add(w.from.partId, w.from.pin);
+      add(w.to.partId, w.to.pin);
     }
-    return circuit.wires.flatMap((w) => {
-      const fp = partById.get(w.from.partId);
-      const tp = partById.get(w.to.partId);
-      const a = fp && pinPoint(fp, w.from.pin, library);
-      const b = tp && pinPoint(tp, w.to.pin, library);
-      if (!a || !b) return [];
-      const source = `${w.from.partId}.${w.from.pin}`;
-      const box = normalizeRect(a.x, a.y, b.x, b.y);
-      return [{ id: w.id, d: wirePath(a, b), source, box, branch: (fanout.get(source) ?? 0) > 1 ? a : undefined }];
-    });
-  }, [circuit.wires, partById, library]);
+    return new Map([...m].map(([k, v]) => [k, [...v].sort().join(',')]));
+  }, [circuit.wires]);
+  const [hoverNet, setHoverNet] = useState<string | null>(null);
   const partRects = useMemo(() => circuit.parts.map((p) => partRect(p, library)), [circuit.parts, library]);
   const wireNets = useMemo(() => wireGeom.map((g) => netlist.pinNet.get(prefix + g.source) ?? -1), [wireGeom, netlist, prefix]);
   const gateCount = useMemo(() => netlist.nodes.filter((n) => GATE_KINDS.has(n.kind)).length, [netlist]);
@@ -379,7 +389,19 @@ export function Board() {
       >
         <g transform={`translate(${pan.x} ${pan.y}) scale(${zoom})`}>
           {shownWires.map((g) => (
-            <WireView key={g.id} id={g.id} d={g.d} selected={selectedWires.has(g.id)} branch={g.branch} onPointerDown={onWireDown} register={register} />
+            <WireView
+              key={g.id}
+              id={g.id}
+              d={g.d}
+              source={g.source}
+              junctions={g.junctions}
+              halo={layout.routed}
+              selected={selectedWires.has(g.id)}
+              highlight={hoverNet === g.source}
+              onPointerDown={onWireDown}
+              onHover={setHoverNet}
+              register={register}
+            />
           ))}
           {shownParts.map((p) => (
             <PartView
@@ -387,6 +409,7 @@ export function Board() {
               part={p}
               chip={p.kind.type === 'chip' ? library[p.kind.chipId] : undefined}
               selected={selectedParts.has(p.id)}
+              connected={connectedPins.get(p.id) ?? ''}
               prefix={prefix}
               readOnly={readOnly}
               onPartDown={onPartDown}

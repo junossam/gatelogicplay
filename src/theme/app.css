@@ -301,6 +301,11 @@ button {
   cursor: crosshair;
 }
 
+/* 전선이 꽂힌 핀은 채운 점, 빈 핀은 속이 빈 고리 */
+.pin.connected .pin-dot {
+  fill: var(--text-2);
+}
+
 .pin:hover .pin-dot {
   stroke: var(--sig-in);
 }
@@ -314,6 +319,23 @@ button {
 
 .wire.selected .wire-line {
   stroke: var(--select);
+}
+
+/* 배경색 테두리: 엇갈리는 전선 사이에 틈이 생겨 연결되지 않은 교차임을 보여 준다 */
+.wire-halo {
+  fill: none;
+  stroke: var(--bg);
+  stroke-width: 8;
+  stroke-linejoin: round;
+}
+
+.wire.highlight .wire-line {
+  stroke-width: 4;
+  filter: brightness(1.5);
+}
+
+.wire.highlight .wire-halo {
+  stroke-width: 10;
 }
 
 .wire-hit {
@@ -758,6 +780,7 @@ button {
 
 .truth-table th,
 .truth-table td {
+  white-space: nowrap;
   padding: 3px 8px;
   border-bottom: 1px solid var(--border);
   text-align: center;
