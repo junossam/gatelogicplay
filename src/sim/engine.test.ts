@@ -267,3 +267,25 @@ describe('입력 2~8개 게이트', () => {
     expect(e.readPin('y.a')).toBe(0);
   });
 });
+
+describe('8세그먼트 표시기', () => {
+  it('핀 a~g·dp는 각각 연결된 신호를 그대로 읽고, 연결 안 된 세그먼트는 0', () => {
+    const c = new CircuitBuilder()
+      .add('SWITCH', 's1', 0, 0, 'A')
+      .add('SWITCH', 's2', 0, 4, 'B')
+      .add('NOT', 'n', 4, 4)
+      .add('SEG8', 'seg', 12, 0)
+      .wire('s1.y', 'seg.a')
+      .wire('s1.y', 'seg.d')
+      .wire('s2.y', 'n.a')
+      .wire('n.y', 'seg.dp')
+      .build();
+    const e = new Engine(compile(c));
+    e.setInput('s1', 1);
+    e.tick(3);
+    expect(['a', 'b', 'c', 'd', 'e', 'f', 'g', 'dp'].map((p) => e.readPin(`seg.${p}`))).toEqual([1, 0, 0, 1, 0, 0, 0, 1]);
+    e.setInput('s2', 1);
+    e.tick(3);
+    expect(e.readPin('seg.dp')).toBe(0);
+  });
+});

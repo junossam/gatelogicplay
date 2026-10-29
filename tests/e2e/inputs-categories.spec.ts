@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { serializeLibrary } from '../../src/model/storage';
 import { CircuitBuilder, nestedLibrary } from '../fixtures/circuits';
-import { seed } from './helpers';
+import { chipAction, seed } from './helpers';
 
 async function toggle(page: Page, id: string) {
   const box = (await page.getByTestId(`part-${id}`).locator('.part-hit').boundingBox())!;
@@ -70,7 +70,7 @@ test('칩 분류: 저장할 때 분류를 넣으면 팔레트에서 분류별로
   await expect(page.getByTestId('chip-group-분류 없음')).toContainText('SR 래치');
 
   // 분류 바꾸기 대화상자
-  await page.getByRole('button', { name: 'SR 래치 분류 바꾸기' }).click();
+  await chipAction(page, 'SR 래치', '분류 바꾸기');
   await page.getByRole('dialog').getByLabel('분류').fill('래치');
   await page.getByRole('dialog').getByRole('button', { name: '확인' }).click();
   await expect(page.getByTestId('chip-group-래치')).toContainText('SR 래치');

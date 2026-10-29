@@ -19,7 +19,7 @@ const clampBits = (n: number | undefined, min = 1) => Math.min(MAX_BITS, Math.ma
 
 /** 기본 부품의 비트 수. 푸시 버튼·클럭은 항상 1, 나누기·묶기는 2 이상(기본 4). */
 export function primitiveBits(kind: PrimitiveKind, bits: number | undefined): number {
-  if (kind === 'PUSH' || kind === 'CLOCK') return 1;
+  if (kind === 'PUSH' || kind === 'CLOCK' || kind === 'SEG8') return 1;
   if (kind === 'SPLIT' || kind === 'MERGE') return clampBits(bits ?? BUS_DEFAULT_BITS, 2);
   return clampBits(bits);
 }

@@ -2,7 +2,7 @@
 
 export type Bit = 0 | 1;
 
-export type PrimitiveKind = 'AND' | 'OR' | 'XOR' | 'NAND' | 'NOR' | 'XNOR' | 'NOT' | 'SWITCH' | 'PUSH' | 'LED' | 'CLOCK' | 'SPLIT' | 'MERGE';
+export type PrimitiveKind = 'AND' | 'OR' | 'XOR' | 'NAND' | 'NOR' | 'XNOR' | 'NOT' | 'SWITCH' | 'PUSH' | 'LED' | 'CLOCK' | 'SPLIT' | 'MERGE' | 'SEG8';
 
 export type PartKind = { type: 'primitive'; kind: PrimitiveKind } | { type: 'chip'; chipId: string };
 

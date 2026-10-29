@@ -13,6 +13,9 @@ const TWO_INPUT: readonly PinDef[] = [
   { name: 'y', dir: 'out' },
 ];
 
+/** 8세그먼트 표시기의 세그먼트 이름 (핀 순서) */
+export const SEGMENTS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'dp'] as const;
+
 /** 기본 부품의 핀 정의 (SPEC 5.4). 순서가 곧 화면 위→아래 순서. */
 export const PRIMITIVE_PINS: Record<PrimitiveKind, readonly PinDef[]> = {
   AND: TWO_INPUT,
@@ -32,6 +35,8 @@ export const PRIMITIVE_PINS: Record<PrimitiveKind, readonly PinDef[]> = {
   // 나누기·묶기의 실제 핀은 비트 수에 따라 달라진다 (sim/pins.ts). 여기는 기본 4비트.
   SPLIT: [{ name: 'a', dir: 'in' }, ...[0, 1, 2, 3].map((k) => ({ name: `y${k}`, dir: 'out' as const }))],
   MERGE: [...[0, 1, 2, 3].map((k) => ({ name: `a${k}`, dir: 'in' as const })), { name: 'y', dir: 'out' }],
+  // 8세그먼트 표시기: 세그먼트 a~g와 점(dp). 출력 없이 값만 보여 준다.
+  SEG8: SEGMENTS.map((name) => ({ name, dir: 'in' as const })),
 };
 
 export function pinDef(kind: PrimitiveKind, pin: string): PinDef | undefined {

@@ -1,3 +1,4 @@
+import { SEGMENTS } from '../../sim/primitives';
 import type { PrimitiveKind } from '../../sim/types';
 import { kindSize, GRID } from '../Canvas/geometry';
 
@@ -58,6 +59,50 @@ function BusShape({ kind, bits, value }: { kind: PrimitiveKind; bits: number; va
   );
 }
 
+/** 8세그먼트 표시기 숫자 칸 (100×180 기준). 세그먼트마다 [x1, y1, x2, y2] */
+const SEG_L = 44;
+const SEG_R = 80;
+const SEG_T = 28;
+const SEG_M = 90;
+const SEG_B = 152;
+const SEG_LINES: Record<Exclude<(typeof SEGMENTS)[number], 'dp'>, [number, number, number, number]> = {
+  a: [SEG_L + 6, SEG_T, SEG_R - 6, SEG_T],
+  b: [SEG_R, SEG_T + 6, SEG_R, SEG_M - 6],
+  c: [SEG_R, SEG_M + 6, SEG_R, SEG_B - 6],
+  d: [SEG_L + 6, SEG_B, SEG_R - 6, SEG_B],
+  e: [SEG_L, SEG_M + 6, SEG_L, SEG_B - 6],
+  f: [SEG_L, SEG_T + 6, SEG_L, SEG_M - 6],
+  g: [SEG_L + 6, SEG_M, SEG_R - 6, SEG_M],
+};
+
+/** 8세그먼트 표시기: 왼쪽에 핀 a~g·dp, value의 k번 비트가 SEGMENTS[k] 세그먼트 */
+function SegmentShape({ value }: { value: number }) {
+  const stroke = 'var(--text-2)';
+  const lit = (k: number) => ((value >> k) & 1) === 1;
+  const seg = (k: number) => ({
+    stroke: lit(k) ? 'var(--sig-on)' : 'var(--sig-off)',
+    opacity: lit(k) ? 1 : 0.45,
+  });
+  return (
+    <g>
+      {SEGMENTS.map((name, k) => (
+        <line key={name} x1={0} y1={(k + 1) * GRID} x2={14} y2={(k + 1) * GRID} stroke={stroke} strokeWidth={2} />
+      ))}
+      <rect x={14} y={4} width={82} height={172} rx={6} fill="var(--bg-chip)" stroke={stroke} strokeWidth={2} />
+      {SEGMENTS.map((name, k) => (
+        <text key={name} x={19} y={(k + 1) * GRID + 4} className="seg-pin-name">
+          {name}
+        </text>
+      ))}
+      {SEGMENTS.map((name, k) => {
+        if (name === 'dp') return <circle key={name} cx={SEG_R + 9} cy={SEG_B} r={4} fill={seg(k).stroke} opacity={seg(k).opacity} />;
+        const [x1, y1, x2, y2] = SEG_LINES[name];
+        return <line key={name} x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth={7} strokeLinecap="round" {...seg(k)} />;
+      })}
+    </g>
+  );
+}
+
 /**
  * 입력 2~8개 게이트의 몸체 (80×80 기준 좌표). 입력이 많으면 세로로 늘린다.
  * inEnd: 입력 리드가 닿는 x, tip: 몸체 끝 x, bubble: 부정 원 중심 x, back: XOR 계열 뒤쪽 곡선
@@ -112,6 +157,7 @@ export function PartShape({
   const body = { fill: 'var(--bg-chip)', stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };
   const lead = { stroke, strokeWidth: 2 };
 
+  if (kind === 'SEG8') return <SegmentShape value={value} />;
   if (kind in GATE_BODIES) return <GateShape kind={kind as keyof typeof GATE_BODIES} inputs={inputs} />;
 
   switch (kind) {

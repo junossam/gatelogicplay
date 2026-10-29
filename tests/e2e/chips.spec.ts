@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { serializeBundle, serializeLibrary } from '../../src/model/storage';
 import { harness, nestedLibrary, register4Chip, srLatch } from '../fixtures/circuits';
-import { pressPush, seed } from './helpers';
+import { chipAction, pressPush, seed } from './helpers';
 
 const LIB_KEY = 'logiclab:v1:library';
 
@@ -54,7 +54,7 @@ test('4단계 완료 기준: SR 래치 → D 플립플롭 → 4비트 레지스�
   await expect.poll(() => outputs(page)).toEqual(['1', '0', '1', '1']);
 
   // 팔레트에서 SR 래치를 열어 Q 출력 전선을 끊고 저장 (사용하는 칩에도 반영)
-  await page.getByRole('button', { name: 'SR 래치 편집' }).click();
+  await chipAction(page, 'SR 래치', '편집');
   await expect(page.getByRole('navigation', { name: '이동 경로' })).toContainText('SR 래치');
   await clickWireBetween(page, 'not1:y', 'q:a');
   await page.keyboard.press('Delete');
@@ -159,20 +159,20 @@ test('Ctrl+G: 선택 범위를 칩으로 만들면 경계 신호가 핀이 되�
 
 test('순환 참조 방지: 칩 A를 편집하는 동안 A와 A를 포함하는 칩은 넣을 수 없다', async ({ page }) => {
   await seedRegister(page);
-  await page.getByRole('button', { name: 'SR 래치 편집' }).click();
+  await chipAction(page, 'SR 래치', '편집');
   await expect(page.getByTestId('chip-item-SR 래치').locator('.chip-button')).toBeDisabled();
   await expect(page.getByTestId('chip-item-D 래치').locator('.chip-button')).toBeDisabled();
   await expect(page.getByTestId('chip-item-4비트 레지스터').locator('.chip-button')).toBeDisabled();
   // 래치를 편집하는 중이라도 래치를 쓰지 않는 칩은 없다 → 모두 비활성. 레지스터를 열면 래치는 넣을 수 있다
   await page.getByRole('button', { name: '닫기' }).click();
-  await page.getByRole('button', { name: '4비트 레지스터 편집' }).click();
+  await chipAction(page, '4비트 레지스터', '편집');
   await expect(page.getByTestId('chip-item-SR 래치').locator('.chip-button')).toBeEnabled();
   await expect(page.getByTestId('chip-item-4비트 레지스터').locator('.chip-button')).toBeDisabled();
 });
 
 test('쓰는 곳이 있는 칩은 삭제를 막고 목록을 보여준다', async ({ page }) => {
   await seedRegister(page);
-  await page.getByRole('button', { name: 'SR 래치 삭제' }).click();
+  await chipAction(page, 'SR 래치', '삭제');
   const dialog = page.getByRole('dialog', { name: '삭제할 수 없습니다' });
   await expect(dialog).toContainText('D 래치');
   await dialog.getByRole('button', { name: '확인' }).click();
@@ -213,7 +213,7 @@ test('칩과 편집 중인 칩은 새로고침 후에도 남는다', async ({ pa
   await page.getByRole('button', { name: '칩으로 저장' }).click();
   await page.getByLabel('칩 이름').fill('래치');
   await page.getByRole('dialog').getByRole('button', { name: '저장', exact: true }).click();
-  await page.getByRole('button', { name: '래치 편집' }).click();
+  await chipAction(page, '래치', '편집');
   await expect(page.getByTestId('save-status')).toHaveText('저장됨');
   await page.reload();
   await expect(page.getByTestId('chip-item-래치')).toHaveCount(1);

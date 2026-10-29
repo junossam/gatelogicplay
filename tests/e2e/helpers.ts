@@ -16,6 +16,12 @@ export async function seed(page: Page, circuit: Circuit, extra: Record<string, s
   await page.reload();
 }
 
+/** 내 칩의 ⚙ 설정 메뉴를 열고 항목(편집·분류 바꾸기·삭제)을 고른다 */
+export async function chipAction(page: Page, chip: string, item: '편집' | '분류 바꾸기' | '삭제') {
+  await page.getByRole('button', { name: `${chip} 설정`, exact: true }).click();
+  await page.getByRole('menu', { name: `${chip} 설정` }).getByRole('menuitem', { name: item }).click();
+}
+
 /** 푸시 버튼 캡을 누르고 있다가 뗀다 */
 export async function pressPush(page: Page, partId: string, holdMs = 600) {
   const box = (await page.getByTestId(`push-${partId}`).boundingBox())!;

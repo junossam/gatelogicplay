@@ -9,6 +9,8 @@ const steps: Record<number, (doc: Record<string, unknown>) => Record<string, unk
   1: (doc) => ({ ...doc, version: 2 }),
   // 2 → 3: 게이트 입력 수와 칩 분류 추가. 둘 다 없으면 기존과 같으므로 버전만 올린다.
   2: (doc) => ({ ...doc, version: 3 }),
+  // 3 → 4: 8세그먼트 표시기(SEG8) 부품 추가. 기존 문서에는 없으므로 버전만 올린다.
+  3: (doc) => ({ ...doc, version: 4 }),
 };
 
 export class MigrationError extends Error {}

@@ -23,6 +23,7 @@ export const KIND_NAMES: Record<string, string> = {
   CLOCK: '클럭',
   SPLIT: '나누기 (버스 → 비트)',
   MERGE: '묶기 (비트 → 버스)',
+  SEG8: '8세그먼트 표시기',
 };
 
 /** 비트 수를 바꿀 수 있는 부품 (푸시 버튼·클럭은 1비트만) */

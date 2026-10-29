@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { challengeById, isAllowedIn } from '../../model/challenges';
 import { chipsUsedIn, groupByCategory, circuitUses, usedBy, withDependencies, wouldCreateCycle } from '../../model/library';
 import { parseBundle, serializeBundle } from '../../model/storage';
@@ -28,6 +28,7 @@ const IO: Item[] = [
   { kind: 'SWITCH', name: '스위치', desc: '누르면 켜짐 유지' },
   { kind: 'PUSH', name: '푸시 버튼', desc: '누르는 동안만 켜짐' },
   { kind: 'LED', name: 'LED', desc: '입력 값을 표시' },
+  { kind: 'SEG8', name: '8세그먼트', desc: 'a~g와 점(dp) 표시' },
 ];
 
 const CLOCK: Item = { kind: 'CLOCK', name: '클럭', desc: '반주기마다 반전 (선택)' };
@@ -50,7 +51,7 @@ function useAllowed(kind: PartKind): boolean {
   return !ch || isAllowedIn(ch, kind, library);
 }
 
-function PaletteButton({ item, wide }: { item: Item; wide?: boolean }) {
+function PaletteButton({ item }: { item: Item }) {
   const kind: PartKind = { type: 'primitive', kind: item.kind };
   const allowed = useAllowed(kind);
   const armed = useUi((s) => sameKind(s.armed, kind));
@@ -58,7 +59,7 @@ function PaletteButton({ item, wide }: { item: Item; wide?: boolean }) {
   return (
     <button
       type="button"
-      className={`palette-item${wide ? ' wide' : ''}${item.kind === 'CLOCK' ? ' optional' : ''}`}
+      className={`palette-item${item.kind === 'CLOCK' ? ' optional' : ''}`}
       aria-pressed={armed}
       data-testid={`palette-${item.kind}`}
       disabled={!allowed}
@@ -71,11 +72,110 @@ function PaletteButton({ item, wide }: { item: Item; wide?: boolean }) {
       title={!allowed ? '이 챌린지에서는 쓸 수 없습니다' : armed ? '캔버스를 클릭하면 배치됩니다' : '클릭한 뒤 캔버스를 클릭하거나, 끌어다 놓으세요'}
     >
       <PartIcon kind={item.kind} />
-      <span className="palette-text">
-        <span className="palette-name">{item.name}</span>
-        {item.desc && <span className="palette-desc">{item.desc}</span>}
-      </span>
+      <span className="palette-name">{item.name}</span>
+      {item.desc && <span className="palette-desc">{item.desc}</span>}
     </button>
+  );
+}
+
+interface MenuAction {
+  label: string;
+  icon: string;
+  disabled?: boolean;
+  danger?: boolean;
+  run(): void;
+}
+
+/** ⚙ 버튼을 누르면 뜨는 팝업 메뉴. 바깥 클릭·Esc로 닫히고, ↑↓로 항목을 옮긴다. 스크롤하면 버튼을 따라간다. */
+function ChipMenu({ name, actions }: { name: string; actions: MenuAction[] }) {
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const open = pos !== null;
+  // 메뉴 폭 168px — 화면 밖으로 나가지 않게 버튼 아래(모자라면 위)에 놓는다
+  const place = () => {
+    const r = buttonRef.current!.getBoundingClientRect();
+    const h = 44 * actions.length + 10;
+    const top = r.bottom + 4 + h <= window.innerHeight - 8 ? r.bottom + 4 : Math.max(8, r.top - 4 - h);
+    setPos({ left: Math.max(8, Math.min(r.left, window.innerWidth - 176)), top });
+  };
+  const close = (focusButton = false) => {
+    setPos(null);
+    if (focusButton) buttonRef.current?.focus();
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    menuRef.current?.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus();
+    const onDown = (e: PointerEvent) => {
+      const t = e.target as Node;
+      if (!menuRef.current?.contains(t) && !buttonRef.current?.contains(t)) close();
+    };
+    document.addEventListener('pointerdown', onDown);
+    window.addEventListener('scroll', place, true);
+    window.addEventListener('resize', place);
+    return () => {
+      document.removeEventListener('pointerdown', onDown);
+      window.removeEventListener('scroll', place, true);
+      window.removeEventListener('resize', place);
+    };
+    // place는 매 렌더 새로 만들어지지만 버튼 위치만 읽으므로 열릴 때 한 번 등록하면 된다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const toggle = () => (open ? close() : place());
+
+  const onKey = (e: KeyboardEvent) => {
+    const items = [...(menuRef.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? [])];
+    const i = items.indexOf(document.activeElement as HTMLButtonElement);
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      close(true);
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const d = e.key === 'ArrowDown' ? 1 : -1;
+      items[(i + d + items.length) % items.length]?.focus();
+    } else if (e.key === 'Tab') close();
+  };
+
+  return (
+    <>
+      <button
+        ref={buttonRef}
+        type="button"
+        className="chip-menu-button"
+        aria-label={`${name} 설정`}
+        title="설정"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={toggle}
+      >
+        <span aria-hidden="true">⚙</span>
+      </button>
+      {pos && (
+        <div ref={menuRef} className="chip-menu" role="menu" aria-label={`${name} 설정`} style={pos} onKeyDown={onKey}>
+          {actions.map((a) => (
+            <button
+              key={a.label}
+              type="button"
+              role="menuitem"
+              className={`chip-menu-item${a.danger ? ' danger' : ''}`}
+              disabled={a.disabled}
+              onClick={() => {
+                close(true);
+                a.run();
+              }}
+            >
+              <span aria-hidden="true" className="chip-menu-icon">
+                {a.icon}
+              </span>
+              {a.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -130,7 +230,7 @@ function ChipItem({ def }: { def: ChipDef }) {
     <li className={`chip-item${isOpen ? ' open' : ''}`} data-testid={`chip-item-${def.name}`}>
       <button
         type="button"
-        className="palette-item wide chip-button"
+        className="palette-item chip-button"
         aria-pressed={armed}
         aria-current={isOpen ? 'true' : undefined}
         disabled={blocked}
@@ -151,29 +251,19 @@ function ChipItem({ def }: { def: ChipDef }) {
         onClick={() => setArmed(armed ? null : kind)}
       >
         <span className="chip-swatch" style={{ background: `var(--${def.color})` }} aria-hidden="true" />
-        <span className="palette-text">
-          <span className="palette-name">{def.name}</span>
-          <span className="palette-desc mono">
-            {def.inputs.length}→{def.outputs.length}
-          </span>
+        <span className="palette-name">{def.name}</span>
+        <span className="palette-desc mono">
+          {def.inputs.length}→{def.outputs.length}
         </span>
       </button>
-      <button
-        type="button"
-        className="icon-button"
-        aria-label={`${def.name} 편집`}
-        title="칩 편집"
-        disabled={isOpen || inChallenge}
-        onClick={() => confirmLeaveChip(() => editorStore.getState().openChip(def.id))}
-      >
-        ✎
-      </button>
-      <button type="button" className="icon-button" aria-label={`${def.name} 분류 바꾸기`} title="분류 바꾸기" onClick={() => useUi.getState().setCategoryEdit({ chipId: def.id })}>
-        🗀
-      </button>
-      <button type="button" className="icon-button" aria-label={`${def.name} 삭제`} title="칩 삭제" onClick={remove}>
-        🗑
-      </button>
+      <ChipMenu
+        name={def.name}
+        actions={[
+          { label: '편집', icon: '✎', disabled: isOpen || inChallenge, run: () => confirmLeaveChip(() => editorStore.getState().openChip(def.id)) },
+          { label: '분류 바꾸기', icon: '🗀', run: () => useUi.getState().setCategoryEdit({ chipId: def.id }) },
+          { label: '삭제', icon: '🗑', danger: true, run: remove },
+        ]}
+      />
     </li>
   );
 }
@@ -344,9 +434,9 @@ export function Palette() {
       {io.length > 0 && (
         <section>
           <h2 className="panel-title">입력 · 출력</h2>
-          <div className="palette-list">
+          <div className="palette-grid">
             {io.map((item) => (
-              <PaletteButton key={item.kind} item={item} wide />
+              <PaletteButton key={item.kind} item={item} />
             ))}
           </div>
         </section>
@@ -354,9 +444,9 @@ export function Palette() {
       {bus.length > 0 && (
         <section>
           <h2 className="panel-title">버스</h2>
-          <div className="palette-list">
+          <div className="palette-grid">
             {bus.map((item) => (
-              <PaletteButton key={item.kind} item={item} wide />
+              <PaletteButton key={item.kind} item={item} />
             ))}
           </div>
           <p className="muted small">스위치·LED·게이트의 비트 수는 인스펙터에서 바꿉니다.</p>

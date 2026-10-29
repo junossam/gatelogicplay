@@ -1,6 +1,7 @@
 import { memo, type PointerEvent } from 'react';
 import type { ChipDef, Part, PinRef } from '../../sim/types';
 import { partBits, partInputs, partPinSpecs } from '../../sim/pins';
+import { SEGMENTS } from '../../sim/primitives';
 import { engine, inputNumber, readPinNumber, useSim } from '../../store/simStore';
 import { PartShape } from '../Palette/PartIcons';
 import { baseSize, chipPins, GRID, partPins, partRect, rotationTransform } from './geometry';
@@ -64,6 +65,9 @@ function usePartValue(part: Part, prefix: string, readOnly: boolean): number {
         return bits > 1 ? readPinNumber(`${prefix}${part.id}.a`, bits) : engine.readPin(`${prefix}${part.id}.a`);
       case 'CLOCK':
         return engine.readPin(`${prefix}${part.id}.y`);
+      case 'SEG8':
+        // k번 비트 = k번 세그먼트(a~g, dp)
+        return SEGMENTS.reduce((v, name, k) => v | (engine.readPin(`${prefix}${part.id}.${name}`) << k), 0);
       default:
         return 0;
     }
@@ -87,7 +91,7 @@ export const PartView = memo(function PartView({ part, chip, selected, connected
       transform={`translate(${r.x} ${r.y})`}
       data-testid={`part-${part.id}`}
       data-part-id={part.id}
-      data-value={kind === 'SWITCH' || kind === 'PUSH' || kind === 'LED' || kind === 'CLOCK' ? value : undefined}
+      data-value={kind === 'SWITCH' || kind === 'PUSH' || kind === 'LED' || kind === 'CLOCK' || kind === 'SEG8' ? value : undefined}
       data-bits={bits > 1 ? bits : undefined}
       className={`part${readOnly ? ' readonly' : ''}`}
     >
@@ -102,7 +106,7 @@ export const PartView = memo(function PartView({ part, chip, selected, connected
       />
       <g transform={rotationTransform(W, H, part.rotation)}>
         <g pointerEvents="none">
-          {kind && <PartShape kind={kind} on={value === 1} bits={bits} value={value} inputs={partInputs(part)} />}
+          {kind && <PartShape kind={kind} on={value === 1 && kind !== 'SEG8'} bits={bits} value={value} inputs={partInputs(part)} />}
           {kind && bits > 1 && kind !== 'SWITCH' && kind !== 'LED' && kind !== 'SPLIT' && kind !== 'MERGE' && (
             <text x={W - 4} y={H - 2} textAnchor="end" className="bits-badge">
               ×{bits}

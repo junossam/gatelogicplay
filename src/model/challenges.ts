@@ -147,7 +147,7 @@ function chipPrimitives(chipId: string, lib: Library, seen = new Set<string>()):
 /** 이 챌린지에서 쓸 수 있는 부품인가. 칩은 펼친 내부 게이트가 모두 허용될 때만. 클럭은 안 됨. */
 export function isAllowedIn(ch: Challenge, kind: PartKind, lib: Library): boolean {
   const gates = new Set(allowedGates(ch));
-  const ok = (k: PrimitiveKind) => INPUT_KINDS.has(k) || k === 'LED' || k === 'SPLIT' || k === 'MERGE' || gates.has(k);
+  const ok = (k: PrimitiveKind) => INPUT_KINDS.has(k) || k === 'LED' || k === 'SEG8' || k === 'SPLIT' || k === 'MERGE' || gates.has(k);
   if (kind.type === 'primitive') return ok(kind.kind);
   return [...chipPrimitives(kind.chipId, lib)].every(ok);
 }
