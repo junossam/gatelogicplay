@@ -453,20 +453,7 @@ export function Board() {
               register={register}
             />
           ))}
-          {shownParts.map((p) => (
-            <PartView
-              key={p.id}
-              part={p}
-              chip={p.kind.type === 'chip' ? library[p.kind.chipId] : undefined}
-              selected={selectedParts.has(p.id)}
-              connected={connectedPins.get(p.id) ?? ''}
-              prefix={prefix}
-              readOnly={readOnly}
-              onPartDown={onPartDown}
-              onPinDown={onPinDown}
-              onPush={onPush}
-            />
-          ))}
+          {/* 구간 손잡이는 부품 아래에: 핀이 손잡이에 가려 전선 연결이 막히지 않도록 */}
           {selectedWireGeom && !readOnly && (
             <g className="segment-handles" data-testid="segment-handles">
               {gesture?.type === 'segment' && <path d={toPath(gesture.preview, GRID)} className="wire-preview" />}
@@ -498,6 +485,20 @@ export function Board() {
               })}
             </g>
           )}
+          {shownParts.map((p) => (
+            <PartView
+              key={p.id}
+              part={p}
+              chip={p.kind.type === 'chip' ? library[p.kind.chipId] : undefined}
+              selected={selectedParts.has(p.id)}
+              connected={connectedPins.get(p.id) ?? ''}
+              prefix={prefix}
+              readOnly={readOnly}
+              onPartDown={onPartDown}
+              onPinDown={onPinDown}
+              onPush={onPush}
+            />
+          ))}
           {preview && <path d={preview} className="wire-preview" />}
           {box && (
             <g pointerEvents="none">
