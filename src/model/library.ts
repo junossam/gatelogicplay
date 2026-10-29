@@ -117,11 +117,64 @@ export function pruneDangling(circuit: Circuit, lib: Library): Circuit {
   return bad.size ? { ...circuit, wires: circuit.wires.filter((w) => !bad.has(w.id)) } : circuit;
 }
 
-/** 칩 정의를 바꾸면 끊어지는 전선 수 (다른 칩들 + 주어진 회로들) */
+/**
+ * 핀 이름 변경 목록: 같은 내부 부품(partId)을 가리키는 핀의 이름이 바뀐 경우 옛 이름 → 새 이름.
+ * 핀은 내부 부품으로 추적하므로 이름만 바뀌면 연결을 유지할 수 있다.
+ */
+export function pinRenames(prev: Pick<ChipDef, 'inputs' | 'outputs'>, next: Pick<ChipDef, 'inputs' | 'outputs'>): Map<string, string> {
+  const out = new Map<string, string>();
+  for (const side of ['inputs', 'outputs'] as const) {
+    for (const p of prev[side]) {
+      const n = next[side].find((x) => x.partId === p.partId);
+      if (n && n.name !== p.name) out.set(p.name, n.name);
+    }
+  }
+  return out;
+}
+
+/** 회로 안에서 이 칩의 인스턴스에 꽂힌 전선의 핀 이름을 바꾼다 */
+export function renamePinRefs(circuit: Circuit, chipId: string, renames: Map<string, string>): Circuit {
+  if (renames.size === 0) return circuit;
+  const instances = new Set(circuit.parts.filter((p) => p.kind.type === 'chip' && p.kind.chipId === chipId).map((p) => p.id));
+  if (instances.size === 0) return circuit;
+  let changed = false;
+  const fix = (ref: Wire['from']) => {
+    const to = instances.has(ref.partId) ? renames.get(ref.pin) : undefined;
+    if (to === undefined) return ref;
+    changed = true;
+    return { ...ref, pin: to };
+  };
+  const wires = circuit.wires.map((w) => {
+    const from = fix(w.from);
+    const to = fix(w.to);
+    return from === w.from && to === w.to ? w : { ...w, from, to };
+  });
+  return changed ? { ...circuit, wires } : circuit;
+}
+
+/**
+ * 칩 정의를 갱신한다: 이름만 바뀐 핀은 쓰는 곳의 전선도 새 이름으로 바꾸고,
+ * 사라진 핀에 꽂힌 전선만 지운다. others(작업 공간 등)도 같은 규칙으로 고친다.
+ */
+export function applyChipUpdate(lib: Library, next: ChipDef, others: Circuit[]): { library: Library; others: Circuit[] } {
+  const prev = lib[next.id];
+  const renames = prev ? pinRenames(prev, next) : new Map<string, string>();
+  const renamed: Library = {};
+  for (const [id, def] of Object.entries(lib)) {
+    if (id === next.id) continue;
+    const circuit = renamePinRefs(def.circuit, next.id, renames);
+    renamed[id] = circuit === def.circuit ? def : { ...def, circuit };
+  }
+  const library = pruneLibrary({ ...renamed, [next.id]: next });
+  return { library, others: others.map((c) => pruneDangling(renamePinRefs(c, next.id, renames), library)) };
+}
+
+/** 칩 정의를 바꾸면 끊어지는 전선 수 (다른 칩들 + 주어진 회로들). 이름만 바뀐 핀은 끊기지 않는다. */
 export function countBrokenWires(lib: Library, next: ChipDef, others: Circuit[]): number {
+  const renames = lib[next.id] ? pinRenames(lib[next.id]!, next) : new Map<string, string>();
   const after = { ...lib, [next.id]: next };
   const circuits = [...Object.values(lib).filter((d) => d.id !== next.id).map((d) => d.circuit), ...others];
-  return circuits.reduce((n, c) => n + danglingWires(c, after).length - danglingWires(c, lib).length, 0);
+  return circuits.reduce((n, c) => n + danglingWires(renamePinRefs(c, next.id, renames), after).length - danglingWires(c, lib).length, 0);
 }
 
 /** 라이브러리 전체와 회로들에서 끊어진 전선을 지운다 */

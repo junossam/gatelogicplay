@@ -198,7 +198,8 @@ export function SaveChipDialog() {
                 사용하는 칩에도 변경 사항 반영
               </label>
               <p className="muted small">사용 중인 곳: {users.join(', ')}</p>
-              {propagate && broken > 0 && <p className="warn small">핀이 삭제되거나 이름이 바뀌어 연결이 끊기는 전선: {broken}개</p>}
+              <p className="muted small">핀 이름을 바꾸면 쓰는 곳의 전선도 새 이름으로 이어집니다.</p>
+              {propagate && broken > 0 && <p className="warn small">핀이 삭제되어 연결이 끊기는 전선: {broken}개</p>}
               {!propagate && <p className="muted small">끄면 기존 칩은 그대로 두고 새 칩으로 저장합니다.</p>}
             </div>
           )}

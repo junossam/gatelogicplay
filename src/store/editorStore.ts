@@ -2,6 +2,7 @@ import { useStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { createStore } from 'zustand/vanilla';
 import {
+  applyChipUpdate,
   chipPinsFrom,
   circuitUses,
   instancePrefix,
@@ -10,7 +11,6 @@ import {
   nextPartId,
   pinNameErrors,
   pruneDangling,
-  pruneLibrary,
   rangeToChip,
   uniqueName,
   usedBy,
@@ -487,7 +487,9 @@ export function createEditorStore(initial: Circuit = EMPTY) {
             updatedAt: now,
             revision: (prev?.revision ?? 0) + 1,
           };
-          const library = pruneLibrary({ ...st.library, [def.id]: def });
+          // 이름만 바뀐 핀은 쓰는 곳의 전선도 따라 바꾸고, 사라진 핀의 전선만 지운다
+          const updated = applyChipUpdate(st.library, def, st.stash ? [st.stash.circuit] : []);
+          const library = updated.library;
           const cycle = findChipCycle(library);
           if (cycle) return { ok: false, errors: [`칩 순환 참조가 생깁니다: ${cycle.map((id) => library[id]?.name ?? id).join(' → ')}`] };
           set((s) => {
@@ -497,7 +499,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
               s.openChipId = def.id;
               s.circuit = library[def.id]!.circuit;
               s.openedCircuit = library[def.id]!.circuit;
-              if (s.stash) s.stash.circuit = pruneDangling(s.stash.circuit, library);
+              if (s.stash) s.stash.circuit = updated.others[0]!;
             } else {
               s.circuit = pruneDangling(circuit, library);
             }

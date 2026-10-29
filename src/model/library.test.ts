@@ -15,6 +15,7 @@ import { truthTable } from '../sim/truthTable';
 import type { Bit, ChipDef, Library } from '../sim/types';
 import {
   allDeps,
+  applyChipUpdate,
   chipPinsFrom,
   unwiredIO,
   countBrokenWires,
@@ -200,14 +201,39 @@ describe('핀', () => {
     expect(pinNameErrors({ inputs: [{ name: 'A', partId: 'a' }], outputs: [{ name: 'Y', partId: 'y' }] })).toEqual([]);
   });
 
-  it('핀 이름이 바뀌면 끊어지는 전선 수를 미리 센다', () => {
+  it('핀 이름만 바뀌면 쓰는 곳의 전선도 새 이름으로 이어지고, 삭제된 핀의 전선만 끊긴다', () => {
     const lib = nestedLibrary();
     const sr = lib['chip-sr']!;
     const renamed = { ...sr, inputs: [{ name: 'RESET', partId: 'r' }, sr.inputs[1]!] };
-    // D 래치 안의 latch.R 전선 하나가 끊어진다
-    expect(countBrokenWires(lib, renamed, [])).toBe(1);
-    const pruned = pruneLibrary({ ...lib, [sr.id]: renamed });
+    expect(countBrokenWires(lib, renamed, [])).toBe(0);
+    const { library } = applyChipUpdate(lib, renamed, []);
+    const dl = library['chip-dlatch']!.circuit.wires;
+    expect(dl.some((w) => w.to.partId === 'latch' && w.to.pin === 'RESET')).toBe(true);
+    expect(dl.some((w) => w.to.pin === 'R')).toBe(false);
+    // 이름을 바꿔도 동작은 그대로
+    const e = new Engine(compile(harness(library['chip-dlatch']!), library));
+    e.setInput('in_CLK', 1);
+    e.setInput('in_D', 1);
+    e.tick(100);
+    expect(led(e, 'out_Q')).toBe(1);
+
+    // 핀을 아예 빼면 그 전선만 끊긴다
+    const removed = { ...sr, inputs: [sr.inputs[1]!] };
+    expect(countBrokenWires(lib, removed, [])).toBe(1);
+    const pruned = pruneLibrary({ ...lib, [sr.id]: removed });
     expect(pruned['chip-dlatch']!.circuit.wires.some((w) => w.to.pin === 'R')).toBe(false);
+  });
+
+  it('두 핀 이름을 서로 바꿔도 각 전선이 원래 부품을 따라간다', () => {
+    const lib = nestedLibrary();
+    const sr = lib['chip-sr']!;
+    const swapped = { ...sr, inputs: [{ name: 'S', partId: 'r' }, { name: 'R', partId: 's' }] };
+    const { library, others } = applyChipUpdate(lib, swapped, [harness(sr, 'u')]);
+    const dl = library['chip-dlatch']!.circuit.wires;
+    // andr(리셋 쪽)은 내부 부품 r을 가리키던 핀 → 이제 이름이 S
+    expect(dl.find((w) => w.from.partId === 'andr')!.to.pin).toBe('S');
+    expect(dl.find((w) => w.from.partId === 'ands')!.to.pin).toBe('R');
+    expect(others[0]!.wires.find((w) => w.from.partId === 'in_R')!.to.pin).toBe('S');
   });
 
   it('이름이 겹치면 "이름 (2)"', () => {
