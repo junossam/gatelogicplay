@@ -96,7 +96,7 @@ export function Header() {
 
   return (
     <header className="header">
-      <div className="logo">LogicLab</div>
+      <div className="logo">GateLogicPlay</div>
       <Breadcrumb />
       <span className={`save-badge ${dirty ? 'dirty' : status}`} role="status" data-testid="save-status">
         {dirty ? '칩 변경 사항 저장 안 됨' : STATUS_TEXT[status]}

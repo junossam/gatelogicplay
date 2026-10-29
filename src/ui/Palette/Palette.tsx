@@ -285,11 +285,11 @@ export function currentBundle(purpose: 'export' | 'share'): { filename: string; 
   const st = editorStore.getState();
   if (st.openChipId) {
     const def = st.library[st.openChipId]!;
-    return { filename: `${def.name}.logiclab.json`, json: serializeBundle(withDependencies([def.id], st.library), { parts: [], wires: [] }, def.id) };
+    return { filename: `${def.name}.gatelogicplay.json`, json: serializeBundle(withDependencies([def.id], st.library), { parts: [], wires: [] }, def.id) };
   }
   const ws = workspaceOf(st);
   const used = withDependencies(chipsUsedIn(ws), st.library);
-  return { filename: 'workspace.logiclab.json', json: serializeBundle(purpose === 'export' ? { ...st.library, ...used } : used, ws, null) };
+  return { filename: 'workspace.gatelogicplay.json', json: serializeBundle(purpose === 'export' ? { ...st.library, ...used } : used, ws, null) };
 }
 
 export function exportCurrent() {

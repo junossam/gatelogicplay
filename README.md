@@ -1,4 +1,4 @@
-# LogicLab
+# GateLogicPlay
 
 기본 게이트와 스위치·푸시 버튼·LED만으로 래치, 플립플롭, 가산기 같은 회로를 직접 조립해 보는 웹 시뮬레이터입니다. 만든 회로는 **칩**으로 저장해서 다른 회로 안에 다시 넣을 수 있고, 여러 단계로 중첩할 수 있습니다.
 
@@ -99,7 +99,7 @@ pnpm dev
 
 ## 예제
 
-[`examples/flipflops.logiclab.json`](examples/flipflops.logiclab.json) — SR 래치, D 래치와 SR·D·JK·T 플립플롭(상승 에지) 칩, 바로 눌러 볼 수 있는 데모 작업 공간. 팔레트의 **가져오기**로 불러옵니다.
+[`examples/flipflops.gatelogicplay.json`](examples/flipflops.gatelogicplay.json) — SR 래치, D 래치와 SR·D·JK·T 플립플롭(상승 에지) 칩, 바로 눌러 볼 수 있는 데모 작업 공간. 팔레트의 **가져오기**로 불러옵니다.
 
 > 모든 Net은 0에서 시작하므로 래치·플립플롭은 처음에 깜빡이며 "진동 중"으로 표시됩니다. 셋/리셋하거나(JK는 K=1, D는 D=0, T는 CLR을 켜고) 클럭을 한 번 주면 정리됩니다.
 
@@ -115,7 +115,13 @@ pnpm dev
 }
 ```
 
+`format` 값 `"logiclab"`과 브라우저 저장 키 `logiclab:v1:*`는 이전 이름(LogicLab) 때 정한 내부 식별자로, 기존 작업·파일과 호환되도록 그대로 둡니다.
+
 가져올 때 [zod](https://zod.dev/) 스키마로 검증하고, 실패하면 어떤 필드가 문제인지 알려 줍니다. 이전 버전 파일은 `src/model/migrate.ts`에서 단계별로 변환해 읽습니다.
+
+## 배포
+
+`pnpm build` 결과물(`dist/`)은 상대 경로(`base: './'`)로 만들어져 어느 하위 폴더에 올려도 동작합니다. 현재 <https://junossam.github.io/gatelogicplay/> 에 `dist/` 내용만 올려 운영합니다.
 
 ## 개발
 

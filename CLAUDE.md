@@ -1,4 +1,4 @@
-# LogicLab
+# GateLogicPlay
 
 기본 게이트(AND/OR/XOR/NAND/NOR/XNOR/NOT) + 스위치/푸시 버튼/LED로 회로를 조립하고, 만든 회로를 칩으로 저장해 중첩하는 웹 시뮬레이터.
 **전체 명세는 `docs/SPEC.md`** — 기능을 구현하기 전에 해당 장을 먼저 읽을 것.
