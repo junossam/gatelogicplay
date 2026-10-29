@@ -20,6 +20,7 @@ interface UiState {
   saveOpen: boolean;
   settingsOpen: boolean;
   challengesOpen: boolean;
+  shareOpen: boolean;
   message: Message | null;
   /** 가져오기 대화상자에 띄울 파일 (검증 통과) */
   pendingImport: Bundle | null;
@@ -28,6 +29,7 @@ interface UiState {
   setSaveOpen(open: boolean): void;
   setSettingsOpen(open: boolean): void;
   setChallengesOpen(open: boolean): void;
+  setShareOpen(open: boolean): void;
   setMessage(message: Message | null): void;
   setPendingImport(bundle: Bundle | null): void;
   setArmed(kind: PartKind | null): void;
@@ -42,6 +44,7 @@ export const useUi = create<UiState>((set) => ({
   saveOpen: false,
   settingsOpen: false,
   challengesOpen: false,
+  shareOpen: false,
   message: null,
   pendingImport: null,
   setWaveOpen: (waveOpen) => set({ waveOpen }),
@@ -49,6 +52,7 @@ export const useUi = create<UiState>((set) => ({
   setSaveOpen: (saveOpen) => set({ saveOpen }),
   setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
   setChallengesOpen: (challengesOpen) => set({ challengesOpen }),
+  setShareOpen: (shareOpen) => set({ shareOpen }),
   setMessage: (message) => set({ message }),
   setPendingImport: (pendingImport) => set({ pendingImport }),
   setArmed: (armed) => set({ armed }),

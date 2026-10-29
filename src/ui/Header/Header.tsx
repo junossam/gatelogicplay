@@ -147,6 +147,11 @@ export function Header() {
           진리표
         </button>
         {!challengeId && (
+          <button type="button" className="text-button" onClick={() => useUi.getState().setShareOpen(true)}>
+            공유
+          </button>
+        )}
+        {!challengeId && (
           <button type="button" className="text-button primary" onClick={() => setSaveOpen(true)} title="칩으로 저장 (Ctrl+S)">
             칩으로 저장
           </button>

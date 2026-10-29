@@ -543,10 +543,11 @@ export function createEditorStore(initial: Circuit = EMPTY) {
         importLibrary(incoming, mode, workspace) {
           const st = get();
           const merged = mergeImport(st.library, incoming, mode, workspace);
-          if (merged.workspace) get().load(merged.workspace);
+          // 칩 정의가 먼저 있어야 작업 공간을 컴파일할 수 있다
           set((s) => {
             s.library = merged.library;
           });
+          if (merged.workspace) get().load(merged.workspace);
           return merged.added;
         },
 

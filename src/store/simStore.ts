@@ -21,6 +21,8 @@ export interface SimState {
 }
 
 export const engine = new Engine();
+/** 컴파일 오류로 실행을 멈췄는가 (사용자가 멈춘 것과 구분) */
+let pausedByError = false;
 export const recorder = new Recorder();
 engine.onTick = (tick, values) => recorder.pushValues(tick, values);
 
@@ -75,10 +77,13 @@ export function loadCircuit(circuit: Circuit, library: Library): void {
     engine.load(netlist, engine.snapshot());
     engine.setTicksPerSecond(simStore.getState().speed);
     rewatch();
-    simStore.setState({ error: null });
+    // 컴파일 오류 때문에 멈췄던 것이면 오류가 풀리면서 다시 실행
+    simStore.setState(pausedByError ? { error: null, running: true } : { error: null });
+    pausedByError = false;
   } catch (e) {
     if (!(e instanceof CompileError)) throw e;
     engine.load(compile({ parts: [], wires: [] }));
+    if (simStore.getState().running) pausedByError = true;
     simStore.setState({ error: e.message, running: false });
   }
   publish();

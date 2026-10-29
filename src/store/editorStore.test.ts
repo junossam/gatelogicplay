@@ -322,3 +322,27 @@ describe('칩 편집 (4단계)', () => {
     expect(s().circuit.parts.find((p) => p.id === id)!.rotation).toBeUndefined();
   });
 });
+
+describe('가져오기', () => {
+  it('칩을 쓰는 작업 공간을 가져오면 칩 정의가 먼저 들어간다', () => {
+    const seen: number[] = [];
+    const unsub = store.subscribe((st) => seen.push(Object.keys(st.library).length * 10 + st.circuit.parts.length));
+    const lib = {
+      c1: {
+        id: 'c1',
+        name: 'X',
+        color: 'chip-1',
+        inputs: [],
+        outputs: [],
+        circuit: { parts: [], wires: [] },
+        createdAt: '',
+        updatedAt: '',
+        revision: 1,
+      },
+    };
+    s().importLibrary(lib, 'copy', { parts: [{ id: 'x1', kind: { type: 'chip', chipId: 'c1' }, x: 0, y: 0 }], wires: [] });
+    unsub();
+    // 라이브러리(10)가 먼저, 그다음 작업 공간(+1)
+    expect(seen).toEqual([10, 11]);
+  });
+});

@@ -182,16 +182,24 @@ function download(filename: string, text: string) {
 }
 
 /** 작업 공간이면 작업 공간과 쓰는 칩 전체, 칩 편집 중이면 그 칩과 의존하는 칩 (SPEC 4.3) */
-export function exportCurrent() {
+/**
+ * 지금 회로를 4.3절 파일로 묶는다. 칩 편집 중이면 그 칩과 의존 칩.
+ * 작업 공간이면 내보내기는 라이브러리 전체, 공유는 작업 공간이 쓰는 칩만 (링크를 짧게).
+ */
+export function currentBundle(purpose: 'export' | 'share'): { filename: string; json: string } {
   const st = editorStore.getState();
   if (st.openChipId) {
     const def = st.library[st.openChipId]!;
-    download(`${def.name}.logiclab.json`, serializeBundle(withDependencies([def.id], st.library), { parts: [], wires: [] }, def.id));
-  } else {
-    const ws = workspaceOf(st);
-    const used = withDependencies(chipsUsedIn(ws), st.library);
-    download('workspace.logiclab.json', serializeBundle({ ...st.library, ...used }, ws, null));
+    return { filename: `${def.name}.logiclab.json`, json: serializeBundle(withDependencies([def.id], st.library), { parts: [], wires: [] }, def.id) };
   }
+  const ws = workspaceOf(st);
+  const used = withDependencies(chipsUsedIn(ws), st.library);
+  return { filename: 'workspace.logiclab.json', json: serializeBundle(purpose === 'export' ? { ...st.library, ...used } : used, ws, null) };
+}
+
+export function exportCurrent() {
+  const { filename, json } = currentBundle('export');
+  download(filename, json);
 }
 
 export function Palette() {
