@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { serializeLibrary } from '../../src/model/storage';
 import { harness, srLatchChip } from '../fixtures/circuits';
-import { seed } from './helpers';
+import { menuAction, seed } from './helpers';
 
 async function setSwitch(page: Page, id: string, v: 0 | 1) {
   const part = page.getByTestId(`part-${id}`);
@@ -15,7 +15,7 @@ async function setSwitch(page: Page, id: string, v: 0 | 1) {
 test('7단계 완료 기준: SR 래치 칩 회로의 공유 링크를 새 창에서 열면 가져와서 그대로 동작', async ({ page, browser }) => {
   const sr = srLatchChip();
   await seed(page, harness(sr, 'latch'), { 'logiclab:v1:library': serializeLibrary({ [sr.id]: sr }) });
-  await page.getByRole('button', { name: '공유' }).click();
+  await menuAction(page, '파일', '공유 링크');
   const input = page.getByRole('textbox', { name: '공유 링크' });
   await expect(input).toHaveValue(/#share=[A-Za-z0-9_-]+$/);
   const url = await input.inputValue();

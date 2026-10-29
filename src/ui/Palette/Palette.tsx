@@ -389,10 +389,19 @@ export function exportCurrent() {
   download(filename, json);
 }
 
+/** 고른 JSON 파일을 검증하고 가져오기 대화상자로 (SPEC 4.3) */
+export async function importBundleFile(file: File) {
+  const r = parseBundle(await file.text());
+  if (!r.ok) {
+    useUi.getState().setMessage({ title: '가져올 수 없는 파일', body: `파일 검증에 실패했습니다. ${r.error}` });
+    return;
+  }
+  useUi.getState().setPendingImport(r.data);
+}
+
 export function Palette() {
   const [query, setQuery] = useState('');
   const library = useEditor((s) => s.library);
-  const fileRef = useRef<HTMLInputElement>(null);
   const gates = GATES.filter((i) => matches(i.name, query));
   const clockEnabled = useSettings((s) => s.clockEnabled);
   const io = [...IO, ...(clockEnabled ? [CLOCK] : [])].filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''}`));
@@ -403,15 +412,6 @@ export function Palette() {
   const groups = groupByCategory(chips);
   const [collapsed, toggleCollapsed] = useCollapsed();
   const hasCategories = groups.some(([c]) => c !== '');
-
-  const onFile = async (file: File) => {
-    const r = parseBundle(await file.text());
-    if (!r.ok) {
-      useUi.getState().setMessage({ title: '가져올 수 없는 파일', body: `파일 검증에 실패했습니다. ${r.error}` });
-      return;
-    }
-    useUi.getState().setPendingImport(r.data);
-  };
 
   return (
     <aside className="palette" aria-label="부품 팔레트">
@@ -472,26 +472,6 @@ export function Palette() {
           ))
         )}
       </section>
-      <div className="palette-footer">
-        <button type="button" className="text-button" onClick={() => fileRef.current?.click()}>
-          가져오기
-        </button>
-        <button type="button" className="text-button" onClick={exportCurrent}>
-          내보내기
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept=".json,application/json"
-          hidden
-          data-testid="import-file"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) void onFile(f);
-            e.target.value = '';
-          }}
-        />
-      </div>
     </aside>
   );
 }

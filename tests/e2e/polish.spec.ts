@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { serializeLibrary } from '../../src/model/storage';
 import { CircuitBuilder, halfAdder, harness, nestedLibrary, srLatchChip } from '../fixtures/circuits';
-import { seed } from './helpers';
+import { menuAction, seed } from './helpers';
 
 const tickOf = async (page: Page) => Number((await page.getByTestId('tick').textContent())!.replace(/\D/g, ''));
 
@@ -101,7 +101,7 @@ test('클럭: 팔레트에서 놓고 주파수를 바꾸면 LED가 깜빡인다,
   // 클럭이 있는 회로의 진리표는 만들지 않는다
   await expect(page.locator('.inspector')).toContainText('클럭이 있는 회로는 진리표를 만들 수 없습니다');
 
-  await page.getByRole('button', { name: '설정' }).click();
+  await menuAction(page, '도구', '설정');
   await page.getByRole('checkbox', { name: '클럭 부품 사용' }).uncheck();
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('palette-CLOCK')).toHaveCount(0);

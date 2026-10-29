@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { halfAdder, srLatch } from '../fixtures/circuits';
-import { pressPush, seed } from './helpers';
+import { menuAction, pressPush, seed } from './helpers';
 
 const channels = (page: Page) => page.getByTestId('wave-channel');
 
@@ -71,7 +71,7 @@ test('진리표: 반가산기 4행, 현재 입력 행 강조, 헤더 버튼으�
   await page.getByTestId('part-a').locator('.part-hit').click();
   await expect(table.locator('tr.current td')).toHaveText(['1', '0', '1', '0']);
 
-  await page.getByRole('button', { name: '진리표' }).click();
+  await menuAction(page, '도구', '진리표');
   const dialog = page.getByRole('dialog', { name: '진리표' });
   await expect(dialog.getByTestId('truth-table').locator('tbody tr')).toHaveCount(4);
   await page.keyboard.press('Escape');

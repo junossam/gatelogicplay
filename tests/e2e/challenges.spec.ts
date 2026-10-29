@@ -1,9 +1,9 @@
 import { expect, test, type Page } from '@playwright/test';
-import { seed } from './helpers';
+import { menuAction, seed } from './helpers';
 import { halfAdder } from '../fixtures/circuits';
 
 async function openChallenge(page: Page, id: string) {
-  await page.locator('.header-actions').getByRole('button', { name: '챌린지', exact: true }).click();
+  await menuAction(page, '도구', '챌린지');
   await page.getByTestId(`challenge-${id}`).getByRole('button').click();
   await expect(page.getByTestId('challenge-panel')).toBeVisible();
 }
@@ -62,7 +62,7 @@ test('6단계 완료 기준: NAND로 XOR — 허용 부품만 활성, 틀린 행
   await page.waitForTimeout(1300);
   await page.reload();
   await expect(page.getByTestId('grade')).toContainText('통과!');
-  await page.locator('.header-actions').getByRole('button', { name: '챌린지', exact: true }).click();
+  await menuAction(page, '도구', '챌린지');
   await expect(page.getByTestId('challenge-nand-xor')).toContainText('통과 · 게이트 4개');
   await page.keyboard.press('Escape');
 

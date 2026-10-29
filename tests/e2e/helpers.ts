@@ -16,6 +16,12 @@ export async function seed(page: Page, circuit: Circuit, extra: Record<string, s
   await page.reload();
 }
 
+/** 상단 메뉴바에서 메뉴(파일·편집·시뮬레이션·도구)를 열고 항목을 고른다 */
+export async function menuAction(page: Page, menu: string, item: string) {
+  await page.getByRole('menubar').getByRole('menuitem', { name: menu, exact: true }).click();
+  await page.getByRole('menu', { name: menu }).getByRole('menuitem', { name: item }).click();
+}
+
 /** 내 칩의 ⚙ 설정 메뉴를 열고 항목(편집·분류 바꾸기·삭제)을 고른다 */
 export async function chipAction(page: Page, chip: string, item: '편집' | '분류 바꾸기' | '삭제') {
   await page.getByRole('button', { name: `${chip} 설정`, exact: true }).click();

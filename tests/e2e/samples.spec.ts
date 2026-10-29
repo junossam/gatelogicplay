@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { CircuitBuilder } from '../fixtures/circuits';
-import { seed } from './helpers';
+import { menuAction, seed } from './helpers';
 
 test('예제: 헤더의 예제 창에서 분류별 목록을 보고, 열면 가져오기 창을 거쳐 작업 공간에 들어온다', async ({ page }) => {
   await seed(page, new CircuitBuilder().add('SWITCH', 's', 0, 0, 'A').build());
-  await page.getByRole('button', { name: '예제', exact: true }).click();
+  await menuAction(page, '파일', '예제');
   const dialog = page.getByRole('dialog', { name: '예제' });
   await expect(dialog.getByTestId('sample-group-기억 소자')).toContainText('플립플롭 모음');
   await expect(dialog.getByTestId('sample-group-연산')).toContainText('4비트 가산기 (버스)');
