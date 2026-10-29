@@ -16,6 +16,8 @@ import type { Bit, ChipDef, Library } from '../sim/types';
 import {
   allDeps,
   applyChipUpdate,
+  chipCategories,
+  groupByCategory,
   chipPinsFrom,
   unwiredIO,
   countBrokenWires,
@@ -346,5 +348,20 @@ describe('칩 핀에서 빼기', () => {
     expect([...unwiredIO(c)]).toEqual(['led9']);
     expect(chipPinsFrom(c).outputs.map((p) => p.name)).toEqual(['Y1', 'Q', 'Q̄']);
     expect(chipPinsFrom(c, { exclude: ['led9'] }).outputs.map((p) => p.name)).toEqual(['Q', 'Q̄']);
+  });
+});
+
+describe('칩 분류', () => {
+  it('분류별로 묶고, 분류 없는 칩은 맨 뒤', () => {
+    const lib = nestedLibrary();
+    lib['chip-sr'] = { ...lib['chip-sr']!, category: '래치' };
+    lib['chip-dlatch'] = { ...lib['chip-dlatch']!, category: '래치' };
+    lib['chip-reg4'] = { ...lib['chip-reg4']!, category: '레지스터' };
+    expect(chipCategories(lib)).toEqual(['래치', '레지스터']);
+    expect(groupByCategory(Object.values(lib)).map(([c, defs]) => [c, defs.length])).toEqual([
+      ['래치', 2],
+      ['레지스터', 1],
+      ['', 1],
+    ]);
   });
 });

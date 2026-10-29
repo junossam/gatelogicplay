@@ -4,6 +4,9 @@ import type { Library, Part, PrimitiveKind } from './types';
 
 export const MAX_BITS = 16;
 export const BUS_DEFAULT_BITS = 4;
+/** 입력 수를 고를 수 있는 게이트 (2~8개) */
+export const MULTI_INPUT_KINDS = new Set<PrimitiveKind>(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR']);
+export const MAX_INPUTS = 8;
 
 export interface PinSpec {
   name: string;
@@ -25,9 +28,25 @@ export function partBits(part: Part): number {
   return part.kind.type === 'primitive' ? primitiveBits(part.kind.kind, part.props?.bits) : 1;
 }
 
-/** 비트 수를 반영한 기본 부품의 핀 */
-export function primitivePins(kind: PrimitiveKind, bits: number): PinSpec[] {
+/** 게이트 입력 수 (AND·OR·XOR·NAND·NOR·XNOR는 2~8, 없으면 2) */
+export function gateInputs(kind: PrimitiveKind, inputs: number | undefined): number {
+  return MULTI_INPUT_KINDS.has(kind) ? Math.min(MAX_INPUTS, Math.max(2, Math.round(inputs ?? 2))) : 2;
+}
+
+export function partInputs(part: Part): number {
+  return part.kind.type === 'primitive' ? gateInputs(part.kind.kind, part.props?.inputs) : 2;
+}
+
+/** 입력 핀 이름: a, b, c, … */
+export const inputPinName = (k: number) => String.fromCharCode(97 + k);
+
+/** 비트 수(와 게이트 입력 수)를 반영한 기본 부품의 핀 */
+export function primitivePins(kind: PrimitiveKind, bits: number, inputs = 2): PinSpec[] {
   const n = primitiveBits(kind, bits);
+  if (MULTI_INPUT_KINDS.has(kind)) {
+    const m = gateInputs(kind, inputs);
+    return [...Array.from({ length: m }, (_, k) => ({ name: inputPinName(k), dir: 'in' as const, width: n })), { name: 'y', dir: 'out', width: n }];
+  }
   if (kind === 'SPLIT') return [{ name: 'a', dir: 'in', width: n }, ...Array.from({ length: n }, (_, k) => ({ name: `y${k}`, dir: 'out' as const, width: 1 }))];
   if (kind === 'MERGE') return [...Array.from({ length: n }, (_, k) => ({ name: `a${k}`, dir: 'in' as const, width: 1 })), { name: 'y', dir: 'out', width: n }];
   return PRIMITIVE_PINS[kind].map((p) => ({ ...p, width: n }));
@@ -35,7 +54,7 @@ export function primitivePins(kind: PrimitiveKind, bits: number): PinSpec[] {
 
 /** 부품의 핀 (칩이면 내부 스위치·LED의 비트 수가 핀 비트 수) */
 export function partPinSpecs(part: Part, library: Library = {}): PinSpec[] {
-  if (part.kind.type === 'primitive') return primitivePins(part.kind.kind, partBits(part));
+  if (part.kind.type === 'primitive') return primitivePins(part.kind.kind, partBits(part), partInputs(part));
   const def = library[part.kind.chipId];
   if (!def) return [];
   const inner = new Map(def.circuit.parts.map((p) => [p.id, p]));

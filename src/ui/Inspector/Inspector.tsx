@@ -4,7 +4,7 @@ import { orderedIO } from '../../sim/truthTable';
 import type { Part } from '../../sim/types';
 import { circuitUses, usedBy } from '../../model/library';
 import { editorStore, useEditor, useView, workspaceOf } from '../../store/editorStore';
-import { MAX_BITS, partBits, partPinSpecs } from '../../sim/pins';
+import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs } from '../../sim/pins';
 import { engine, inputNumber, readPinNumber, simActions, useSim } from '../../store/simStore';
 import { partPins } from '../Canvas/geometry';
 import { TruthTableView, useTruthTable } from '../TruthTable/TruthTableView';
@@ -123,6 +123,34 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
           </dd>
         </>
       )}
+      {kind && MULTI_INPUT_KINDS.has(kind) && (
+        <>
+          <dt>입력 수</dt>
+          <dd>
+            {readOnly ? (
+              <span className="mono">{partInputs(part)}</span>
+            ) : (
+              <select
+                className="field"
+                aria-label="입력 수"
+                value={partInputs(part)}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  const props: { hz?: number; bits?: number; inputs?: number } = { ...part.props, inputs: n };
+                  if (n === 2) delete props.inputs;
+                  editorStore.getState().updatePart(part.id, { props: Object.keys(props).length ? props : undefined });
+                }}
+              >
+                {Array.from({ length: MAX_INPUTS - 1 }, (_, i) => i + 2).map((n) => (
+                  <option key={n} value={n}>
+                    {n}개
+                  </option>
+                ))}
+              </select>
+            )}
+          </dd>
+        </>
+      )}
       {kind && BITS_KINDS.has(kind) && (
         <>
           <dt>비트 수</dt>
@@ -138,7 +166,7 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
                   const min = kind === 'SPLIT' || kind === 'MERGE' ? 2 : 1;
                   const n = Math.round(Number(v));
                   if (!(n >= min && n <= MAX_BITS)) return;
-                  const props: { hz?: number; bits?: number } = { ...part.props, bits: n };
+                  const props: { hz?: number; bits?: number; inputs?: number } = { ...part.props, bits: n };
                   if (n === 1) delete props.bits;
                   editorStore.getState().updatePart(part.id, { props: Object.keys(props).length ? props : undefined });
                 }}

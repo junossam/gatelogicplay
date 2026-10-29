@@ -7,6 +7,22 @@ import type { ChipDef, Circuit, Library, Part, Wire } from '../sim/types';
 
 export const CHIP_COLORS = ['chip-1', 'chip-2', 'chip-3', 'chip-4', 'chip-5'] as const;
 
+/** 쓰고 있는 칩 분류 (가나다순) */
+export function chipCategories(lib: Library): string[] {
+  return [...new Set(Object.values(lib).map((d) => d.category?.trim()).filter((c): c is string => !!c))].sort((a, b) => a.localeCompare(b, 'ko'));
+}
+
+/** 분류별로 칩을 묶는다. 분류 없는 칩은 '' 키, 맨 뒤 */
+export function groupByCategory(defs: ChipDef[]): [string, ChipDef[]][] {
+  const groups = new Map<string, ChipDef[]>();
+  for (const d of defs) {
+    const c = d.category?.trim() ?? '';
+    if (!groups.has(c)) groups.set(c, []);
+    groups.get(c)!.push(d);
+  }
+  return [...groups.entries()].sort(([a], [b]) => (a === '' ? 1 : b === '' ? -1 : a.localeCompare(b, 'ko')));
+}
+
 export function directDeps(def: Pick<ChipDef, 'circuit'>): Set<string> {
   return new Set(def.circuit.parts.flatMap((p) => (p.kind.type === 'chip' ? [p.kind.chipId] : [])));
 }

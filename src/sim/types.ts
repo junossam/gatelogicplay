@@ -16,8 +16,8 @@ export interface Part {
   y: number;
   rotation?: Rotation;
   label?: string;
-  /** hz: 클럭 주파수, bits: 비트 수 (8단계 버스, 없으면 1. 나누기·묶기는 4) */
-  props?: { hz?: number; bits?: number };
+  /** hz: 클럭 주파수, bits: 비트 수 (8단계 버스, 없으면 1. 나누기·묶기는 4), inputs: 게이트 입력 수 (2~8, 없으면 2) */
+  props?: { hz?: number; bits?: number; inputs?: number };
 }
 
 export interface PinRef {
@@ -45,6 +45,8 @@ export interface ChipDef {
   name: string;
   /** 팔레트 스와치 키 (예: 'chip-1' → var(--chip-1)) */
   color: string;
+  /** 팔레트 "내 칩"에서 묶어 보여 줄 분류 (없으면 분류 없음) */
+  category?: string;
   inputs: { name: string; partId: string }[];
   outputs: { name: string; partId: string }[];
   circuit: Circuit;

@@ -367,3 +367,25 @@ describe('다중 비트 버스 (8단계)', () => {
   });
 
 });
+
+describe('게이트 입력 수와 칩 분류', () => {
+  it('입력 수를 줄이면 없어진 핀의 전선은 지운다', () => {
+    const g = s().addPart('AND', 5, 0);
+    s().updatePart(g, { props: { inputs: 3 } });
+    const sw = s().addPart('SWITCH', 0, 0);
+    expect(s().connect({ partId: sw, pin: 'y' }, { partId: g, pin: 'c' })).not.toBeNull();
+    s().updatePart(g, { props: undefined });
+    expect(s().circuit.wires).toHaveLength(0);
+  });
+
+  it('저장할 때 분류를 넣고, 분류 바꾸기·이름 바꾸기는 라이브러리 전체에 반영', () => {
+    s().addPart('SWITCH', 0, 0);
+    const a = (s().saveChip({ name: 'A', color: 'chip-1', category: ' 래치 ', names: {}, order: { inputs: [], outputs: [] }, propagate: true }) as { id: string }).id;
+    const b = (s().saveChip({ name: 'B', color: 'chip-1', category: '래치', names: {}, order: { inputs: [], outputs: [] }, propagate: true }) as { id: string }).id;
+    expect(s().library[a]!.category).toBe('래치');
+    s().renameCategory('래치', '기억 소자');
+    expect([s().library[a]!.category, s().library[b]!.category]).toEqual(['기억 소자', '기억 소자']);
+    s().setChipCategory(b, '');
+    expect(s().library[b]!.category).toBeUndefined();
+  });
+});

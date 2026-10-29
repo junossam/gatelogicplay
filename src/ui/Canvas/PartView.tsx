@@ -1,6 +1,6 @@
 import { memo, type PointerEvent } from 'react';
 import type { ChipDef, Part, PinRef } from '../../sim/types';
-import { partBits, partPinSpecs } from '../../sim/pins';
+import { partBits, partInputs, partPinSpecs } from '../../sim/pins';
 import { engine, inputNumber, readPinNumber, useSim } from '../../store/simStore';
 import { PartShape } from '../Palette/PartIcons';
 import { baseSize, chipPins, GRID, partPins, partRect, rotationTransform } from './geometry';
@@ -102,7 +102,7 @@ export const PartView = memo(function PartView({ part, chip, selected, connected
       />
       <g transform={rotationTransform(W, H, part.rotation)}>
         <g pointerEvents="none">
-          {kind && <PartShape kind={kind} on={value === 1} bits={bits} value={value} />}
+          {kind && <PartShape kind={kind} on={value === 1} bits={bits} value={value} inputs={partInputs(part)} />}
           {kind && bits > 1 && kind !== 'SWITCH' && kind !== 'LED' && kind !== 'SPLIT' && kind !== 'MERGE' && (
             <text x={W - 4} y={H - 2} textAnchor="end" className="bits-badge">
               ×{bits}

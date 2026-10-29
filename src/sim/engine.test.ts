@@ -217,3 +217,53 @@ describe('재컴파일', () => {
     expect(led(e2, 'q')).toBe(1);
   });
 });
+
+describe('입력 2~8개 게이트', () => {
+  const gate = (kind: 'AND' | 'OR' | 'XOR' | 'NAND' | 'NOR' | 'XNOR', n: number) => {
+    const b = new CircuitBuilder().add(kind, 'g').add('LED', 'y').wire('g.y', 'y.a');
+    b.parts[0]!.props = { inputs: n };
+    const names = 'abcdefgh'.slice(0, n).split('');
+    names.forEach((p) => b.add('SWITCH', `s${p}`).wire(`s${p}.y`, `g.${p}`));
+    return { e: new Engine(compile(b.build())), names };
+  };
+  const expected = {
+    AND: (ones: number, n: number) => (ones === n ? 1 : 0),
+    OR: (ones: number) => (ones > 0 ? 1 : 0),
+    XOR: (ones: number) => ones & 1,
+    NAND: (ones: number, n: number) => (ones === n ? 0 : 1),
+    NOR: (ones: number) => (ones > 0 ? 0 : 1),
+    XNOR: (ones: number) => 1 - (ones & 1),
+  } as const;
+
+  it.each(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR'] as const)('%s 3입력 진리표 (XOR는 1이 홀수 개일 때 1)', (kind) => {
+    const { e, names } = gate(kind, 3);
+    for (let i = 0; i < 8; i++) {
+      names.forEach((p, k) => e.setInput(`s${p}`, ((i >> k) & 1) as 0 | 1));
+      e.settle();
+      const ones = [0, 1, 2].filter((k) => (i >> k) & 1).length;
+      expect(e.readPin('y.a'), `${kind} ${i.toString(2)}`).toBe(expected[kind](ones, 3));
+    }
+  });
+
+  it('8입력 AND도 한 게이트 = 1틱 지연', () => {
+    const { e, names } = gate('AND', 8);
+    e.settle();
+    names.forEach((p) => e.setInput(`s${p}`, 1));
+    e.tick(); // 입력은 이 틱 시작에 반영되고 게이트 출력은 이 틱 끝에
+    expect(e.read('g')).toBe(1);
+    e.setInput('sh', 0);
+    e.tick();
+    expect(e.read('g')).toBe(0);
+    expect(e.netlist.nodes.filter((n) => n.kind === 'AND')).toHaveLength(1);
+  });
+
+  it('연결 안 된 입력은 0: 3입력 AND는 두 개만 1이면 0', () => {
+    const b = new CircuitBuilder().add('AND', 'g').add('SWITCH', 'a').add('SWITCH', 'b').add('LED', 'y').wire('a.y', 'g.a').wire('b.y', 'g.b').wire('g.y', 'y.a');
+    b.parts[0]!.props = { inputs: 3 };
+    const e = new Engine(compile(b.build()));
+    e.setInput('a', 1);
+    e.setInput('b', 1);
+    e.settle();
+    expect(e.readPin('y.a')).toBe(0);
+  });
+});

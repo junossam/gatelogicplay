@@ -7,6 +7,8 @@ import { VERSION } from './schema';
 const steps: Record<number, (doc: Record<string, unknown>) => Record<string, unknown>> = {
   // 1 → 2: 다중 비트 버스 추가. 기존 문서는 모두 1비트라 구조는 그대로 두고 버전만 올린다.
   1: (doc) => ({ ...doc, version: 2 }),
+  // 2 → 3: 게이트 입력 수와 칩 분류 추가. 둘 다 없으면 기존과 같으므로 버전만 올린다.
+  2: (doc) => ({ ...doc, version: 3 }),
 };
 
 export class MigrationError extends Error {}

@@ -1,5 +1,5 @@
 import type { Netlist } from './compile';
-import { evalGate } from './primitives';
+import { evalGateCount } from './primitives';
 import type { Bit } from './types';
 
 /** 재컴파일할 때 이어받을 상태 */
@@ -47,8 +47,9 @@ export class Engine {
   private netIndex = new Map<string, number>();
   // 게이트 노드 (구조체 배열 대신 타입 배열)
   private gateCode = new Uint8Array(0);
-  private gateIn0 = new Int32Array(0);
-  private gateIn1 = new Int32Array(0);
+  // 게이트 입력 Net (CSR: gateInStart[g] ~ gateInStart[g+1]) — 입력 2~8개 게이트
+  private gateInStart = new Int32Array(1);
+  private gateIns = new Int32Array(0);
   private gateOut = new Int32Array(0);
   private gateStamp = new Int32Array(0);
   // Net → 그 Net을 읽는 게이트 (CSR)
@@ -91,15 +92,15 @@ export class Engine {
     const clocks = netlist.nodes.filter((n) => n.kind === 'CLOCK' && n.out >= 0);
     const nG = gates.length;
     this.gateCode = new Uint8Array(nG);
-    this.gateIn0 = new Int32Array(nG);
-    this.gateIn1 = new Int32Array(nG);
+    this.gateInStart = new Int32Array(nG + 1);
+    gates.forEach((g, i) => (this.gateInStart[i + 1] = this.gateInStart[i]! + g.ins.length));
+    this.gateIns = new Int32Array(this.gateInStart[nG]!);
     this.gateOut = new Int32Array(nG);
     this.gateStamp = new Int32Array(nG).fill(-1);
     const fanCount = new Int32Array(nNets + 1);
     gates.forEach((g, i) => {
       this.gateCode[i] = KIND_CODE[g.kind as keyof typeof KIND_CODE];
-      this.gateIn0[i] = g.ins[0] ?? -1;
-      this.gateIn1[i] = g.ins[1] ?? -1;
+      g.ins.forEach((n, k) => (this.gateIns[this.gateInStart[i]! + k] = n));
       this.gateOut[i] = g.out;
       for (const n of new Set(g.ins)) if (n >= 0) fanCount[n + 1]!++;
     });
@@ -282,9 +283,14 @@ export class Engine {
       if (this.gateStamp[g] === t) return;
       this.gateStamp[g] = t;
       const code = this.gateCode[g] as GateCode;
-      const a = this.gateIn0[g]! >= 0 ? values[this.gateIn0[g]!]! : 0;
-      const b = this.gateIn1[g]! >= 0 ? values[this.gateIn1[g]!]! : 0;
-      const v = evalGate(CODE_KIND[code], a, b);
+      let ones = 0;
+      const s0 = this.gateInStart[g]!;
+      const s1 = this.gateInStart[g + 1]!;
+      for (let k = s0; k < s1; k++) {
+        const n = this.gateIns[k]!;
+        if (n >= 0) ones += values[n]!;
+      }
+      const v = evalGateCount(CODE_KIND[code], ones, s1 - s0);
       const out = this.gateOut[g]!;
       if (out >= 0 && values[out] !== v) {
         this.schedNet[sched] = out;
@@ -417,7 +423,7 @@ export class Engine {
               onStack[w] = 0;
               comp.push(w);
             } while (w !== v);
-            const selfLoop = comp.length === 1 && (this.gateIn0[v] === this.gateOut[v] || this.gateIn1[v] === this.gateOut[v]);
+            const selfLoop = comp.length === 1 && this.gateIns.subarray(this.gateInStart[v]!, this.gateInStart[v + 1]!).includes(this.gateOut[v]!);
             if (comp.length > 1 || selfLoop) sccs.push(comp);
           }
         }

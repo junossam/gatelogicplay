@@ -7,6 +7,7 @@ import { ImportDialog, MessageDialog } from './ui/dialogs/ImportDialog';
 import { SaveChipDialog } from './ui/dialogs/SaveChipDialog';
 import { SettingsDialog } from './ui/dialogs/SettingsDialog';
 import { ShareDialog } from './ui/dialogs/ShareDialog';
+import { CategoryDialog } from './ui/dialogs/CategoryDialog';
 import { Header } from './ui/Header/Header';
 import { Inspector } from './ui/Inspector/Inspector';
 import { Palette } from './ui/Palette/Palette';
@@ -21,6 +22,7 @@ export function App() {
   const settingsOpen = useUi((s) => s.settingsOpen);
   const challengesOpen = useUi((s) => s.challengesOpen);
   const shareOpen = useUi((s) => s.shareOpen);
+  const categoryEdit = useUi((s) => s.categoryEdit);
   const challengeId = useEditor((s) => s.openChallengeId);
   return (
     <div className="app">
@@ -39,6 +41,7 @@ export function App() {
       {settingsOpen && <SettingsDialog />}
       {challengesOpen && <ChallengeListDialog />}
       {shareOpen && <ShareDialog />}
+      {categoryEdit && <CategoryDialog />}
       {message && <MessageDialog />}
     </div>
   );

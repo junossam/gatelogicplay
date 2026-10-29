@@ -1366,3 +1366,35 @@ button {
   color: var(--text);
   pointer-events: none;
 }
+
+/* 내 칩 분류 */
+.chip-group {
+  margin-bottom: 6px;
+  border-radius: var(--radius);
+}
+
+.chip-group.dropping {
+  outline: 2px dashed var(--select);
+}
+
+.chip-group-head {
+  display: flex;
+  align-items: center;
+}
+
+.chip-group-toggle {
+  flex: 1;
+  min-height: 36px;
+  padding: 0 4px;
+  background: none;
+  border: 0;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip-group-head .icon-button {
+  min-width: 36px;
+  min-height: 36px;
+  font-size: 13px;
+}

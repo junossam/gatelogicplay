@@ -58,73 +58,63 @@ function BusShape({ kind, bits, value }: { kind: PrimitiveKind; bits: number; va
   );
 }
 
-export function PartShape({ kind, on = false, bits = 1, value = 0 }: { kind: PrimitiveKind; on?: boolean; bits?: number; value?: number }) {
+/**
+ * 입력 2~8개 게이트의 몸체 (80×80 기준 좌표). 입력이 많으면 세로로 늘린다.
+ * inEnd: 입력 리드가 닿는 x, tip: 몸체 끝 x, bubble: 부정 원 중심 x, back: XOR 계열 뒤쪽 곡선
+ */
+const GATE_BODIES = {
+  AND: { body: 'M20 10 H40 A30 30 0 0 1 40 70 H20 Z', inEnd: 20, tip: 70 },
+  NAND: { body: 'M14 10 H34 A30 30 0 0 1 34 70 H14 Z', inEnd: 14, tip: 64, bubble: 68 },
+  OR: { body: 'M16 10 Q34 40 16 70 Q50 70 72 40 Q50 10 16 10 Z', inEnd: 24, tip: 72 },
+  NOR: { body: 'M10 10 Q28 40 10 70 Q42 70 62 40 Q42 10 10 10 Z', inEnd: 18, tip: 62, bubble: 66 },
+  XOR: { body: 'M22 10 Q40 40 22 70 Q54 70 74 40 Q54 10 22 10 Z', back: 'M14 10 Q32 40 14 70', inEnd: 30, tip: 74 },
+  XNOR: { body: 'M14 10 Q32 40 14 70 Q44 70 62 40 Q44 10 14 10 Z', back: 'M6 10 Q24 40 6 70', inEnd: 22, tip: 62, bubble: 66 },
+} as const;
+
+function GateShape({ kind, inputs }: { kind: keyof typeof GATE_BODIES; inputs: number }) {
+  const g: { body: string; inEnd: number; tip: number; bubble?: number; back?: string } = GATE_BODIES[kind];
+  const stroke = 'var(--text-2)';
+  const H = Math.max(4, 2 * inputs) * GRID;
+  const mid = H / 2;
+  // 몸체만 세로로 늘리고, 선 굵기와 리드·부정 원은 늘리지 않는다
+  const scale = H / 80;
+  const outStart = g.bubble !== undefined ? g.bubble + 4 : g.tip;
+  return (
+    <g>
+      {Array.from({ length: inputs }, (_, k) => (
+        <line key={k} x1={0} y1={(2 * k + 1) * GRID} x2={g.inEnd} y2={(2 * k + 1) * GRID} stroke={stroke} strokeWidth={2} />
+      ))}
+      <line x1={outStart} y1={mid} x2={80} y2={mid} stroke={stroke} strokeWidth={2} />
+      <g transform={scale === 1 ? undefined : `scale(1 ${scale})`}>
+        {g.back && <path d={g.back} fill="none" stroke={stroke} strokeWidth={2} vectorEffect="non-scaling-stroke" />}
+        <path d={g.body} fill="var(--bg-chip)" stroke={stroke} strokeWidth={2} strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+      </g>
+      {g.bubble !== undefined && <circle cx={g.bubble} cy={mid} r={4} fill="var(--bg-chip)" stroke={stroke} strokeWidth={2} />}
+    </g>
+  );
+}
+
+export function PartShape({
+  kind,
+  on = false,
+  bits = 1,
+  value = 0,
+  inputs = 2,
+}: {
+  kind: PrimitiveKind;
+  on?: boolean;
+  bits?: number;
+  value?: number;
+  inputs?: number;
+}) {
   if (kind === 'SPLIT' || kind === 'MERGE' || ((kind === 'SWITCH' || kind === 'LED') && bits > 1)) return <BusShape kind={kind} bits={bits} value={value} />;
   const stroke = 'var(--text-2)';
   const body = { fill: 'var(--bg-chip)', stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };
   const lead = { stroke, strokeWidth: 2 };
 
+  if (kind in GATE_BODIES) return <GateShape kind={kind as keyof typeof GATE_BODIES} inputs={inputs} />;
+
   switch (kind) {
-    case 'AND':
-      return (
-        <g>
-          <line x1={0} y1={20} x2={20} y2={20} {...lead} />
-          <line x1={0} y1={60} x2={20} y2={60} {...lead} />
-          <line x1={70} y1={40} x2={80} y2={40} {...lead} />
-          <path d="M20 10 H40 A30 30 0 0 1 40 70 H20 Z" {...body} />
-        </g>
-      );
-    case 'OR':
-      return (
-        <g>
-          <line x1={0} y1={20} x2={24} y2={20} {...lead} />
-          <line x1={0} y1={60} x2={24} y2={60} {...lead} />
-          <line x1={72} y1={40} x2={80} y2={40} {...lead} />
-          <path d="M16 10 Q34 40 16 70 Q50 70 72 40 Q50 10 16 10 Z" {...body} />
-        </g>
-      );
-    case 'XOR':
-      return (
-        <g>
-          <line x1={0} y1={20} x2={30} y2={20} {...lead} />
-          <line x1={0} y1={60} x2={30} y2={60} {...lead} />
-          <line x1={74} y1={40} x2={80} y2={40} {...lead} />
-          <path d="M14 10 Q32 40 14 70" fill="none" {...lead} />
-          <path d="M22 10 Q40 40 22 70 Q54 70 74 40 Q54 10 22 10 Z" {...body} />
-        </g>
-      );
-    // 부정 게이트: 원래 기호 끝에 작은 원(버블)을 붙인다
-    case 'NAND':
-      return (
-        <g>
-          <line x1={0} y1={20} x2={14} y2={20} {...lead} />
-          <line x1={0} y1={60} x2={14} y2={60} {...lead} />
-          <line x1={72} y1={40} x2={80} y2={40} {...lead} />
-          <path d="M14 10 H34 A30 30 0 0 1 34 70 H14 Z" {...body} />
-          <circle cx={68} cy={40} r={4} {...body} />
-        </g>
-      );
-    case 'NOR':
-      return (
-        <g>
-          <line x1={0} y1={20} x2={18} y2={20} {...lead} />
-          <line x1={0} y1={60} x2={18} y2={60} {...lead} />
-          <line x1={70} y1={40} x2={80} y2={40} {...lead} />
-          <path d="M10 10 Q28 40 10 70 Q42 70 62 40 Q42 10 10 10 Z" {...body} />
-          <circle cx={66} cy={40} r={4} {...body} />
-        </g>
-      );
-    case 'XNOR':
-      return (
-        <g>
-          <line x1={0} y1={20} x2={22} y2={20} {...lead} />
-          <line x1={0} y1={60} x2={22} y2={60} {...lead} />
-          <line x1={70} y1={40} x2={80} y2={40} {...lead} />
-          <path d="M6 10 Q24 40 6 70" fill="none" {...lead} />
-          <path d="M14 10 Q32 40 14 70 Q44 70 62 40 Q44 10 14 10 Z" {...body} />
-          <circle cx={66} cy={40} r={4} {...body} />
-        </g>
-      );
     case 'NOT':
       return (
         <g>

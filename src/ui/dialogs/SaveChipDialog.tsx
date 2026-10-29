@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { CHIP_COLORS, chipPinsFrom, circuitUses, countBrokenWires, uniqueName, unwiredIO, usedBy } from '../../model/library';
+import { useId, useMemo, useState } from 'react';
+import { CHIP_COLORS, chipCategories, chipPinsFrom, circuitUses, countBrokenWires, uniqueName, unwiredIO, usedBy } from '../../model/library';
 import { compile, CompileError } from '../../sim/compile';
 import { Engine } from '../../sim/engine';
 import { orderedIO } from '../../sim/truthTable';
@@ -47,6 +47,8 @@ export function SaveChipDialog() {
   const io = orderedIO(circuit, pinOrder);
   const [name, setName] = useState(current?.name ?? '');
   const [color, setColor] = useState(current?.color ?? CHIP_COLORS[0]);
+  const [category, setCategory] = useState(current?.category ?? '');
+  const categoryList = useId();
   const [order, setOrder] = useState({ inputs: io.inputs.map((p) => p.id), outputs: io.outputs.map((p) => p.id) });
   const [names, setNames] = useState<Record<string, string>>(() => {
     const init: Record<string, string> = {};
@@ -102,7 +104,7 @@ export function SaveChipDialog() {
   };
 
   const save = () => {
-    const r = editorStore.getState().saveChip({ name, color, names, order, exclude: [...exclude], propagate });
+    const r = editorStore.getState().saveChip({ name, color, category, names, order, exclude: [...exclude], propagate });
     if (r.ok) setOpen(false);
     else setErrors(r.errors);
   };
@@ -166,6 +168,15 @@ export function SaveChipDialog() {
           <label className="field-label">
             이름 (필수)
             <input className="field" value={name} onChange={(e) => setName(e.target.value)} aria-label="칩 이름" required onKeyDown={(e) => e.key === 'Enter' && save()} />
+          </label>
+          <label className="field-label">
+            분류 (선택)
+            <input className="field" aria-label="칩 분류" list={categoryList} value={category} placeholder="예: 래치, 연산" onChange={(e) => setCategory(e.target.value)} />
+            <datalist id={categoryList}>
+              {chipCategories(library).map((c) => (
+                <option key={c} value={c} />
+              ))}
+            </datalist>
           </label>
           <fieldset className="swatches">
             <legend>색상</legend>

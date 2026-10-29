@@ -42,6 +42,31 @@ export const GATE_KINDS = new Set<PrimitiveKind>(['AND', 'OR', 'XOR', 'NAND', 'N
 
 export const INPUT_KINDS = new Set<PrimitiveKind>(['SWITCH', 'PUSH']);
 
+/**
+ * 입력 n개 중 1이 ones개일 때 게이트 출력 (입력 2~8개 게이트).
+ * AND = 모두 1, OR = 하나라도 1, XOR = 1이 홀수 개. NAND/NOR/XNOR는 그 반대. 연결 안 된 입력은 0.
+ */
+export function evalGateCount(kind: PrimitiveKind, ones: number, n: number): Bit {
+  switch (kind) {
+    case 'AND':
+      return ones === n ? 1 : 0;
+    case 'OR':
+      return ones > 0 ? 1 : 0;
+    case 'XOR':
+      return (ones & 1) as Bit;
+    case 'NAND':
+      return ones === n ? 0 : 1;
+    case 'NOR':
+      return ones > 0 ? 0 : 1;
+    case 'XNOR':
+      return (1 - (ones & 1)) as Bit;
+    case 'NOT':
+      return ones ? 0 : 1;
+    default:
+      return 0;
+  }
+}
+
 /** 2입력(또는 NOT) 게이트 평가 (SPEC 5.4). 연결 안 된 입력은 0으로 들어온다. */
 export function evalGate(kind: PrimitiveKind, a: number, b: number): Bit {
   switch (kind) {

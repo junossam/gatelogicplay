@@ -21,6 +21,8 @@ interface UiState {
   settingsOpen: boolean;
   challengesOpen: boolean;
   shareOpen: boolean;
+  /** 분류 대화상자: 칩 하나의 분류 바꾸기, 또는 분류 이름 바꾸기 */
+  categoryEdit: { chipId: string } | { rename: string } | null;
   message: Message | null;
   /** 가져오기 대화상자에 띄울 파일 (검증 통과) */
   pendingImport: Bundle | null;
@@ -30,6 +32,7 @@ interface UiState {
   setSettingsOpen(open: boolean): void;
   setChallengesOpen(open: boolean): void;
   setShareOpen(open: boolean): void;
+  setCategoryEdit(edit: { chipId: string } | { rename: string } | null): void;
   setMessage(message: Message | null): void;
   setPendingImport(bundle: Bundle | null): void;
   setArmed(kind: PartKind | null): void;
@@ -45,6 +48,7 @@ export const useUi = create<UiState>((set) => ({
   settingsOpen: false,
   challengesOpen: false,
   shareOpen: false,
+  categoryEdit: null,
   message: null,
   pendingImport: null,
   setWaveOpen: (waveOpen) => set({ waveOpen }),
@@ -53,6 +57,7 @@ export const useUi = create<UiState>((set) => ({
   setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
   setChallengesOpen: (challengesOpen) => set({ challengesOpen }),
   setShareOpen: (shareOpen) => set({ shareOpen }),
+  setCategoryEdit: (categoryEdit) => set({ categoryEdit }),
   setMessage: (message) => set({ message }),
   setPendingImport: (pendingImport) => set({ pendingImport }),
   setArmed: (armed) => set({ armed }),

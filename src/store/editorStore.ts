@@ -41,6 +41,8 @@ export interface SaveChipInput {
   order: PinOrder;
   /** 핀으로 쓰지 않을 입력/출력 부품 id */
   exclude?: string[];
+  /** 팔레트 분류 (빈 문자열이면 분류 없음) */
+  category?: string;
   /** 편집 중인 칩을 저장할 때: 쓰는 칩에도 반영(같은 id 갱신) / 끄면 "이름 (2)"로 새 칩 */
   propagate: boolean;
 }
@@ -98,6 +100,10 @@ export interface EditorState {
   saveChip(input: SaveChipInput): SaveChipResult;
   makeChipFromSelection(): string | null;
   deleteChip(chipId: string): { ok: true } | { ok: false; users: string[] };
+  /** 칩 분류 바꾸기 (null/빈 문자열 = 분류 없음) */
+  setChipCategory(chipId: string, category: string | null): void;
+  /** 분류 이름을 바꾼다 (그 분류의 칩 전부). 빈 이름이면 분류 없음으로 */
+  renameCategory(from: string, to: string): void;
   importLibrary(library: Library, mode: ConflictMode, workspace?: Circuit): number;
   undo(): void;
   redo(): void;
@@ -507,6 +513,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
             id: updating ?? newId(),
             name: finalName,
             color: input.color,
+            ...(input.category?.trim() ? { category: input.category.trim() } : {}),
             inputs: pins.inputs,
             outputs: pins.outputs,
             circuit,
@@ -567,6 +574,38 @@ export function createEditorStore(initial: Circuit = EMPTY) {
             s.library = lib;
           });
           return { ok: true };
+        },
+
+        setChipCategory(chipId, category) {
+          const def = get().library[chipId];
+          const next = category?.trim() || undefined;
+          if (!def || def.category === next) return;
+          const updated: ChipDef = { ...def };
+          if (next) updated.category = next;
+          else delete updated.category;
+          set((s) => {
+            s.library = { ...get().library, [chipId]: updated };
+          });
+        },
+
+        renameCategory(from, to) {
+          const lib = get().library;
+          const next = to.trim() || undefined;
+          if (from === (next ?? '')) return;
+          const out: Library = {};
+          for (const [id, def] of Object.entries(lib)) {
+            if ((def.category ?? '') !== from) {
+              out[id] = def;
+              continue;
+            }
+            const d: ChipDef = { ...def };
+            if (next) d.category = next;
+            else delete d.category;
+            out[id] = d;
+          }
+          set((s) => {
+            s.library = out;
+          });
         },
 
         importLibrary(incoming, mode, workspace) {

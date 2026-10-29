@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { challengeById, isAllowedIn } from '../../model/challenges';
-import { chipsUsedIn, circuitUses, usedBy, withDependencies, wouldCreateCycle } from '../../model/library';
+import { chipsUsedIn, groupByCategory, circuitUses, usedBy, withDependencies, wouldCreateCycle } from '../../model/library';
 import { parseBundle, serializeBundle } from '../../model/storage';
 import type { ChipDef, PartKind, PrimitiveKind } from '../../sim/types';
 import { editorStore, isChipDirty, useEditor, workspaceOf } from '../../store/editorStore';
@@ -168,10 +168,100 @@ function ChipItem({ def }: { def: ChipDef }) {
       >
         ✎
       </button>
+      <button type="button" className="icon-button" aria-label={`${def.name} 분류 바꾸기`} title="분류 바꾸기" onClick={() => useUi.getState().setCategoryEdit({ chipId: def.id })}>
+        🗀
+      </button>
       <button type="button" className="icon-button" aria-label={`${def.name} 삭제`} title="칩 삭제" onClick={remove}>
         🗑
       </button>
     </li>
+  );
+}
+
+const COLLAPSED_KEY = 'logiclab:v1:palette-collapsed';
+
+function loadCollapsed(): Set<string> {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(COLLAPSED_KEY) ?? '[]') as string[]);
+  } catch {
+    return new Set();
+  }
+}
+
+/** 접은 분류 (브라우저에 기억) */
+function useCollapsed(): [Set<string>, (category: string) => void] {
+  const [collapsed, setCollapsed] = useState(loadCollapsed);
+  const toggle = (category: string) => {
+    const next = new Set(collapsed);
+    if (next.has(category)) next.delete(category);
+    else next.add(category);
+    setCollapsed(next);
+    try {
+      localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...next]));
+    } catch {
+      // 저장 실패는 무시 (이번 세션에만 적용)
+    }
+  };
+  return [collapsed, toggle];
+}
+
+/** 분류 하나: 머리글(접기/펼치기, 이름 바꾸기, 칩을 끌어다 놓으면 이 분류로)과 칩 목록 */
+function ChipGroup({
+  category,
+  defs,
+  showHeader,
+  forceOpen,
+  collapsed,
+  toggle,
+}: {
+  category: string;
+  defs: ChipDef[];
+  showHeader: boolean;
+  forceOpen: boolean;
+  collapsed: Set<string>;
+  toggle(category: string): void;
+}) {
+  const [dropping, setDropping] = useState(false);
+  const label = category || '분류 없음';
+  const open = forceOpen || !collapsed.has(category);
+  const list = (
+    <ul className="chip-list">
+      {defs.map((d) => (
+        <ChipItem key={d.id} def={d} />
+      ))}
+    </ul>
+  );
+  if (!showHeader) return list;
+  return (
+    <div
+      className={`chip-group${dropping ? ' dropping' : ''}`}
+      data-testid={`chip-group-${label}`}
+      onDragOver={(e) => {
+        if (!e.dataTransfer.types.includes(PART_DRAG_MIME)) return;
+        e.preventDefault();
+        setDropping(true);
+      }}
+      onDragLeave={() => setDropping(false)}
+      onDrop={(e) => {
+        setDropping(false);
+        const raw = e.dataTransfer.getData(PART_DRAG_MIME);
+        if (!raw.startsWith('chip:')) return;
+        e.preventDefault();
+        editorStore.getState().setChipCategory(raw.slice(5), category || null);
+      }}
+    >
+      <div className="chip-group-head">
+        <button type="button" className="chip-group-toggle" aria-expanded={open} onClick={() => toggle(category)}>
+          <span aria-hidden="true">{open ? '▾' : '▸'}</span> {label} <span className="muted small">{defs.length}</span>
+        </button>
+        {category && (
+          <button type="button" className="icon-button" aria-label={`${label} 분류 이름 바꾸기`} title="분류 이름 바꾸기" onClick={() => useUi.getState().setCategoryEdit({ rename: category })}>
+            ✎
+          </button>
+        )}
+      </div>
+      {open && list}
+    </div>
   );
 }
 
@@ -216,8 +306,11 @@ export function Palette() {
   const io = [...IO, ...(clockEnabled ? [CLOCK] : [])].filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''}`));
   const bus = BUS.filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''} 버스`));
   const chips = Object.values(library)
-    .filter((d) => matches(d.name, query))
+    .filter((d) => matches(d.name, query, d.category ?? ''))
     .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  const groups = groupByCategory(chips);
+  const [collapsed, toggleCollapsed] = useCollapsed();
+  const hasCategories = groups.some(([c]) => c !== '');
 
   const onFile = async (file: File) => {
     const r = parseBundle(await file.text());
@@ -274,11 +367,17 @@ export function Palette() {
         {chips.length === 0 ? (
           <p className="muted small">{Object.keys(library).length ? '검색 결과가 없습니다.' : '아직 저장한 칩이 없습니다.'}</p>
         ) : (
-          <ul className="chip-list">
-            {chips.map((d) => (
-              <ChipItem key={d.id} def={d} />
-            ))}
-          </ul>
+          groups.map(([category, defs]) => (
+            <ChipGroup
+              key={category}
+              category={category}
+              defs={defs}
+              showHeader={hasCategories}
+              forceOpen={!!query.trim()}
+              collapsed={collapsed}
+              toggle={toggleCollapsed}
+            />
+          ))
         )}
       </section>
       <div className="palette-footer">

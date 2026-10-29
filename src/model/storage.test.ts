@@ -28,7 +28,7 @@ describe('작업 공간 저장', () => {
   it('format, version 필드를 넣어 저장한다', () => {
     const doc = JSON.parse(serializeWorkspace(circuit));
     expect(doc.format).toBe('logiclab');
-    expect(doc.version).toBe(2);
+    expect(doc.version).toBe(3);
     expect(doc.openChipId).toBeNull();
     expect(doc.workspace).toEqual(circuit);
   });
@@ -73,6 +73,11 @@ describe('스키마 검증', () => {
   it('version 1 파일은 2로 변환해 그대로 읽는다', () => {
     const v1 = JSON.stringify({ format: 'logiclab', version: 1, workspace: circuit, openChipId: null });
     const r = parseWorkspace(v1);
+    expect(r).toMatchObject({ ok: true, circuit });
+  });
+
+  it('version 2 파일도 3으로 변환해 읽는다', () => {
+    const r = parseWorkspace(JSON.stringify({ format: 'logiclab', version: 2, workspace: circuit, openChipId: null }));
     expect(r).toMatchObject({ ok: true, circuit });
   });
 
