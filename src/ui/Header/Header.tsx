@@ -142,6 +142,9 @@ export function Header() {
             닫기
           </button>
         )}
+        <button type="button" className="icon-button" aria-label="설정" title="설정" onClick={() => useUi.getState().setSettingsOpen(true)}>
+          ⚙
+        </button>
         <button type="button" className="icon-button" aria-label="실행 취소" title="실행 취소 (Ctrl+Z)" disabled={!canUndo} onClick={undo}>
           ↶
         </button>

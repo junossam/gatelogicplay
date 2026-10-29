@@ -114,8 +114,8 @@ export function PartShape({ kind, on = false }: { kind: PrimitiveKind; on?: bool
       return (
         <g>
           <line x1={46} y1={20} x2={60} y2={20} {...lead} />
-          <rect x={4} y={6} width={42} height={28} rx={4} {...body} />
-          <path d="M10 26 V14 H20 V26 H30 V14 H40" fill="none" {...lead} />
+          <rect x={4} y={6} width={42} height={28} rx={4} {...body} stroke={on ? 'var(--sig-on)' : stroke} />
+          <path d="M10 26 V14 H20 V26 H30 V14 H40" fill="none" {...lead} stroke={on ? 'var(--sig-on)' : stroke} />
         </g>
       );
   }

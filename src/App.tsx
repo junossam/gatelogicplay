@@ -2,6 +2,7 @@ import { useUi } from './store/uiStore';
 import { Board } from './ui/Canvas/Board';
 import { ImportDialog, MessageDialog } from './ui/dialogs/ImportDialog';
 import { SaveChipDialog } from './ui/dialogs/SaveChipDialog';
+import { SettingsDialog } from './ui/dialogs/SettingsDialog';
 import { Header } from './ui/Header/Header';
 import { Inspector } from './ui/Inspector/Inspector';
 import { Palette } from './ui/Palette/Palette';
@@ -13,6 +14,7 @@ export function App() {
   const saveOpen = useUi((s) => s.saveOpen);
   const pendingImport = useUi((s) => s.pendingImport);
   const message = useUi((s) => s.message);
+  const settingsOpen = useUi((s) => s.settingsOpen);
   return (
     <div className="app">
       <Header />
@@ -27,6 +29,7 @@ export function App() {
       {truthOpen && <TruthTableDialog />}
       {saveOpen && <SaveChipDialog />}
       {pendingImport && <ImportDialog />}
+      {settingsOpen && <SettingsDialog />}
       {message && <MessageDialog />}
     </div>
   );

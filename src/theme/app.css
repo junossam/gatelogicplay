@@ -251,7 +251,11 @@ button {
   display: block;
   width: 100%;
   min-height: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at 0 0, var(--border-2) 1.3px, transparent 1.6px),
+    radial-gradient(circle at 100% 0, var(--border-2) 1.3px, transparent 1.6px),
+    radial-gradient(circle at 0 100%, var(--border-2) 1.3px, transparent 1.6px),
+    radial-gradient(circle at 100% 100%, var(--border-2) 1.3px, transparent 1.6px);
   touch-action: none;
   user-select: none;
 }
@@ -413,12 +417,12 @@ button {
 }
 
 /* 시뮬레이션 값 표시: 0/1은 색과 밝기(굵기) 둘 다로 구분 */
-.wire.on .wire-line {
+.wire[data-value='1'] .wire-line {
   stroke: var(--sig-on);
   stroke-width: 3.5;
 }
 
-.wire.on .wire-branch {
+.wire[data-value='1'] .wire-branch {
   fill: var(--sig-on);
 }
 
@@ -426,7 +430,7 @@ button {
   stroke-dasharray: 8 4;
 }
 
-.wire.osc .wire-line {
+.wire[data-osc='1'] .wire-line {
   animation: wire-blink 0.6s steps(2, jump-none) infinite;
 }
 
@@ -440,7 +444,7 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wire.osc .wire-line {
+  .wire[data-osc='1'] .wire-line {
     animation: none;
     stroke-dasharray: 2 4;
   }
@@ -1106,4 +1110,8 @@ button {
 .errors {
   margin: 12px 0 0;
   padding-left: 18px;
+}
+
+.palette-item.optional {
+  border-style: dashed;
 }

@@ -392,6 +392,7 @@ function boundary(circuit: Circuit, S: Set<string>) {
 
 ### 5단계: 다듬기
 - 클럭, 단축키, 진동 경고, 성능(게이트 5천 개에서 60fps)
+- **보충 (구현 시 확정)**: 성능은 배포 빌드(`vite preview`)에서 잽니다. 기준 회로는 NOT/XOR 사슬 100줄 × 50개(게이트 5천 개, 연결은 대부분 이웃끼리)이고, 클럭으로 계속 구동하며 60Hz로 실행합니다(`tests/e2e/perf.spec.ts`). 화면 밖 부품·전선은 그리지 않고, 전선 값은 React를 거치지 않고 바뀐 것만 DOM에 씁니다.
 
 ---
 

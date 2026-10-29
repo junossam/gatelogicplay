@@ -25,11 +25,11 @@ function sameStructure(a: Circuit, b: Circuit): boolean {
 }
 
 export function computeTable(circuit: Circuit, library: Library, order: { inputs: string[]; outputs: string[] }, force: boolean): TableState {
-  const io = orderedIO(circuit, order);
-  if (io.inputs.length === 0 || io.outputs.length === 0) return { status: 'empty' };
   if (circuit.parts.some((p) => p.kind.type === 'primitive' && p.kind.kind === 'CLOCK')) {
     return { status: 'error', message: '클럭이 있는 회로는 진리표를 만들 수 없습니다.' };
   }
+  const io = orderedIO(circuit, order);
+  if (io.inputs.length === 0 || io.outputs.length === 0) return { status: 'empty' };
   if (!force && io.inputs.length > AUTO_INPUT_LIMIT) return { status: 'manual', reason: `입력이 ${io.inputs.length}개라 자동으로 만들지 않습니다.` };
   if (!force && engine.netlist.nodes.length > AUTO_NODE_LIMIT) return { status: 'manual', reason: '회로가 커서 자동으로 만들지 않습니다.' };
   try {

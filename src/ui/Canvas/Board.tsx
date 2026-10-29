@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react';
 import { GATE_KINDS } from '../../sim/primitives';
 import type { Part, PartKind, PinRef } from '../../sim/types';
 import { editorStore, useEditor, useView } from '../../store/editorStore';
-import { engine, simActions, useSim } from '../../store/simStore';
+import { engine, simActions, simStore, useSim } from '../../store/simStore';
 import { decodeKind, PART_DRAG_MIME, useUi } from '../../store/uiStore';
 import { confirmLeaveChip } from '../Palette/Palette';
 import { baseSize, GRID, normalizeRect, partRect, pinPoint, rectContains, wirePath, type Rect } from './geometry';
@@ -10,6 +10,10 @@ import { PartView } from './PartView';
 import { WireView } from './WireView';
 
 const MIN_ZOOM = 0.25;
+/** 화면 밖으로 이만큼(px)까지는 미리 그려 둔다 */
+const CULL_MARGIN = 120;
+
+const intersects = (a: Rect, b: Rect) => a.x <= b.x + b.w && b.x <= a.x + a.w && a.y <= b.y + b.h && b.y <= a.y + a.h;
 const MAX_ZOOM = 4;
 
 type Point = { x: number; y: number };
@@ -38,6 +42,11 @@ export function escapeAction() {
   if (st.openChipId) confirmLeaveChip(() => editorStore.getState().closeChip());
 }
 
+function TickCount() {
+  const tick = useSim((s) => s.tick);
+  return <span data-testid="tick">틱 {tick}</span>;
+}
+
 export function Board() {
   const svgRef = useRef<SVGSVGElement>(null);
   const { circuit, chain, prefix, readOnly } = useView();
@@ -45,11 +54,11 @@ export function Board() {
   const selection = useEditor((s) => s.selection);
   const armed = useUi((s) => s.armed);
   const zoom = useUi((s) => s.zoom);
-  useSim((s) => s.version); // 틱마다 다시 그려 값 표시
   const oscillating = useSim((s) => s.oscillating);
   const hasFeedback = useSim((s) => s.hasFeedback);
   const simError = useSim((s) => s.error);
-  const tick = useSim((s) => s.tick);
+  // 재컴파일되면 Net 번호가 바뀌므로 그때만 다시 계산
+  const netlist = useSim(() => engine.netlist);
 
   const [pan, setPan] = useState<Point>({ x: 40, y: 40 });
   const [size, setSize] = useState({ w: 800, h: 600 });
@@ -177,14 +186,6 @@ export function Board() {
     else store.setSelection({ wires: [wireId] });
   }, []);
 
-  const partValue = (p: Part): 0 | 1 => {
-    if (p.kind.type !== 'primitive') return 0;
-    const k = p.kind.kind;
-    if (k === 'SWITCH' || k === 'PUSH') return readOnly ? engine.readPin(`${prefix}${p.id}.y`) : engine.inputValue(p.id);
-    if (k === 'LED') return engine.readPin(`${prefix}${p.id}.a`);
-    return 0;
-  };
-
   const onMove = (e: PointerEvent) => {
     if (!gesture || e.pointerId !== gesture.pointerId) return;
     if (gesture.type === 'pan') {
@@ -275,17 +276,62 @@ export function Board() {
     space.current = { held: false, panned: false };
   };
 
-  // 갈라지는 출력 핀(전선 2개 이상)에 점을 찍는다
-  const fanout = new Map<string, number>();
-  for (const w of circuit.wires) {
-    const key = `${w.from.partId}:${w.from.pin}`;
-    fanout.set(key, (fanout.get(key) ?? 0) + 1);
-  }
-  const partById = new Map(circuit.parts.map((p) => [p.id, p]));
+  const partById = useMemo(() => new Map(circuit.parts.map((p) => [p.id, p])), [circuit.parts]);
+  // 전선 모양은 회로가 바뀔 때만 계산하고, 매 틱에는 값만 읽는다 (게이트 5천 개에서 60fps)
+  const wireGeom = useMemo(() => {
+    // 갈라지는 출력 핀(전선 2개 이상)에 점을 찍는다
+    const fanout = new Map<string, number>();
+    for (const w of circuit.wires) {
+      const key = `${w.from.partId}.${w.from.pin}`;
+      fanout.set(key, (fanout.get(key) ?? 0) + 1);
+    }
+    return circuit.wires.flatMap((w) => {
+      const fp = partById.get(w.from.partId);
+      const tp = partById.get(w.to.partId);
+      const a = fp && pinPoint(fp, w.from.pin, library);
+      const b = tp && pinPoint(tp, w.to.pin, library);
+      if (!a || !b) return [];
+      const source = `${w.from.partId}.${w.from.pin}`;
+      const box = normalizeRect(a.x, a.y, b.x, b.y);
+      return [{ id: w.id, d: wirePath(a, b), source, box, branch: (fanout.get(source) ?? 0) > 1 ? a : undefined }];
+    });
+  }, [circuit.wires, partById, library]);
+  const partRects = useMemo(() => circuit.parts.map((p) => partRect(p, library)), [circuit.parts, library]);
+  const wireNets = useMemo(() => wireGeom.map((g) => netlist.pinNet.get(prefix + g.source) ?? -1), [wireGeom, netlist, prefix]);
+  const gateCount = useMemo(() => netlist.nodes.filter((n) => GATE_KINDS.has(n.kind)).length, [netlist]);
+
+  // 전선 값은 React를 거치지 않고 바뀐 것만 DOM에 쓴다
+  const wireEls = useRef(new Map<string, SVGGElement>());
+  const register = useCallback((id: string, el: SVGGElement | null) => {
+    if (el) wireEls.current.set(id, el);
+    else wireEls.current.delete(id);
+  }, []);
+  const applyWireValues = useCallback(() => {
+    const { values, netlist: nl } = engine;
+    const osc = simStore.getState().oscillating;
+    for (let i = 0; i < wireGeom.length; i++) {
+      const el = wireEls.current.get(wireGeom[i]!.id);
+      if (!el) continue;
+      const net = wireNets[i]!;
+      const v = net >= 0 && values[net] ? '1' : '0';
+      if (el.dataset.value !== v) el.dataset.value = v;
+      const o = osc.size > 0 && net >= 0 && osc.has(nl.netIds[net]!) ? '1' : '0';
+      if (el.dataset.osc !== o) el.dataset.osc = o;
+    }
+  }, [wireGeom, wireNets]);
+  useLayoutEffect(() => {
+    applyWireValues();
+  });
+  useEffect(() => simStore.subscribe(applyWireValues), [applyWireValues]);
+
   const selectedParts = new Set(selection.parts);
   const selectedWires = new Set(selection.wires);
 
   const visible: Rect = { x: -pan.x / zoom, y: -pan.y / zoom, w: size.w / zoom, h: size.h / zoom };
+  // 화면 밖 부품과 전선은 그리지 않는다 (큰 회로에서 SVG 노드 수를 줄여 60fps 유지)
+  const cull = { x: visible.x - CULL_MARGIN, y: visible.y - CULL_MARGIN, w: visible.w + 2 * CULL_MARGIN, h: visible.h + 2 * CULL_MARGIN };
+  const shownParts = circuit.parts.filter((p, i) => intersects(cull, partRects[i]!) || selectedParts.has(p.id));
+  const shownWires = wireGeom.filter((g) => intersects(cull, g.box));
 
   let preview: string | null = null;
   if (gesture?.type === 'wire') {
@@ -296,7 +342,6 @@ export function Board() {
   const box = gesture?.type === 'box' ? normalizeRect(gesture.start.x, gesture.start.y, cursor.x, cursor.y) : null;
   const boxCount = box ? circuit.parts.filter((p) => rectContains(box, partRect(p, library))).length : 0;
 
-  const gateCount = engine.netlist.nodes.filter((n) => GATE_KINDS.has(n.kind)).length;
   const viewing = chain[chain.length - 1];
 
   return (
@@ -316,6 +361,8 @@ export function Board() {
         onKeyDown={onKeyDown}
         onKeyUp={onKeyUp}
         onBlur={() => (space.current = { held: false, panned: false })}
+        // 20px 점 격자는 CSS 배경으로 (SVG 패턴은 전선 값이 바뀔 때마다 다시 칠해져 느리다)
+        style={{ backgroundSize: `${GRID * zoom}px ${GRID * zoom}px`, backgroundPosition: `${pan.x}px ${pan.y}px` }}
         onDragOver={(e) => {
           if (!readOnly && e.dataTransfer.types.includes(PART_DRAG_MIME)) {
             e.preventDefault();
@@ -330,43 +377,17 @@ export function Board() {
           focusCanvas();
         }}
       >
-        <defs>
-          <pattern id="dot-grid" width={GRID} height={GRID} patternUnits="userSpaceOnUse">
-            <circle cx={0} cy={0} r={1.2} fill="var(--border-2)" />
-            <circle cx={GRID} cy={0} r={1.2} fill="var(--border-2)" />
-            <circle cx={0} cy={GRID} r={1.2} fill="var(--border-2)" />
-            <circle cx={GRID} cy={GRID} r={1.2} fill="var(--border-2)" />
-          </pattern>
-        </defs>
         <g transform={`translate(${pan.x} ${pan.y}) scale(${zoom})`}>
-          <rect x={visible.x} y={visible.y} width={visible.w} height={visible.h} fill="url(#dot-grid)" />
-          {circuit.wires.map((w) => {
-            const fp = partById.get(w.from.partId);
-            const tp = partById.get(w.to.partId);
-            const a = fp && pinPoint(fp, w.from.pin, library);
-            const b = tp && pinPoint(tp, w.to.pin, library);
-            if (!a || !b) return null;
-            const net = engine.netlist.pinNet.get(`${prefix}${w.from.partId}.${w.from.pin}`) ?? -1;
-            return (
-              <WireView
-                key={w.id}
-                id={w.id}
-                d={wirePath(a, b)}
-                selected={selectedWires.has(w.id)}
-                value={engine.readNet(net)}
-                oscillating={net >= 0 && oscillating.has(engine.netlist.netIds[net]!)}
-                branch={(fanout.get(`${w.from.partId}:${w.from.pin}`) ?? 0) > 1 ? a : undefined}
-                onPointerDown={onWireDown}
-              />
-            );
-          })}
-          {circuit.parts.map((p) => (
+          {shownWires.map((g) => (
+            <WireView key={g.id} id={g.id} d={g.d} selected={selectedWires.has(g.id)} branch={g.branch} onPointerDown={onWireDown} register={register} />
+          ))}
+          {shownParts.map((p) => (
             <PartView
               key={p.id}
               part={p}
               chip={p.kind.type === 'chip' ? library[p.kind.chipId] : undefined}
               selected={selectedParts.has(p.id)}
-              value={partValue(p)}
+              prefix={prefix}
               readOnly={readOnly}
               onPartDown={onPartDown}
               onPinDown={onPinDown}
@@ -405,7 +426,7 @@ export function Board() {
         )}
       </div>
       <footer className="statusbar" data-testid="statusbar">
-        <span data-testid="tick">틱 {tick}</span>
+        <TickCount />
         <span>
           게이트 {gateCount} · 전선 {circuit.wires.length}
         </span>

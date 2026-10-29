@@ -18,12 +18,14 @@ interface UiState {
   waveOpen: boolean;
   truthOpen: boolean;
   saveOpen: boolean;
+  settingsOpen: boolean;
   message: Message | null;
   /** 가져오기 대화상자에 띄울 파일 (검증 통과) */
   pendingImport: Bundle | null;
   setWaveOpen(open: boolean): void;
   setTruthOpen(open: boolean): void;
   setSaveOpen(open: boolean): void;
+  setSettingsOpen(open: boolean): void;
   setMessage(message: Message | null): void;
   setPendingImport(bundle: Bundle | null): void;
   setArmed(kind: PartKind | null): void;
@@ -36,11 +38,13 @@ export const useUi = create<UiState>((set) => ({
   waveOpen: true,
   truthOpen: false,
   saveOpen: false,
+  settingsOpen: false,
   message: null,
   pendingImport: null,
   setWaveOpen: (waveOpen) => set({ waveOpen }),
   setTruthOpen: (truthOpen) => set({ truthOpen }),
   setSaveOpen: (saveOpen) => set({ saveOpen }),
+  setSettingsOpen: (settingsOpen) => set({ settingsOpen }),
   setMessage: (message) => set({ message }),
   setPendingImport: (pendingImport) => set({ pendingImport }),
   setArmed: (armed) => set({ armed }),

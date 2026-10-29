@@ -6,7 +6,7 @@
 ## 명령어
 - `pnpm dev` — 개발 서버
 - `pnpm test` — Vitest (엔진 단위 테스트)
-- `pnpm test:e2e` — Playwright
+- `pnpm test:e2e` — Playwright (개발 서버 5179 + 성능 측정용 배포 빌드 미리보기 5180을 함께 띄움)
 - `pnpm typecheck` / `pnpm lint`
 - 작업을 끝내기 전에 `pnpm typecheck && pnpm test`가 통과해야 함
 

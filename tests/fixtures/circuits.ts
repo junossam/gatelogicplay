@@ -167,8 +167,12 @@ export function nestedLibrary(): Record<string, ChipDef> {
   return Object.fromEntries(defs.map((d) => [d.id, d]));
 }
 
-/** 게이트 n개짜리 성능 측정용 회로: 스위치 하나가 XOR 사슬 여러 줄을 구동 */
-export function bigCircuit(gates: number, cols = 50): Circuit {
+/**
+ * 게이트 n개짜리 성능 측정용 회로: NOT/XOR 사슬이 여러 줄, 줄 머리는 입력 하나가 구동.
+ * XOR의 두 번째 입력은 바로 위 줄 게이트 — 실제 회로처럼 연결이 대부분 가깝다.
+ * fanout: 'local'(기본) 또는 'input'(입력 하나가 모든 XOR을 구동하는 극단적인 경우)
+ */
+export function bigCircuit(gates: number, cols = 50, fanout: 'local' | 'input' = 'local'): Circuit {
   const b = new CircuitBuilder().add('SWITCH', 'in', 0, 0, 'A');
   const rows = Math.ceil(gates / cols);
   let count = 0;
@@ -179,7 +183,7 @@ export function bigCircuit(gates: number, cols = 50): Circuit {
       if (c === 0) b.wire('in.y', `${id}.a`);
       else {
         b.wire(`g${r}_${c - 1}.y`, `${id}.a`);
-        if (c % 2) b.wire('in.y', `${id}.b`);
+        if (c % 2) b.wire(fanout === 'input' || r === 0 ? 'in.y' : `g${r - 1}_${c}.y`, `${id}.b`);
       }
     }
   }

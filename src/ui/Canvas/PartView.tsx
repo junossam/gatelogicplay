@@ -1,5 +1,6 @@
 import { memo, type PointerEvent } from 'react';
 import type { ChipDef, Part, PinRef } from '../../sim/types';
+import { engine, useSim } from '../../store/simStore';
 import { PartShape } from '../Palette/PartIcons';
 import { baseSize, chipPins, GRID, partPins, partRect, rotationTransform } from './geometry';
 
@@ -13,8 +14,8 @@ interface Props {
   /** 칩 부품이면 그 정의 */
   chip?: ChipDef;
   selected: boolean;
-  /** SWITCH/PUSH는 입력 상태, LED는 입력 값 */
-  value: 0 | 1;
+  /** 칩 내부를 볼 때의 경로 접두어 */
+  prefix: string;
   /** 칩 내부를 읽기 전용으로 볼 때: 조작·연결 불가 */
   readOnly: boolean;
   onPartDown(e: PointerEvent, partId: string): void;
@@ -44,7 +45,26 @@ function ChipBlock({ def, w, h }: { def: ChipDef; w: number; h: number }) {
   );
 }
 
-export const PartView = memo(function PartView({ part, chip, selected, value, readOnly, onPartDown, onPinDown, onPush }: Props) {
+/** SWITCH/PUSH는 입력 상태, LED는 입력 값, CLOCK은 출력. 값이 바뀐 부품만 다시 그린다. */
+function usePartValue(part: Part, prefix: string, readOnly: boolean): 0 | 1 {
+  return useSim(() => {
+    if (part.kind.type !== 'primitive') return 0;
+    switch (part.kind.kind) {
+      case 'SWITCH':
+      case 'PUSH':
+        return readOnly ? engine.readPin(`${prefix}${part.id}.y`) : engine.inputValue(part.id);
+      case 'LED':
+        return engine.readPin(`${prefix}${part.id}.a`);
+      case 'CLOCK':
+        return engine.readPin(`${prefix}${part.id}.y`);
+      default:
+        return 0;
+    }
+  });
+}
+
+export const PartView = memo(function PartView({ part, chip, selected, prefix, readOnly, onPartDown, onPinDown, onPush }: Props) {
+  const value = usePartValue(part, prefix, readOnly);
   const lib = chip && part.kind.type === 'chip' ? { [part.kind.chipId]: chip } : {};
   const r = partRect(part, lib);
   const base = baseSize(part, lib);
@@ -58,7 +78,7 @@ export const PartView = memo(function PartView({ part, chip, selected, value, re
       transform={`translate(${r.x} ${r.y})`}
       data-testid={`part-${part.id}`}
       data-part-id={part.id}
-      data-value={kind === 'SWITCH' || kind === 'PUSH' || kind === 'LED' ? value : undefined}
+      data-value={kind === 'SWITCH' || kind === 'PUSH' || kind === 'LED' || kind === 'CLOCK' ? value : undefined}
       className={`part${readOnly ? ' readonly' : ''}`}
     >
       <rect

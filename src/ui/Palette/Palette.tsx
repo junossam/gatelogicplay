@@ -3,6 +3,7 @@ import { chipsUsedIn, circuitUses, usedBy, withDependencies, wouldCreateCycle } 
 import { parseBundle, serializeBundle } from '../../model/storage';
 import type { ChipDef, PartKind, PrimitiveKind } from '../../sim/types';
 import { editorStore, isChipDirty, useEditor, workspaceOf } from '../../store/editorStore';
+import { useSettings } from '../../store/settingsStore';
 import { encodeKind, PART_DRAG_MIME, sameKind, useUi } from '../../store/uiStore';
 import { PartIcon } from './PartIcons';
 
@@ -28,6 +29,8 @@ const IO: Item[] = [
   { kind: 'LED', name: 'LED', desc: '입력 값을 표시' },
 ];
 
+const CLOCK: Item = { kind: 'CLOCK', name: '클럭', desc: '반주기마다 반전 (선택)' };
+
 function matches(name: string, q: string, extra = ''): boolean {
   const s = q.trim().toLowerCase();
   return !s || name.toLowerCase().includes(s) || extra.toLowerCase().includes(s);
@@ -40,7 +43,7 @@ function PaletteButton({ item, wide }: { item: Item; wide?: boolean }) {
   return (
     <button
       type="button"
-      className={`palette-item${wide ? ' wide' : ''}`}
+      className={`palette-item${wide ? ' wide' : ''}${item.kind === 'CLOCK' ? ' optional' : ''}`}
       aria-pressed={armed}
       data-testid={`palette-${item.kind}`}
       draggable
@@ -175,7 +178,8 @@ export function Palette() {
   const library = useEditor((s) => s.library);
   const fileRef = useRef<HTMLInputElement>(null);
   const gates = GATES.filter((i) => matches(i.name, query));
-  const io = IO.filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''}`));
+  const clockEnabled = useSettings((s) => s.clockEnabled);
+  const io = [...IO, ...(clockEnabled ? [CLOCK] : [])].filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''}`));
   const chips = Object.values(library)
     .filter((d) => matches(d.name, query))
     .sort((a, b) => a.name.localeCompare(b.name, 'ko'));

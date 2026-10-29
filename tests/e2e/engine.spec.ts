@@ -24,13 +24,22 @@ test('2단계 완료 기준: SR 래치가 S/R로 셋·리셋되고 버튼을 놓
 
   // 값이 1인 전선은 강조색으로 표시
   await expect(page.locator('[data-testid="wire-w8"]')).toHaveAttribute('data-value', '1');
-  await expect(page.locator('[data-testid="wire-w8"]')).toHaveClass(/\bon\b/);
+  const stroke = await page.locator('[data-testid="wire-w8"] .wire-line').evaluate((el) => getComputedStyle(el).stroke);
+  const on = await page.evaluate(() => {
+    const probe = document.createElement('div');
+    probe.style.color = 'var(--sig-on)';
+    document.body.appendChild(probe);
+    const c = getComputedStyle(probe).color;
+    probe.remove();
+    return c;
+  });
+  expect(stroke).toBe(on);
 });
 
 test('2단계 완료 기준: NOT 3개 루프는 "진동 중"으로 표시됨', async ({ page }) => {
   await seed(page, notRing(3));
   await expect(page.getByTestId('sim-badge')).toHaveText('진동 중');
-  await expect(page.locator('.wire.osc')).not.toHaveCount(0);
+  await expect(page.locator('.wire[data-osc="1"]')).not.toHaveCount(0);
 });
 
 test('스위치를 클릭하면 토글되고, 일시정지 중에는 한 틱씩 진행한다', async ({ page }) => {
