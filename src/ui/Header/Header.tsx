@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useSaveStatus, useStorageWarning } from '../../store/autosave';
 import { editorStore, isChipDirty, useEditor, viewTarget } from '../../store/editorStore';
-import { MAX_SPEED, MIN_SPEED, simActions, useSim } from '../../store/simStore';
+import { simActions, SPEED_STEPS, speedStep, useSim } from '../../store/simStore';
 import { useUi } from '../../store/uiStore';
 import { challengeById } from '../../model/challenges';
 import { exitChallenge } from '../challenges/actions';
@@ -186,13 +186,16 @@ export function Header() {
         </button>
         <label className="speed">
           <span>속도</span>
+          {/* 슬라이더 값은 눈금 번호, 실제 속도는 SPEED_STEPS */}
           <input
             type="range"
-            min={MIN_SPEED}
-            max={MAX_SPEED}
-            value={speed}
-            onChange={(e) => simActions.setSpeed(Number(e.target.value))}
+            min={0}
+            max={SPEED_STEPS.length - 1}
+            step={1}
+            value={speedStep(speed)}
+            onChange={(e) => simActions.setSpeed(SPEED_STEPS[Number(e.target.value)] ?? speed)}
             aria-label="시뮬레이션 속도"
+            aria-valuetext={`${speed}Hz`}
           />
           <output>{speed}Hz</output>
         </label>

@@ -64,11 +64,16 @@ test('스위치를 클릭하면 토글되고, 일시정지 중에는 한 틱씩 
   await expect(page.getByTestId('part-c')).toHaveAttribute('data-value', '1');
 });
 
-test('속도 슬라이더는 1~60Hz', async ({ page }) => {
-  await seed(page, halfAdder());
+test('속도 슬라이더는 기본 1Hz, 0.1~10Hz', async ({ page }) => {
+  await page.goto('/');
+  const speed = page.locator('.speed output');
+  await expect(speed).toHaveText('1Hz');
   const slider = page.getByLabel('시뮬레이션 속도');
-  await slider.fill('60');
-  await expect(page.getByText('60Hz')).toBeVisible();
-  await slider.fill('1');
-  await expect(page.getByText('1Hz')).toBeVisible();
+  await slider.fill('0');
+  await expect(speed).toHaveText('0.1Hz');
+  await slider.press('ArrowRight');
+  await expect(speed).toHaveText('0.2Hz');
+  await slider.fill('19');
+  await expect(speed).toHaveText('10Hz');
+  await expect(slider).toHaveAttribute('aria-valuetext', '10Hz');
 });

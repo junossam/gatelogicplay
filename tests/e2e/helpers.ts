@@ -14,6 +14,12 @@ export async function seed(page: Page, circuit: Circuit, extra: Record<string, s
     [serializeWorkspace(circuit), extra] as const,
   );
   await page.reload();
+  await maxSpeed(page);
+}
+
+/** 시뮬레이션 속도를 최고(10Hz)로 — 기본 1Hz는 테스트에 너무 느리다 */
+export async function maxSpeed(page: Page) {
+  await page.getByLabel('시뮬레이션 속도').fill('19');
 }
 
 /** 상단 메뉴바에서 메뉴(파일·편집·시뮬레이션·도구)를 열고 항목을 고른다 */

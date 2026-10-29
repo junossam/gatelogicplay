@@ -71,7 +71,7 @@ test('Enter: 선택한 칩 안으로 들어가기, Esc: 위로', async ({ page }
 
 test('클럭: 팔레트에서 놓고 주파수를 바꾸면 LED가 깜빡인다, 설정에서 끌 수 있다', async ({ page }) => {
   await seed(page, new CircuitBuilder().add('LED', 'led1', 14, 4, 'Y').build());
-  await page.getByLabel('시뮬레이션 속도').fill('60');
+  await page.getByLabel('시뮬레이션 속도').fill('19');
   await expect(page.getByTestId('palette-CLOCK')).toHaveClass(/optional/);
   await page.getByTestId('palette-CLOCK').click();
   const canvas = (await page.getByTestId('canvas').boundingBox())!;

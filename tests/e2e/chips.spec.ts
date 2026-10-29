@@ -7,7 +7,7 @@ const LIB_KEY = 'logiclab:v1:library';
 
 async function seedRegister(page: Page) {
   await seed(page, harness(register4Chip(), 'reg'), { [LIB_KEY]: serializeLibrary(nestedLibrary()) });
-  await page.getByLabel('시뮬레이션 속도').fill('60');
+  await page.getByLabel('시뮬레이션 속도').fill('19');
 }
 
 async function toggle(page: Page, id: string) {

@@ -20,7 +20,7 @@ test('플립플롭 예제 파일을 가져오면 T 플립플롭이 CLR 후 클�
   const dialog = page.getByRole('dialog', { name: '가져오기' });
   await expect(dialog).toContainText('칩 6개');
   await dialog.getByRole('button', { name: '가져오기' }).click();
-  await page.getByLabel('시뮬레이션 속도').fill('60');
+  await page.getByLabel('시뮬레이션 속도').fill('19');
 
   // T 구역이 보이도록 아래로 이동 (Space + 드래그)
   const canvas = (await page.getByTestId('canvas').boundingBox())!;
