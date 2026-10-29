@@ -1138,3 +1138,135 @@ button {
 .palette-item.optional {
   border-style: dashed;
 }
+
+/* 챌린지 */
+.challenge-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.challenge-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.challenge-card p {
+  margin: 0;
+}
+
+.challenge-card .text-button {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+
+.challenge-card.solved {
+  border-color: var(--chip-4);
+}
+
+.challenge-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.badge {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  border: 1px solid currentColor;
+}
+
+.badge.ok,
+.grade.pass {
+  color: var(--chip-4);
+}
+
+.challenge-panel {
+  padding-bottom: 12px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border-2);
+}
+
+.challenge-panel p {
+  margin: 4px 0;
+}
+
+.grade {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--radius);
+  font-size: 13px;
+}
+
+.grade.pass {
+  border-color: var(--chip-4);
+}
+
+.grade.fail,
+.grade.invalid {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.grade-table tr.wrong td {
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+}
+
+.grade-table tr.wrong td:last-child {
+  color: var(--danger);
+}
+
+.grade-table tr.ok td:last-child {
+  color: var(--chip-4);
+}
+
+.challenge-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.palette-item:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* 칩 저장: 핀으로 쓰지 않는 입출력 */
+.pin-use {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0 8px 0 0;
+  accent-color: var(--sig-on);
+}
+
+.pin-field.excluded .field {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.unwired-tag {
+  flex: none;
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--danger);
+  white-space: nowrap;
+}

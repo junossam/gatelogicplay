@@ -7,6 +7,8 @@ export const PREVIEW_PORT = 5180;
 export default defineConfig({
   testDir: 'tests/e2e',
   fullyParallel: true,
+  // 시뮬레이션·클럭 대기가 많은 테스트라 CPU를 너무 나눠 쓰면 시간 초과가 난다
+  workers: 4,
   reporter: 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,
@@ -20,6 +22,8 @@ export default defineConfig({
       testMatch: /perf\.spec/,
       dependencies: ['chromium'],
       fullyParallel: false,
+      // 다른 프로그램이 잠깐 CPU를 쓰면 프레임이 튀므로 측정만 다시 시도한다 (기준값은 그대로)
+      retries: 2,
       use: { ...devices['Desktop Chrome'], viewport: { width: 1400, height: 900 } },
     },
   ],

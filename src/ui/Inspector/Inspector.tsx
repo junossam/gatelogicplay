@@ -231,7 +231,7 @@ function UsedBy({ chipId }: { chipId: string }) {
   );
 }
 
-export function Inspector({ extra }: { extra?: ReactNode }) {
+export function Inspector({ top, extra }: { top?: ReactNode; extra?: ReactNode }) {
   const { circuit, prefix, readOnly, chain } = useView();
   const openChipId = useEditor((s) => s.openChipId);
   const selection = useEditor((s) => s.selection);
@@ -243,6 +243,7 @@ export function Inspector({ extra }: { extra?: ReactNode }) {
 
   return (
     <aside className="inspector" aria-label="인스펙터">
+      {top}
       <h2 className="panel-title">선택한 부품</h2>
       {part ? (
         <PartDetails part={part} prefix={prefix} readOnly={readOnly} />

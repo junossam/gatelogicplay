@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { challengeById, isAllowedIn } from '../../model/challenges';
 import { chipsUsedIn, circuitUses, usedBy, withDependencies, wouldCreateCycle } from '../../model/library';
 import { parseBundle, serializeBundle } from '../../model/storage';
 import type { ChipDef, PartKind, PrimitiveKind } from '../../sim/types';
@@ -36,8 +37,17 @@ function matches(name: string, q: string, extra = ''): boolean {
   return !s || name.toLowerCase().includes(s) || extra.toLowerCase().includes(s);
 }
 
+/** 챌린지 중이면 그 챌린지에서 쓸 수 있는 부품인지 (SPEC 13장 6단계) */
+function useAllowed(kind: PartKind): boolean {
+  const challengeId = useEditor((s) => s.openChallengeId);
+  const library = useEditor((s) => s.library);
+  const ch = challengeId ? challengeById(challengeId) : undefined;
+  return !ch || isAllowedIn(ch, kind, library);
+}
+
 function PaletteButton({ item, wide }: { item: Item; wide?: boolean }) {
   const kind: PartKind = { type: 'primitive', kind: item.kind };
+  const allowed = useAllowed(kind);
   const armed = useUi((s) => sameKind(s.armed, kind));
   const setArmed = useUi((s) => s.setArmed);
   return (
@@ -46,13 +56,14 @@ function PaletteButton({ item, wide }: { item: Item; wide?: boolean }) {
       className={`palette-item${wide ? ' wide' : ''}${item.kind === 'CLOCK' ? ' optional' : ''}`}
       aria-pressed={armed}
       data-testid={`palette-${item.kind}`}
-      draggable
+      disabled={!allowed}
+      draggable={allowed}
       onDragStart={(e) => {
         e.dataTransfer.setData(PART_DRAG_MIME, encodeKind(kind));
         e.dataTransfer.effectAllowed = 'copy';
       }}
       onClick={() => setArmed(armed ? null : kind)}
-      title={armed ? '캔버스를 클릭하면 배치됩니다' : '클릭한 뒤 캔버스를 클릭하거나, 끌어다 놓으세요'}
+      title={!allowed ? '이 챌린지에서는 쓸 수 없습니다' : armed ? '캔버스를 클릭하면 배치됩니다' : '클릭한 뒤 캔버스를 클릭하거나, 끌어다 놓으세요'}
     >
       <PartIcon kind={item.kind} />
       <span className="palette-text">
@@ -84,7 +95,9 @@ function ChipItem({ def }: { def: ChipDef }) {
   const setArmed = useUi((s) => s.setArmed);
   const isOpen = openChipId === def.id;
   // 칩 A를 편집하는 동안 A와 A를 포함하는 칩은 넣을 수 없다 (SPEC 9.1)
-  const blocked = wouldCreateCycle(openChipId, def.id, library);
+  const allowed = useAllowed(kind);
+  const inChallenge = useEditor((s) => s.openChallengeId !== null);
+  const blocked = wouldCreateCycle(openChipId, def.id, library) || !allowed;
 
   const remove = () => {
     // 쓰는 곳이 있으면 목록을 보여주고 삭제를 막는다 (SPEC 9.1)
@@ -117,7 +130,15 @@ function ChipItem({ def }: { def: ChipDef }) {
         aria-current={isOpen ? 'true' : undefined}
         disabled={blocked}
         draggable={!blocked}
-        title={blocked ? (isOpen ? '지금 편집 중인 칩입니다' : '이 칩은 편집 중인 칩을 포함하므로 넣을 수 없습니다') : '클릭한 뒤 캔버스를 클릭하거나, 끌어다 놓으세요'}
+        title={
+          !allowed
+            ? '이 챌린지에서 쓸 수 없는 게이트가 들어 있습니다'
+            : blocked
+              ? isOpen
+                ? '지금 편집 중인 칩입니다'
+                : '이 칩은 편집 중인 칩을 포함하므로 넣을 수 없습니다'
+              : '클릭한 뒤 캔버스를 클릭하거나, 끌어다 놓으세요'
+        }
         onDragStart={(e) => {
           e.dataTransfer.setData(PART_DRAG_MIME, encodeKind(kind));
           e.dataTransfer.effectAllowed = 'copy';
@@ -137,7 +158,7 @@ function ChipItem({ def }: { def: ChipDef }) {
         className="icon-button"
         aria-label={`${def.name} 편집`}
         title="칩 편집"
-        disabled={isOpen}
+        disabled={isOpen || inChallenge}
         onClick={() => confirmLeaveChip(() => editorStore.getState().openChip(def.id))}
       >
         ✎

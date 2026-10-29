@@ -1,4 +1,7 @@
+import { useEditor } from './store/editorStore';
 import { useUi } from './store/uiStore';
+import { ChallengeListDialog } from './ui/challenges/ChallengeListDialog';
+import { ChallengePanel } from './ui/challenges/ChallengePanel';
 import { Board } from './ui/Canvas/Board';
 import { ImportDialog, MessageDialog } from './ui/dialogs/ImportDialog';
 import { SaveChipDialog } from './ui/dialogs/SaveChipDialog';
@@ -15,6 +18,8 @@ export function App() {
   const pendingImport = useUi((s) => s.pendingImport);
   const message = useUi((s) => s.message);
   const settingsOpen = useUi((s) => s.settingsOpen);
+  const challengesOpen = useUi((s) => s.challengesOpen);
+  const challengeId = useEditor((s) => s.openChallengeId);
   return (
     <div className="app">
       <Header />
@@ -24,12 +29,13 @@ export function App() {
           <Board />
           <Waveform />
         </main>
-        <Inspector />
+        <Inspector top={challengeId ? <ChallengePanel id={challengeId} /> : null} />
       </div>
       {truthOpen && <TruthTableDialog />}
       {saveOpen && <SaveChipDialog />}
       {pendingImport && <ImportDialog />}
       {settingsOpen && <SettingsDialog />}
+      {challengesOpen && <ChallengeListDialog />}
       {message && <MessageDialog />}
     </div>
   );

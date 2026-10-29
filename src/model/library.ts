@@ -65,16 +65,26 @@ export interface PinSpec {
   /** 입력 SWITCH/PUSH 또는 출력 LED 부품 id → 핀 이름 */
   names: Record<string, string>;
   order: PinOrder;
+  /** 핀으로 쓰지 않을 입력/출력 부품 id (칩 안에 남지만 핀이 되지 않는다) */
+  exclude: string[];
 }
 
-/** 칩 핀 정의: 순서는 order, 이름은 names(없으면 라벨, 없으면 id) */
+/** 칩 핀 정의: 순서는 order, 이름은 names(없으면 라벨, 없으면 id). exclude에 든 부품은 핀에서 뺀다. */
 export function chipPinsFrom(circuit: Circuit, spec?: Partial<PinSpec>): Pick<ChipDef, 'inputs' | 'outputs'> {
   const io = orderedIO(circuit, spec?.order);
+  const skip = new Set(spec?.exclude ?? []);
   const name = (p: Part) => spec?.names?.[p.id] ?? p.label ?? p.id;
   return {
-    inputs: io.inputs.map((p) => ({ name: name(p), partId: p.id })),
-    outputs: io.outputs.map((p) => ({ name: name(p), partId: p.id })),
+    inputs: io.inputs.filter((p) => !skip.has(p.id)).map((p) => ({ name: name(p), partId: p.id })),
+    outputs: io.outputs.filter((p) => !skip.has(p.id)).map((p) => ({ name: name(p), partId: p.id })),
   };
+}
+
+/** 전선이 하나도 연결되지 않은 입력(SWITCH/PUSH)·출력(LED) 부품 — 칩 핀 후보에서 기본으로 뺀다 */
+export function unwiredIO(circuit: Circuit): Set<string> {
+  const io = orderedIO(circuit);
+  const wired = new Set(circuit.wires.flatMap((w) => [w.from.partId, w.to.partId]));
+  return new Set([...io.inputs, ...io.outputs].filter((p) => !wired.has(p.id)).map((p) => p.id));
 }
 
 /** 핀 이름 검사: 비어 있으면 안 되고, 입력·출력 전체에서 겹치면 안 된다 (전선이 이름으로 핀을 가리키므로) */

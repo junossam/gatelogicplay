@@ -6,6 +6,7 @@ import { engine, simActions, simStore, useSim } from '../../store/simStore';
 import { decodeKind, PART_DRAG_MIME, useUi } from '../../store/uiStore';
 import { confirmLeaveChip } from '../Palette/Palette';
 import { baseSize, GRID, normalizeRect, partRect, pinPoint, rectContains, type Rect } from './geometry';
+import { challengeById, isAllowedIn } from '../../model/challenges';
 import { PartView } from './PartView';
 import { layoutWires, type WireLayout } from './wireLayout';
 import { WireView } from './WireView';
@@ -113,6 +114,9 @@ export function Board() {
     const x = Math.round(world.x / GRID - w / 2);
     const y = Math.round(world.y / GRID - h / 2);
     const st = editorStore.getState();
+    // 챌린지에서 쓸 수 없는 부품은 끌어다 놓아도 배치하지 않는다
+    const ch = st.openChallengeId ? challengeById(st.openChallengeId) : undefined;
+    if (ch && !isAllowedIn(ch, kind, library)) return;
     if (kind.type === 'chip') st.addChip(kind.chipId, x, y);
     else st.addPart(kind.kind, x, y);
   };
@@ -258,7 +262,7 @@ export function Board() {
       if (!readOnly) store.makeChipFromSelection();
     } else if (mod && key === 's') {
       e.preventDefault();
-      useUi.getState().setSaveOpen(true);
+      if (!store.openChallengeId) useUi.getState().setSaveOpen(true);
     } else if (e.key === 'Enter') {
       const [only] = store.selection.parts;
       if (store.selection.parts.length === 1 && only) store.enterInstance(only);

@@ -39,6 +39,8 @@ export interface SaveChipInput {
   /** 입력/출력 부품 id → 핀 이름 */
   names: Record<string, string>;
   order: PinOrder;
+  /** 핀으로 쓰지 않을 입력/출력 부품 id */
+  exclude?: string[];
   /** 편집 중인 칩을 저장할 때: 쓰는 칩에도 반영(같은 id 갱신) / 끄면 "이름 (2)"로 새 칩 */
   propagate: boolean;
 }
@@ -65,6 +67,8 @@ export interface EditorState {
   openedCircuit: Circuit | null;
   /** 읽기 전용으로 들어가 본 칩 인스턴스 경로 (부품 id 목록) */
   viewPath: string[];
+  /** 풀고 있는 챌린지 (null = 아님). 작업 공간은 stash에 맡겨 둔다 */
+  openChallengeId: string | null;
 
   load(circuit: Circuit): void;
   loadAll(workspace: Circuit, library: Library, openChipId: string | null): void;
@@ -85,6 +89,8 @@ export interface EditorState {
   setPinOrder(order: PinOrder): void;
   openChip(chipId: string): void;
   closeChip(): void;
+  openChallenge(id: string, circuit: Circuit): void;
+  closeChallenge(): void;
   enterInstance(partId: string): boolean;
   setViewPath(path: string[]): void;
   saveChip(input: SaveChipInput): SaveChipResult;
@@ -189,6 +195,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
         stash: null,
         openedCircuit: null,
         viewPath: [],
+        openChallengeId: null,
 
         load(circuit) {
           set((s) => {
@@ -202,6 +209,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
             s.stash = null;
             s.openedCircuit = null;
             s.viewPath = [];
+            s.openChallengeId = null;
           });
         },
 
@@ -388,6 +396,30 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           });
         },
 
+        openChallenge(id, circuit) {
+          const st = get();
+          if (st.openChipId) st.closeChip();
+          const cur = get();
+          set((s) => {
+            if (!s.stash) s.stash = { circuit: cur.circuit, past: cur.past, future: cur.future, pinOrder: cur.pinOrder };
+            s.openChallengeId = id;
+            s.circuit = circuit;
+            s.past = [];
+            s.future = [];
+            s.selection = { parts: [], wires: [] };
+            s.viewPath = [];
+            s.pinOrder = NO_ORDER;
+          });
+        },
+
+        closeChallenge() {
+          if (get().openChallengeId === null) return;
+          set((s) => {
+            s.openChallengeId = null;
+          });
+          get().closeChip();
+        },
+
         closeChip() {
           const { stash } = get();
           if (!stash) return;
@@ -425,7 +457,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
         saveChip(input) {
           const st = get();
           const name = input.name.trim();
-          const pins = chipPinsFrom(st.circuit, { names: input.names, order: input.order });
+          const pins = chipPinsFrom(st.circuit, { names: input.names, order: input.order, exclude: input.exclude });
           const errors = pinNameErrors(pins);
           if (!name) errors.unshift('이름을 입력하세요.');
           if (pins.inputs.length + pins.outputs.length === 0) errors.push('입력(스위치·푸시 버튼)이나 출력(LED)이 하나 이상 있어야 합니다.');

@@ -40,6 +40,8 @@ async function clickWireBetween(page: Page, from: string, to: string) {
 }
 
 test('4단계 완료 기준: SR 래치 → D 플립플롭 → 4비트 레지스터 중첩 동작, 래치 수정이 레지스터에 반영', async ({ page }) => {
+  // 클럭을 여러 번 기다리는 긴 테스트 (병렬 실행 중에는 30초를 넘길 수 있다)
+  test.setTimeout(60_000);
   await seedRegister(page);
 
   for (const [i, v] of ([1, 0, 1, 1] as const).entries()) await setSwitch(page, `in_D${i}`, v);
@@ -218,4 +220,24 @@ test('칩과 편집 중인 칩은 새로고침 후에도 남는다', async ({ pa
   await expect(page.getByRole('navigation', { name: '이동 경로' })).toContainText('래치');
   await page.getByRole('button', { name: '닫기' }).click();
   await expect(page.getByTestId('part-or1')).toHaveCount(1);
+});
+
+test('전선이 없는 LED는 칩 출력 핀에서 기본으로 빠진다 (켜면 다시 포함)', async ({ page }) => {
+  const c = srLatch();
+  c.parts.push({ id: 'led9', kind: { type: 'primitive', kind: 'LED' }, x: 80, y: -3, label: 'Y1' });
+  await seed(page, c);
+  await page.getByRole('button', { name: '칩으로 저장' }).click();
+  const dialog = page.getByRole('dialog', { name: '칩으로 저장' });
+  const y1 = dialog.getByTestId('pin-field-led9');
+  await expect(y1).toContainText('연결 안 됨');
+  await expect(y1.getByRole('checkbox')).not.toBeChecked();
+  await expect(dialog.getByRole('img', { name: /미리보기/ })).not.toContainText('Y1');
+
+  await y1.getByRole('checkbox').check();
+  await expect(dialog.getByRole('img', { name: /미리보기/ })).toContainText('Y1');
+  await y1.getByRole('checkbox').uncheck();
+
+  await dialog.getByLabel('칩 이름').fill('JK 연습');
+  await dialog.getByRole('button', { name: '저장', exact: true }).click();
+  await expect(page.getByTestId('chip-item-JK 연습')).toContainText('2→2');
 });

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { CHIP_COLORS, chipPinsFrom, circuitUses, countBrokenWires, uniqueName, usedBy } from '../../model/library';
+import { CHIP_COLORS, chipPinsFrom, circuitUses, countBrokenWires, uniqueName, unwiredIO, usedBy } from '../../model/library';
 import { compile, CompileError } from '../../sim/compile';
 import { Engine } from '../../sim/engine';
 import { orderedIO } from '../../sim/truthTable';
@@ -53,21 +53,36 @@ export function SaveChipDialog() {
     for (const p of [...io.inputs, ...io.outputs]) init[p.id] = current?.inputs.concat(current.outputs).find((x) => x.partId === p.id)?.name ?? p.label ?? p.id;
     return init;
   });
+  // 핀으로 쓰지 않을 부품: 편집 중인 칩이면 기존 핀이 아니었던 것, 새 칩이면 전선이 없는 것
+  const unwired = useMemo(() => unwiredIO(circuit), [circuit]);
+  const [exclude, setExclude] = useState<Set<string>>(() => {
+    const ids = [...io.inputs, ...io.outputs].map((p) => p.id);
+    if (current) {
+      const pinIds = new Set([...current.inputs, ...current.outputs].map((p) => p.partId));
+      return new Set(ids.filter((id) => !pinIds.has(id) && unwired.has(id)));
+    }
+    return new Set(ids.filter((id) => unwired.has(id)));
+  });
   const [propagate, setPropagate] = useState(true);
   const [errors, setErrors] = useState<string[]>([]);
 
-  const pins = chipPinsFrom(circuit, { names, order });
+  const pins = chipPinsFrom(circuit, { names, order, exclude: [...exclude] });
+  // 요약(진리표)은 핀으로 쓰는 입출력만으로 계산
+  const pinCircuit = useMemo(
+    () => (exclude.size ? { parts: circuit.parts.filter((p) => !exclude.has(p.id)), wires: circuit.wires.filter((w) => !exclude.has(w.from.partId) && !exclude.has(w.to.partId)) } : circuit),
+    [circuit, exclude],
+  );
   const users = current ? [...usedBy(current.id, library).map((d) => d.name), ...(circuitUses(workspaceOf(st), current.id) ? ['작업 공간'] : [])] : [];
   const broken = current && propagate ? countBrokenWires(library, { ...current, ...pins }, [workspaceOf(st)]) : 0;
 
   const summary = useMemo(() => {
     let feedback: boolean | null = null;
     try {
-      feedback = new Engine(compile(circuit, library)).hasFeedback;
+      feedback = new Engine(compile(pinCircuit, library)).hasFeedback;
     } catch (e) {
       if (!(e instanceof CompileError)) throw e;
     }
-    const t = computeTable(circuit, library, order, false);
+    const t = computeTable(pinCircuit, library, order, false);
     const table =
       t.status === 'ok'
         ? `${t.table.rows.length}행 생성${t.table.rows.some((r) => r.forbidden) ? ' · 금지 상태 포함' : ''}${t.table.rows.some((r) => r.outputs.includes('hold')) ? ' · 이전 유지 포함' : ''}`
@@ -77,7 +92,7 @@ export function SaveChipDialog() {
             ? t.message
             : '입력이나 출력이 없어 만들지 않음';
     return { parts: circuit.parts.length, feedback, table };
-  }, [circuit, library, order]);
+  }, [circuit, pinCircuit, library, order]);
 
   const move = (side: 'inputs' | 'outputs', i: number, d: -1 | 1) => {
     const list = [...order[side]];
@@ -87,7 +102,7 @@ export function SaveChipDialog() {
   };
 
   const save = () => {
-    const r = editorStore.getState().saveChip({ name, color, names, order, propagate });
+    const r = editorStore.getState().saveChip({ name, color, names, order, exclude: [...exclude], propagate });
     if (r.ok) setOpen(false);
     else setErrors(r.errors);
   };
@@ -97,13 +112,28 @@ export function SaveChipDialog() {
       <legend>{title}</legend>
       {order[side].length === 0 && <p className="muted small">없음</p>}
       {order[side].map((id, i) => (
-        <div key={id} className="pin-field">
+        <div key={id} className={`pin-field${exclude.has(id) ? ' excluded' : ''}`} data-testid={`pin-field-${id}`}>
+          <input
+            type="checkbox"
+            className="pin-use"
+            checked={!exclude.has(id)}
+            aria-label={`${names[id] ?? id} 핀으로 사용`}
+            title="핀으로 사용"
+            onChange={(e) => {
+              const next = new Set(exclude);
+              if (e.target.checked) next.delete(id);
+              else next.add(id);
+              setExclude(next);
+            }}
+          />
           <input
             className="field"
             aria-label={`${title} 핀 ${i + 1} 이름`}
             value={names[id] ?? ''}
+            disabled={exclude.has(id)}
             onChange={(e) => setNames({ ...names, [id]: e.target.value })}
           />
+          {unwired.has(id) && <span className="unwired-tag">연결 안 됨</span>}
           <button type="button" className="icon-button" aria-label={`${names[id]} 위로`} disabled={i === 0} onClick={() => move(side, i, -1)}>
             ▲
           </button>

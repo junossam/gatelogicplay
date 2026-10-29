@@ -2,6 +2,8 @@ import { useSaveStatus, useStorageWarning } from '../../store/autosave';
 import { editorStore, isChipDirty, useEditor, viewTarget } from '../../store/editorStore';
 import { MAX_SPEED, MIN_SPEED, simActions, useSim } from '../../store/simStore';
 import { useUi } from '../../store/uiStore';
+import { challengeById } from '../../model/challenges';
+import { exitChallenge } from '../challenges/actions';
 import { confirmLeaveChip } from '../Palette/Palette';
 
 const STATUS_TEXT = { saved: '저장됨', saving: '저장 중…', error: '저장 실패' } as const;
@@ -12,7 +14,8 @@ function Breadcrumb() {
   const circuit = useEditor((s) => s.circuit);
   const viewPath = useEditor((s) => s.viewPath);
   const { chain } = viewTarget({ circuit, library, viewPath });
-  const root = openChipId ? library[openChipId]?.name : null;
+  const challengeId = useEditor((s) => s.openChallengeId);
+  const root = challengeId ? challengeById(challengeId)?.title : openChipId ? library[openChipId]?.name : null;
   const goRoot = () => editorStore.getState().setViewPath([]);
 
   return (
@@ -21,8 +24,13 @@ function Breadcrumb() {
         {root ? (
           <>
             <li>
-              <button type="button" className="crumb" onClick={() => confirmLeaveChip(() => editorStore.getState().closeChip())} title="작업 공간으로">
-                내 칩
+              <button
+                type="button"
+                className="crumb"
+                onClick={() => (challengeId ? exitChallenge() : confirmLeaveChip(() => editorStore.getState().closeChip()))}
+                title="작업 공간으로"
+              >
+                {challengeId ? '챌린지' : '내 칩'}
               </button>
             </li>
             <li>
@@ -77,6 +85,7 @@ export function Header() {
   const canRedo = useEditor((s) => s.future.length > 0);
   const dirty = useEditor(isChipDirty);
   const openChipId = useEditor((s) => s.openChipId);
+  const challengeId = useEditor((s) => s.openChallengeId);
   const undo = useEditor((s) => s.undo);
   const redo = useEditor((s) => s.redo);
   const running = useSim((s) => s.running);
@@ -131,14 +140,23 @@ export function Header() {
       </div>
 
       <div className="header-actions">
+        <button type="button" className="text-button" onClick={() => useUi.getState().setChallengesOpen(true)}>
+          챌린지
+        </button>
         <button type="button" className="text-button" onClick={() => setTruthOpen(true)}>
           진리표
         </button>
-        <button type="button" className="text-button primary" onClick={() => setSaveOpen(true)} title="칩으로 저장 (Ctrl+S)">
-          칩으로 저장
-        </button>
-        {openChipId && (
-          <button type="button" className="text-button" onClick={() => confirmLeaveChip(() => editorStore.getState().closeChip())}>
+        {!challengeId && (
+          <button type="button" className="text-button primary" onClick={() => setSaveOpen(true)} title="칩으로 저장 (Ctrl+S)">
+            칩으로 저장
+          </button>
+        )}
+        {(openChipId || challengeId) && (
+          <button
+            type="button"
+            className="text-button"
+            onClick={() => (challengeId ? exitChallenge() : confirmLeaveChip(() => editorStore.getState().closeChip()))}
+          >
             닫기
           </button>
         )}

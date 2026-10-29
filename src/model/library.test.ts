@@ -16,6 +16,7 @@ import type { Bit, ChipDef, Library } from '../sim/types';
 import {
   allDeps,
   chipPinsFrom,
+  unwiredIO,
   countBrokenWires,
   importConflicts,
   mergeImport,
@@ -309,5 +310,15 @@ describe('순차 회로 진리표: 처음에는 안정되지 않는 플립플롭
     expect(t.rows.some((r) => r.forbidden)).toBe(false);
     const clk = t.inputs.indexOf('CLK');
     for (const r of t.rows.filter((r) => r.inputs[clk] === 0)) expect(r.outputs).toEqual(['hold', 'hold', 'hold', 'hold']);
+  });
+});
+
+describe('칩 핀에서 빼기', () => {
+  it('전선 없는 LED는 핀 후보에서 기본으로 빠지고, exclude로 뺀 부품은 핀이 되지 않는다', () => {
+    const c = srLatch();
+    c.parts.push({ id: 'led9', kind: { type: 'primitive', kind: 'LED' }, x: 80, y: -3, label: 'Y1' });
+    expect([...unwiredIO(c)]).toEqual(['led9']);
+    expect(chipPinsFrom(c).outputs.map((p) => p.name)).toEqual(['Y1', 'Q', 'Q̄']);
+    expect(chipPinsFrom(c, { exclude: ['led9'] }).outputs.map((p) => p.name)).toEqual(['Q', 'Q̄']);
   });
 });
