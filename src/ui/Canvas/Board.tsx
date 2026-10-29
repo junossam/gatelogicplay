@@ -348,15 +348,18 @@ export function Board() {
     useUi.getState().setZoom(z);
   }, [partRects, size]);
 
-  // 다른 회로(칩 편집·칩 내부·챌린지)로 바뀌었는데 화면 밖에 부품이 있으면 전체 보기
+  // 다른 회로(칩 편집·칩 내부·챌린지)로 바뀌었는데 부품이 하나도 보이지 않으면 전체 보기.
+  // 처음 열 때는 하지 않는다: 큰 회로를 25%까지 줄여 전부 그리면 느려진다.
   const docKey = `${useEditor((s) => s.openChipId)}|${useEditor((s) => s.openChallengeId)}|${prefix}`;
   const fittedKey = useRef<string | null>(null);
   useEffect(() => {
     if (fittedKey.current === docKey || size.w < 50) return;
+    const first = fittedKey.current === null;
     fittedKey.current = docKey;
+    if (first) return;
     const { pan: p, zoom: z } = view.current;
     const vis = { x: -p.x / z, y: -p.y / z, w: size.w / z, h: size.h / z };
-    if (partRects.some((r) => !rectContains(vis, r))) fitView();
+    if (partRects.length && !partRects.some((r) => intersects(vis, r))) fitView();
   }, [docKey, size, partRects, fitView]);
   // 전선마다 비트별 Net (버스는 여러 개)
   const wireNets = useMemo(
