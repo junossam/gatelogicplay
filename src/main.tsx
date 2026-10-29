@@ -27,6 +27,11 @@ startSimLoop();
 // 공유 링크나 예제 링크로 열었으면 가져오기 대화상자를 띄운다
 void openShareLink();
 void openSampleLink();
+// 이미 열린 페이지 주소창에 링크를 붙여 넣으면 새로고침 없이 해시만 바뀐다
+window.addEventListener('hashchange', () => {
+  void openShareLink();
+  void openSampleLink();
+});
 
 // 1초 대기 중에 페이지를 떠나면 바로 저장
 window.addEventListener('pagehide', () => {

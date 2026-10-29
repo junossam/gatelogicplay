@@ -23,17 +23,19 @@ test('예제: 헤더의 예제 창에서 분류별 목록을 보고, 열면 가�
   await expect(page.getByTestId('part-sum')).toHaveAttribute('data-value', '1');
 });
 
-test('예제 링크(#sample=)로 열면 바로 가져오기 창이 뜨고, 잘못된 경로는 안내한다', async ({ page }) => {
-  await page.goto('/');
-  await page.evaluate(() => localStorage.clear());
-  await page.goto(`/#sample=${encodeURIComponent('기억 소자/플립플롭 모음.json')}`);
-  await page.reload();
-  const imp = page.getByRole('dialog', { name: '가져오기' });
+test('예제 링크(#sample=)로 열면 바로 가져오기 창이 뜨고, 잘못된 경로는 안내한다', async ({ page, context }) => {
+  const fresh = await context.newPage();
+  await fresh.goto(`/#sample=${encodeURIComponent('기억 소자/플립플롭 모음.json')}`);
+  const imp = fresh.getByRole('dialog', { name: '가져오기' });
   await expect(imp).toContainText('칩 6개');
-  await expect(page).toHaveURL(/\/$/);
-  await imp.getByRole('button', { name: '취소' }).click();
+  await expect(fresh).toHaveURL(/\/$/);
 
   await page.goto('/#sample=..%2Fpackage.json');
-  await page.reload();
   await expect(page.getByRole('dialog', { name: '예제를 열 수 없습니다' })).toBeVisible();
+});
+
+test('이미 열린 페이지에서 해시만 #sample=로 바뀌어도 가져오기 창이 뜬다', async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => (location.hash = `#sample=${encodeURIComponent('연산/4비트 가산기.json')}`));
+  await expect(page.getByRole('dialog', { name: '가져오기' })).toContainText('칩 3개');
 });
