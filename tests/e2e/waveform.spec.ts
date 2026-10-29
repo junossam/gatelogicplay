@@ -29,17 +29,19 @@ test('3단계 완료 기준: SR 래치의 OR 하나를 선택하면 입력 2개�
 
 test('3단계 완료 기준: 래치 전체를 범위로 선택하면 R, S, Q, Q̄ 네 채널만', async ({ page }) => {
   await seed(page, srLatch());
-  // 빈 곳에서 드래그해 OR/NOT 네 개만 감싸는 범위 선택 (핀 히트 영역 바깥에서 시작)
+  // 빈 곳에서 Shift+드래그해 OR/NOT 네 개만 감싸는 범위 선택 (핀 히트 영역 바깥에서 시작)
   const boxes = await Promise.all(['or1', 'or2', 'not1', 'not2'].map(async (id) => (await page.getByTestId(`part-${id}`).locator('.part-hit').boundingBox())!));
   const left = Math.min(...boxes.map((b) => b.x));
   const top = Math.min(...boxes.map((b) => b.y));
   const right = Math.max(...boxes.map((b) => b.x + b.width));
   const bottom = Math.max(...boxes.map((b) => b.y + b.height));
   await page.mouse.move(left - 2, top - 30);
+  await page.keyboard.down('Shift');
   await page.mouse.down();
   await page.mouse.move(right + 30, bottom + 10, { steps: 6 });
   await expect(page.getByText('범위 선택 · 부품 4개')).toBeVisible();
   await page.mouse.up();
+  await page.keyboard.up('Shift');
 
   await expect(page.getByRole('button', { name: '선택 범위', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(channels(page)).toHaveCount(4);

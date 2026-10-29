@@ -5,7 +5,7 @@ import { editorStore, useEditor, useView } from '../../store/editorStore';
 import { engine, simActions, simStore, useSim } from '../../store/simStore';
 import { decodeKind, PART_DRAG_MIME, useUi } from '../../store/uiStore';
 import { confirmLeaveChip } from '../Palette/Palette';
-import { baseSize, GRID, normalizeRect, partRect, pinPoint, rectContains, type Rect } from './geometry';
+import { baseSize, boundsOf, GRID, normalizeRect, partRect, pinPoint, rectContains, type Rect } from './geometry';
 import { challengeById, isAllowedIn } from '../../model/challenges';
 import { PartView } from './PartView';
 import { layoutWires, type WireLayout } from './wireLayout';
@@ -24,7 +24,8 @@ type Gesture =
   | { type: 'drag'; start: Point; pointerId: number; partId: string; moved: boolean }
   | { type: 'wire'; from: PinRef; start: Point; pointerId: number }
   | { type: 'box'; start: Point; additive: boolean; pointerId: number }
-  | { type: 'pan'; start: Point; pan: Point; pointerId: number };
+  /** clearOnClick: 바닥을 끌지 않고 클릭만 했으면 선택 해제 */
+  | { type: 'pan'; start: Point; pan: Point; pointerId: number; clearOnClick: boolean };
 
 function parsePin(el: Element | null): PinRef | null {
   const target = el?.closest('[data-pin]');
@@ -128,7 +129,7 @@ export function Board() {
     if (e.button === 1 || space.current.held) {
       e.preventDefault();
       space.current.panned = true;
-      setGesture({ type: 'pan', start: { x: e.clientX, y: e.clientY }, pan, pointerId: e.pointerId });
+      setGesture({ type: 'pan', start: { x: e.clientX, y: e.clientY }, pan, pointerId: e.pointerId, clearOnClick: false });
       return;
     }
     if (e.button !== 0) return;
@@ -137,8 +138,14 @@ export function Board() {
       useUi.getState().setArmed(null);
       return;
     }
-    setCursor(world);
-    setGesture({ type: 'box', start: world, additive: e.shiftKey, pointerId: e.pointerId });
+    if (e.shiftKey) {
+      // Shift+드래그: 범위 선택 (Ctrl/⌘도 누르면 지금 선택에 더하기)
+      setCursor(world);
+      setGesture({ type: 'box', start: world, additive: e.ctrlKey || e.metaKey, pointerId: e.pointerId });
+      return;
+    }
+    // 바닥을 끌면 화면 전체 이동
+    setGesture({ type: 'pan', start: { x: e.clientX, y: e.clientY }, pan, pointerId: e.pointerId, clearOnClick: true });
   };
 
   const onPartDown = useCallback(
@@ -212,7 +219,10 @@ export function Board() {
   const onUp = (e: PointerEvent) => {
     if (!gesture || e.pointerId !== gesture.pointerId) return;
     const store = editorStore.getState();
-    if (gesture.type === 'drag') {
+    if (gesture.type === 'pan') {
+      const moved = Math.abs(e.clientX - gesture.start.x) + Math.abs(e.clientY - gesture.start.y) > 3;
+      if (gesture.clearOnClick && !moved) store.clearSelection();
+    } else if (gesture.type === 'drag') {
       store.endDrag();
       // 끌지 않고 클릭만 했으면 스위치를 토글
       const part = circuit.parts.find((p) => p.id === gesture.partId);
@@ -311,6 +321,27 @@ export function Board() {
   }, [circuit.wires]);
   const [hoverNet, setHoverNet] = useState<string | null>(null);
   const partRects = useMemo(() => circuit.parts.map((p) => partRect(p, library)), [circuit.parts, library]);
+
+  /** 모든 부품이 화면에 들어오게 배율과 위치를 맞춘다 (100%보다 크게 확대하지는 않음) */
+  const fitView = useCallback(() => {
+    const b = boundsOf(partRects);
+    if (!b) return;
+    const margin = 60;
+    const z = Math.min(1, Math.max(MIN_ZOOM, Math.min((size.w - 2 * margin) / Math.max(b.w, 1), (size.h - 2 * margin) / Math.max(b.h, 1))));
+    setPan({ x: size.w / 2 - (b.x + b.w / 2) * z, y: size.h / 2 - (b.y + b.h / 2) * z });
+    useUi.getState().setZoom(z);
+  }, [partRects, size]);
+
+  // 다른 회로(칩 편집·칩 내부·챌린지)로 바뀌었는데 화면 밖에 부품이 있으면 전체 보기
+  const docKey = `${useEditor((s) => s.openChipId)}|${useEditor((s) => s.openChallengeId)}|${prefix}`;
+  const fittedKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (fittedKey.current === docKey || size.w < 50) return;
+    fittedKey.current = docKey;
+    const { pan: p, zoom: z } = view.current;
+    const vis = { x: -p.x / z, y: -p.y / z, w: size.w / z, h: size.h / z };
+    if (partRects.some((r) => !rectContains(vis, r))) fitView();
+  }, [docKey, size, partRects, fitView]);
   const wireNets = useMemo(() => wireGeom.map((g) => netlist.pinNet.get(prefix + g.source) ?? -1), [wireGeom, netlist, prefix]);
   const gateCount = useMemo(() => netlist.nodes.filter((n) => GATE_KINDS.has(n.kind)).length, [netlist]);
 
@@ -432,6 +463,9 @@ export function Board() {
           )}
         </g>
       </svg>
+      <button type="button" className="icon-button fit-button" aria-label="전체 보기" title="모든 부품이 보이게 맞추기" onClick={fitView}>
+        ⤢
+      </button>
       <div className="canvas-overlay">
         {(simError || hasFeedback) && (
           <div className={`canvas-badge${simError || oscillating.size ? ' danger' : ''}`} role="status" data-testid="sim-badge">
@@ -461,6 +495,7 @@ export function Board() {
           <span className="legend-swatch off" aria-hidden="true" /> 0
           <span className="legend-swatch on" aria-hidden="true" /> 1
         </span>
+        <span className="hint">드래그: 화면 이동 · Shift+드래그: 범위 선택</span>
         <span className="zoom">{Math.round(zoom * 100)}%</span>
       </footer>
     </div>

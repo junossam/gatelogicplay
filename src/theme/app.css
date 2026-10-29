@@ -264,6 +264,11 @@ button {
   outline-offset: -2px;
 }
 
+/* 바닥을 끌면 화면 이동 */
+.board-svg {
+  cursor: grab;
+}
+
 .board-svg.armed {
   cursor: crosshair;
 }
@@ -1269,4 +1274,22 @@ button {
   font-size: 11px;
   color: var(--danger);
   white-space: nowrap;
+}
+
+.fit-button {
+  position: absolute;
+  right: 12px;
+  bottom: 44px;
+  z-index: 1;
+  background: var(--bg-raised);
+  border-color: var(--border-2);
+}
+
+.statusbar .hint {
+  margin-left: auto;
+  font-family: var(--font-sans);
+}
+
+.statusbar .hint + .zoom {
+  margin-left: 0;
 }

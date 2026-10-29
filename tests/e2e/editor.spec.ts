@@ -102,12 +102,15 @@ test('범위 선택 후 일괄 삭제하면 연결된 전선도 지워진다', a
   await dragWire(page, 'switch1:y', 'led1:a');
   await expect(page.getByTestId('wire-w1')).toHaveCount(1);
 
+  // Shift+드래그 = 범위 선택
   const canvas = (await page.getByTestId('canvas').boundingBox())!;
   await page.mouse.move(canvas.x + 20, canvas.y + 20);
+  await page.keyboard.down('Shift');
   await page.mouse.down();
   await page.mouse.move(canvas.x + 300, canvas.y + 400, { steps: 5 });
   await expect(page.getByText('범위 선택 · 부품 1개')).toBeVisible();
   await page.mouse.up();
+  await page.keyboard.up('Shift');
 
   await page.keyboard.press('Delete');
   await expect(page.getByTestId('part-switch1')).toHaveCount(0);
@@ -135,4 +138,46 @@ test('입력 필드에서는 단축키가 동작하지 않는다', async ({ page
   await page.keyboard.press('Backspace');
   await expect(page.getByTestId('part-and1')).toBeVisible();
   await expect(page.getByLabel('부품 검색')).toHaveValue('xo');
+});
+
+test('바닥을 끌면 화면 전체가 이동하고 부품 위치는 그대로, 클릭만 하면 선택 해제', async ({ page }) => {
+  await placeByClick(page, 'AND', 200, 200);
+  await placeByClick(page, 'NOT', 400, 200);
+  await expect(page.getByTestId('part-not1').locator('.part-hit')).toHaveClass(/selected/);
+  const before = (await page.getByTestId('part-and1').boundingBox())!;
+  await expect(page.getByTestId('save-status')).toHaveText('저장됨');
+  const saved = await page.evaluate(() => localStorage.getItem('logiclab:v1:workspace'));
+
+  const canvas = (await page.getByTestId('canvas').boundingBox())!;
+  await page.mouse.move(canvas.x + 600, canvas.y + 450);
+  await page.mouse.down();
+  await page.mouse.move(canvas.x + 500, canvas.y + 350, { steps: 5 });
+  await page.mouse.up();
+  const after = (await page.getByTestId('part-and1').boundingBox())!;
+  expect(Math.round(after.x - before.x)).toBe(-100);
+  expect(Math.round(after.y - before.y)).toBe(-100);
+  // 화면만 움직였고 회로(부품 좌표)는 바뀌지 않았다
+  await page.waitForTimeout(1200);
+  expect(await page.evaluate(() => localStorage.getItem('logiclab:v1:workspace'))).toBe(saved);
+  await expect(page.getByRole('button', { name: '실행 취소' })).toBeEnabled(); // 배치 기록만 있음
+
+  // 끌지 않고 클릭만 하면 선택 해제
+  await page.mouse.click(canvas.x + 600, canvas.y + 450);
+  await expect(page.getByTestId('part-not1').locator('.part-hit')).not.toHaveClass(/selected/);
+});
+
+test('전체 보기: 화면 밖으로 나간 부품을 다시 보이게 맞춘다', async ({ page }) => {
+  await placeByClick(page, 'AND', 200, 200);
+  await page.keyboard.press('Escape'); // 선택한 부품은 화면 밖이어도 그리므로 선택 해제
+  const canvas = (await page.getByTestId('canvas').boundingBox())!;
+  // 화면을 크게 밀어 부품을 밖으로 보낸다
+  for (let i = 0; i < 3; i++) {
+    await page.mouse.move(canvas.x + 100, canvas.y + 100);
+    await page.mouse.down();
+    await page.mouse.move(canvas.x + 800, canvas.y + 500, { steps: 3 });
+    await page.mouse.up();
+  }
+  await expect(page.getByTestId('part-and1')).toHaveCount(0); // 화면 밖이라 그리지 않음
+  await page.getByRole('button', { name: '전체 보기' }).click();
+  await expect(page.getByTestId('part-and1')).toBeInViewport();
 });
