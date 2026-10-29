@@ -1,5 +1,6 @@
 import { compile } from './compile';
 import { Engine, type EngineSnapshot } from './engine';
+import { bitKey, partBits } from './pins';
 import { INPUT_KINDS } from './primitives';
 import type { Bit, Circuit, Library, Part } from './types';
 
@@ -52,6 +53,29 @@ export function orderedIO(circuit: Circuit, order?: Partial<PinOrder>): { inputs
 
 const MACRON = '̄';
 
+export interface IOBit {
+  /** 입력이면 엔진 입력 경로(`a`, `a[1]`), 출력이면 핀 키(`y.a`, `y.a[1]`) */
+  path: string;
+  /** 핀 키 (`a.y[1]`, `led.a[1]`) */
+  key: string;
+  /** 열 이름: 1비트는 라벨, N비트는 `A[k]` */
+  name: string;
+}
+
+/** 입출력 부품을 비트 단위로 펼친다 (SPEC 13장 8단계: 진리표는 비트마다 열) */
+export function ioBits(io: { inputs: Part[]; outputs: Part[] }): { inputs: IOBit[]; outputs: IOBit[] } {
+  const expand = (parts: Part[], pin: string, isInput: boolean) =>
+    parts.flatMap((p) => {
+      const n = partBits(p);
+      const label = p.label ?? p.id;
+      return Array.from({ length: n }, (_, k) => {
+        const key = bitKey(`${p.id}.${pin}`, k);
+        return { path: isInput ? bitKey(p.id, k) : key, key, name: n > 1 ? `${label}[${k}]` : label };
+      });
+    });
+  return { inputs: expand(io.inputs, 'y', true), outputs: expand(io.outputs, 'a', false) };
+}
+
 /** Q와 Q̄처럼 서로 반대여야 하는 출력 쌍 */
 function complementPairs(names: string[]): [number, number][] {
   const pairs: [number, number][] = [];
@@ -77,9 +101,10 @@ export function truthTable(circuit: Circuit, library: Library = {}, order?: Part
   const io = orderedIO(circuit, order);
   const netlist = compile(circuit, library);
   const engine = new Engine(netlist);
-  const inPaths = io.inputs.map((p) => p.id);
-  const outKeys = io.outputs.map((p) => `${p.id}.a`);
-  const outNames = io.outputs.map((p) => p.label ?? p.id);
+  const { inputs: inBits, outputs: outBits } = ioBits(io);
+  const inPaths = inBits.map((b) => b.path);
+  const outKeys = outBits.map((b) => b.key);
+  const outNames = outBits.map((b) => b.name);
   const pairs = complementPairs(outNames);
   const n = inPaths.length;
 
@@ -99,7 +124,7 @@ export function truthTable(circuit: Circuit, library: Library = {}, order?: Part
 
   if (!engine.hasFeedback) {
     return {
-      inputs: io.inputs.map((p) => p.label ?? p.id),
+      inputs: inBits.map((b) => b.name),
       outputs: outNames,
       sequential: false,
       rows: combos.map((c) => {
@@ -152,5 +177,5 @@ export function truthTable(circuit: Circuit, library: Library = {}, order?: Part
     return { inputs: c, outputs, forbidden };
   });
 
-  return { inputs: io.inputs.map((p) => p.label ?? p.id), outputs: outNames, sequential: true, rows };
+  return { inputs: inBits.map((b) => b.name), outputs: outNames, sequential: true, rows };
 }

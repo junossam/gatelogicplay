@@ -29,6 +29,9 @@ export const PRIMITIVE_PINS: Record<PrimitiveKind, readonly PinDef[]> = {
   PUSH: [{ name: 'y', dir: 'out' }],
   CLOCK: [{ name: 'y', dir: 'out' }],
   LED: [{ name: 'a', dir: 'in' }],
+  // 나누기·묶기의 실제 핀은 비트 수에 따라 달라진다 (sim/pins.ts). 여기는 기본 4비트.
+  SPLIT: [{ name: 'a', dir: 'in' }, ...[0, 1, 2, 3].map((k) => ({ name: `y${k}`, dir: 'out' as const }))],
+  MERGE: [...[0, 1, 2, 3].map((k) => ({ name: `a${k}`, dir: 'in' as const })), { name: 'y', dir: 'out' }],
 };
 
 export function pinDef(kind: PrimitiveKind, pin: string): PinDef | undefined {

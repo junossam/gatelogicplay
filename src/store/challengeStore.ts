@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createStore, useStore } from 'zustand';
+import { migrate } from '../model/migrate';
 import { circuitSchema, FORMAT, VERSION } from '../model/schema';
 import type { Circuit } from '../sim/types';
 
@@ -43,7 +44,9 @@ type KV = Pick<Storage, 'getItem' | 'setItem'>;
 
 export function loadChallenges(kv: KV): State {
   try {
-    const r = fileSchema.safeParse(JSON.parse(kv.getItem(CHALLENGES_KEY) ?? 'null'));
+    const raw = kv.getItem(CHALLENGES_KEY);
+    if (raw === null) return { progress: {}, active: null };
+    const r = fileSchema.safeParse(migrate(JSON.parse(raw)));
     if (r.success) return { progress: r.data.progress, active: r.data.active };
   } catch {
     // 깨진 진행 기록은 버리고 새로 시작

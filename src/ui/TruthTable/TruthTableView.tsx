@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { CompileError } from '../../sim/compile';
-import { AUTO_INPUT_LIMIT, orderedIO, truthTable, type Cell, type TruthTable } from '../../sim/truthTable';
+import { AUTO_INPUT_LIMIT, ioBits, orderedIO, truthTable, type Cell, type IOBit, type TruthTable } from '../../sim/truthTable';
 import type { Circuit, Library } from '../../sim/types';
 import { useEditor, useView } from '../../store/editorStore';
 import { sameTopology } from '../../store/simBinding';
@@ -10,7 +10,7 @@ import { engine, useSim } from '../../store/simStore';
 const AUTO_NODE_LIMIT = 2000;
 
 export type TableState =
-  | { status: 'ok'; table: TruthTable; inputIds: string[]; prefix?: string }
+  | { status: 'ok'; table: TruthTable; inputBits: IOBit[]; prefix?: string }
   | { status: 'empty' }
   | { status: 'manual'; reason: string }
   | { status: 'error'; message: string };
@@ -30,10 +30,11 @@ export function computeTable(circuit: Circuit, library: Library, order: { inputs
   }
   const io = orderedIO(circuit, order);
   if (io.inputs.length === 0 || io.outputs.length === 0) return { status: 'empty' };
-  if (!force && io.inputs.length > AUTO_INPUT_LIMIT) return { status: 'manual', reason: `입력이 ${io.inputs.length}개라 자동으로 만들지 않습니다.` };
+  const inputBits = ioBits(io).inputs;
+  if (!force && inputBits.length > AUTO_INPUT_LIMIT) return { status: 'manual', reason: `입력이 ${inputBits.length}비트라 자동으로 만들지 않습니다.` };
   if (!force && engine.netlist.nodes.length > AUTO_NODE_LIMIT) return { status: 'manual', reason: '회로가 커서 자동으로 만들지 않습니다.' };
   try {
-    return { status: 'ok', table: truthTable(circuit, library, order), inputIds: io.inputs.map((p) => p.id) };
+    return { status: 'ok', table: truthTable(circuit, library, order), inputBits };
   } catch (e) {
     if (e instanceof CompileError) return { status: 'error', message: e.message };
     throw e;
@@ -75,9 +76,9 @@ export function TruthTableView({ state, onForce }: { state: TableState; onForce?
       </div>
     );
 
-  const { table, inputIds, prefix = '' } = state;
+  const { table, inputBits, prefix = '' } = state;
   // 현재 입력 조합 행 (칩 내부를 볼 때는 바깥에서 들어오는 실제 값)
-  const current = inputIds.reduce((acc, id) => acc * 2 + (prefix ? engine.readPin(`${prefix}${id}.y`) : engine.inputValue(id)), 0);
+  const current = inputBits.reduce((acc, b) => acc * 2 + (prefix ? engine.readPin(prefix + b.key) : engine.inputValue(b.path)), 0);
   return (
     <div className="truth-wrap">
       <table className="truth-table mono" data-testid="truth-table">

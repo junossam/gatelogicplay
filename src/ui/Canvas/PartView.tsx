@@ -1,6 +1,7 @@
 import { memo, type PointerEvent } from 'react';
 import type { ChipDef, Part, PinRef } from '../../sim/types';
-import { engine, useSim } from '../../store/simStore';
+import { partBits, partPinSpecs } from '../../sim/pins';
+import { engine, inputNumber, readPinNumber, useSim } from '../../store/simStore';
 import { PartShape } from '../Palette/PartIcons';
 import { baseSize, chipPins, GRID, partPins, partRect, rotationTransform } from './geometry';
 
@@ -26,8 +27,9 @@ interface Props {
 }
 
 /** 칩 블록: 핀 이름은 블록 안쪽에 (SPEC 4.2) */
-function ChipBlock({ def, w, h }: { def: ChipDef; w: number; h: number }) {
+function ChipBlock({ def, w, h, part }: { def: ChipDef; w: number; h: number; part: Part }) {
   const pins = chipPins(def);
+  const widths = new Map(partPinSpecs(part, { [def.id]: def }).map((p) => [p.name, p.width]));
   return (
     <g>
       <rect x={0} y={0} width={w} height={h} rx={6} className="chip-body" style={{ stroke: `var(--${def.color})` }} />
@@ -41,22 +43,25 @@ function ChipBlock({ def, w, h }: { def: ChipDef; w: number; h: number }) {
           className="chip-pin-name"
         >
           {p.name}
+          {(widths.get(p.name) ?? 1) > 1 && <tspan className="pin-width">[{widths.get(p.name)}]</tspan>}
         </text>
       ))}
     </g>
   );
 }
 
-/** SWITCH/PUSH는 입력 상태, LED는 입력 값, CLOCK은 출력. 값이 바뀐 부품만 다시 그린다. */
-function usePartValue(part: Part, prefix: string, readOnly: boolean): 0 | 1 {
+/** SWITCH/PUSH는 입력 상태, LED는 입력 값, CLOCK은 출력. 여러 비트면 숫자. 값이 바뀐 부품만 다시 그린다. */
+function usePartValue(part: Part, prefix: string, readOnly: boolean): number {
   return useSim(() => {
     if (part.kind.type !== 'primitive') return 0;
+    const bits = partBits(part);
     switch (part.kind.kind) {
       case 'SWITCH':
       case 'PUSH':
+        if (bits > 1) return readOnly ? readPinNumber(`${prefix}${part.id}.y`, bits) : inputNumber(part.id, bits);
         return readOnly ? engine.readPin(`${prefix}${part.id}.y`) : engine.inputValue(part.id);
       case 'LED':
-        return engine.readPin(`${prefix}${part.id}.a`);
+        return bits > 1 ? readPinNumber(`${prefix}${part.id}.a`, bits) : engine.readPin(`${prefix}${part.id}.a`);
       case 'CLOCK':
         return engine.readPin(`${prefix}${part.id}.y`);
       default:
@@ -74,6 +79,7 @@ export const PartView = memo(function PartView({ part, chip, selected, connected
   const W = base.w * GRID;
   const H = base.h * GRID;
   const kind = part.kind.type === 'primitive' ? part.kind.kind : null;
+  const bits = partBits(part);
   const release = () => onPush(part.id, 0);
   const title = chip ? chip.name : part.label;
   return (
@@ -82,6 +88,7 @@ export const PartView = memo(function PartView({ part, chip, selected, connected
       data-testid={`part-${part.id}`}
       data-part-id={part.id}
       data-value={kind === 'SWITCH' || kind === 'PUSH' || kind === 'LED' || kind === 'CLOCK' ? value : undefined}
+      data-bits={bits > 1 ? bits : undefined}
       className={`part${readOnly ? ' readonly' : ''}`}
     >
       <rect
@@ -95,8 +102,13 @@ export const PartView = memo(function PartView({ part, chip, selected, connected
       />
       <g transform={rotationTransform(W, H, part.rotation)}>
         <g pointerEvents="none">
-          {kind && <PartShape kind={kind} on={value === 1} />}
-          {chip && <ChipBlock def={chip} w={W} h={H} />}
+          {kind && <PartShape kind={kind} on={value === 1} bits={bits} value={value} />}
+          {kind && bits > 1 && kind !== 'SWITCH' && kind !== 'LED' && kind !== 'SPLIT' && kind !== 'MERGE' && (
+            <text x={W - 4} y={H - 2} textAnchor="end" className="bits-badge">
+              ×{bits}
+            </text>
+          )}
+          {chip && <ChipBlock def={chip} w={W} h={H} part={part} />}
         </g>
         {kind === 'PUSH' && !readOnly && (
           // 캡을 누르는 동안만 1. 손을 떼거나 영역을 벗어나거나 취소되면 0.

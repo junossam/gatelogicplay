@@ -12,17 +12,19 @@ interface Props {
   junctions: Pt[];
   /** 엇갈리는 곳에 틈을 내는 배경색 테두리 */
   halo: boolean;
+  /** 2비트 이상 (굵게) */
+  bus: boolean;
   onPointerDown(e: PointerEvent, wireId: string): void;
   onHover(source: string | null): void;
   /** 값(data-value)과 진동(data-osc)은 Board가 틱마다 DOM에 직접 쓴다 — 전선마다 React 렌더를 피하려고 */
   register(id: string, el: SVGGElement | null): void;
 }
 
-export const WireView = memo(function WireView({ id, d, selected, highlight, source, junctions, halo, onPointerDown, onHover, register }: Props) {
+export const WireView = memo(function WireView({ id, d, selected, highlight, source, junctions, halo, bus, onPointerDown, onHover, register }: Props) {
   return (
     <g
       data-testid={`wire-${id}`}
-      className={`wire${selected ? ' selected' : ''}${highlight ? ' highlight' : ''}`}
+      className={`wire${selected ? ' selected' : ''}${highlight ? ' highlight' : ''}${bus ? ' bus' : ''}`}
       ref={(el) => register(id, el)}
       onPointerEnter={() => onHover(source)}
       onPointerLeave={() => onHover(null)}

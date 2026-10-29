@@ -1317,3 +1317,52 @@ button {
 .segment-handle:hover .segment-dot {
   fill: var(--select);
 }
+
+/* 다중 비트 버스 */
+.bus-value {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.bus-value.on {
+  fill: var(--bg);
+}
+
+.bus-bit-label,
+.bits-badge,
+.pin-width {
+  fill: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.wire.bus .wire-line {
+  stroke-width: 5;
+}
+
+.wire.bus[data-value='1'] .wire-line {
+  stroke-width: 6;
+}
+
+.wire.bus .wire-halo {
+  stroke-width: 11;
+}
+
+.wave-bus {
+  position: relative;
+}
+
+.wave-bus .wave {
+  display: block;
+}
+
+.bus-seg {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  color: var(--text);
+  pointer-events: none;
+}

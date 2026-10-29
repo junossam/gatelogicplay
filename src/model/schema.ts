@@ -2,9 +2,10 @@ import { z } from 'zod';
 import type { Circuit } from '../sim/types';
 
 export const FORMAT = 'logiclab';
-export const VERSION = 1;
+/** 2: 다중 비트 버스 (SPLIT/MERGE, props.bits) */
+export const VERSION = 2;
 
-const primitiveKind = z.enum(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK']);
+const primitiveKind = z.enum(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK', 'SPLIT', 'MERGE']);
 
 const partKind = z.discriminatedUnion('type', [
   z.object({ type: z.literal('primitive'), kind: primitiveKind }),
@@ -20,7 +21,7 @@ export const partSchema = z.object({
   y: z.number().int(),
   rotation: z.union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)]).optional(),
   label: z.string().optional(),
-  props: z.object({ hz: z.number().positive().optional() }).optional(),
+  props: z.object({ hz: z.number().positive().optional(), bits: z.number().int().min(1).max(16).optional() }).optional(),
 });
 
 const pinRef = z.object({ partId: z.string().min(1), pin: z.string().min(1) });

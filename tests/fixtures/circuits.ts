@@ -12,6 +12,13 @@ export class CircuitBuilder {
     return this;
   }
 
+  /** 마지막에 넣은 부품의 비트 수 (8단계 버스) */
+  bits(n: number): this {
+    const last = this.parts[this.parts.length - 1]!;
+    last.props = { ...last.props, bits: n };
+    return this;
+  }
+
   chip(chipId: string, id: string, x = 0, y = 0): this {
     this.parts.push({ id, kind: { type: 'chip', chipId }, x, y });
     return this;
@@ -251,4 +258,57 @@ export function harness(def: ChipDef, instanceId = 'u1'): Circuit {
   def.inputs.forEach((p, i) => b.add('SWITCH', `in_${p.name}`, 0, i * 3, p.name).wire(`in_${p.name}.y`, `${instanceId}.${p.name}`));
   def.outputs.forEach((p, i) => b.add('LED', `out_${p.name}`, 20, i * 3, p.name).wire(`${instanceId}.${p.name}`, `out_${p.name}.a`));
   return b.build();
+}
+
+/** 4비트 가산기(버스 핀): A[4], B[4] → S[4], Cout. 안에서 나누기 → 전가산기 4개 → 묶기 */
+export function busAdderChip(faId = 'chip-fa', id = 'chip-add4bus'): ChipDef {
+  const b = new CircuitBuilder()
+    .add('SWITCH', 'a', 0, 4, 'A')
+    .bits(4)
+    .add('SWITCH', 'b', 0, 20, 'B')
+    .bits(4)
+    .add('SPLIT', 'sa', 6, 1)
+    .bits(4)
+    .add('SPLIT', 'sb', 6, 17)
+    .bits(4)
+    .add('MERGE', 'ms', 30, 1)
+    .bits(4)
+    .add('LED', 's', 36, 4, 'S')
+    .bits(4)
+    .add('LED', 'cout', 36, 20, 'Cout')
+    .wire('a.y', 'sa.a')
+    .wire('b.y', 'sb.a')
+    .wire('ms.y', 's.a');
+  for (let i = 0; i < 4; i++) {
+    b.chip(faId, `fa${i}`, 14, i * 7)
+      .wire(`sa.y${i}`, `fa${i}.A`)
+      .wire(`sb.y${i}`, `fa${i}.B`)
+      .wire(`fa${i}.S`, `ms.a${i}`);
+    if (i > 0) b.wire(`fa${i - 1}.Cout`, `fa${i}.Cin`);
+  }
+  b.wire('fa3.Cout', 'cout.a');
+  return chipDef(id, '4비트 가산기(버스)', b.build(), [['A', 'a'], ['B', 'b']], [['S', 's'], ['Cout', 'cout']]);
+}
+
+/** 버스 가산기 데모: 4비트 스위치 A, B → 칩 → 숫자 LED S, LED Cout */
+export function busAdderWorkspace(chipId = 'chip-add4bus'): Circuit {
+  return new CircuitBuilder()
+    .add('SWITCH', 'ina', 0, 2, 'A')
+    .bits(4)
+    .add('SWITCH', 'inb', 0, 8, 'B')
+    .bits(4)
+    .chip(chipId, 'add', 8, 3)
+    .add('LED', 'sum', 20, 2, 'S')
+    .bits(4)
+    .add('LED', 'carry', 20, 8, 'Cout')
+    .wire('ina.y', 'add.A')
+    .wire('inb.y', 'add.B')
+    .wire('add.S', 'sum.a')
+    .wire('add.Cout', 'carry.a')
+    .build();
+}
+
+export function busLibrary(): Record<string, ChipDef> {
+  const defs = [halfAdderChip(), fullAdderChip(), busAdderChip()];
+  return Object.fromEntries(defs.map((d) => [d.id, d]));
 }

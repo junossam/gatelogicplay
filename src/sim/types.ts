@@ -2,7 +2,7 @@
 
 export type Bit = 0 | 1;
 
-export type PrimitiveKind = 'AND' | 'OR' | 'XOR' | 'NAND' | 'NOR' | 'XNOR' | 'NOT' | 'SWITCH' | 'PUSH' | 'LED' | 'CLOCK';
+export type PrimitiveKind = 'AND' | 'OR' | 'XOR' | 'NAND' | 'NOR' | 'XNOR' | 'NOT' | 'SWITCH' | 'PUSH' | 'LED' | 'CLOCK' | 'SPLIT' | 'MERGE';
 
 export type PartKind = { type: 'primitive'; kind: PrimitiveKind } | { type: 'chip'; chipId: string };
 
@@ -16,7 +16,8 @@ export interface Part {
   y: number;
   rotation?: Rotation;
   label?: string;
-  props?: { hz?: number };
+  /** hz: 클럭 주파수, bits: 비트 수 (8단계 버스, 없으면 1. 나누기·묶기는 4) */
+  props?: { hz?: number; bits?: number };
 }
 
 export interface PinRef {

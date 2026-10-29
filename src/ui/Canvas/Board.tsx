@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react';
+import { bitKey, partBits } from '../../sim/pins';
 import { GATE_KINDS } from '../../sim/primitives';
 import type { Part, PartKind, PinRef } from '../../sim/types';
 import { editorStore, useEditor, useView } from '../../store/editorStore';
@@ -239,7 +240,7 @@ export function Board() {
       store.endDrag();
       // 끌지 않고 클릭만 했으면 스위치를 토글
       const part = circuit.parts.find((p) => p.id === gesture.partId);
-      if (!gesture.moved && part?.kind.type === 'primitive' && part.kind.kind === 'SWITCH') simActions.toggleSwitch(part.id);
+      if (!gesture.moved && part?.kind.type === 'primitive' && part.kind.kind === 'SWITCH') simActions.toggleSwitch(part.id, partBits(part));
     } else if (gesture.type === 'wire') {
       const target = parsePin(document.elementFromPoint(e.clientX, e.clientY));
       if (target) store.connect(gesture.from, target);
@@ -357,7 +358,11 @@ export function Board() {
     const vis = { x: -p.x / z, y: -p.y / z, w: size.w / z, h: size.h / z };
     if (partRects.some((r) => !rectContains(vis, r))) fitView();
   }, [docKey, size, partRects, fitView]);
-  const wireNets = useMemo(() => wireGeom.map((g) => netlist.pinNet.get(prefix + g.source) ?? -1), [wireGeom, netlist, prefix]);
+  // 전선마다 비트별 Net (버스는 여러 개)
+  const wireNets = useMemo(
+    () => wireGeom.map((g) => Array.from({ length: g.width }, (_, k) => netlist.pinNet.get(bitKey(prefix + g.source, k)) ?? -1)),
+    [wireGeom, netlist, prefix],
+  );
   const gateCount = useMemo(() => netlist.nodes.filter((n) => GATE_KINDS.has(n.kind)).length, [netlist]);
 
   // 전선 값은 React를 거치지 않고 바뀐 것만 DOM에 쓴다
@@ -372,10 +377,11 @@ export function Board() {
     for (let i = 0; i < wireGeom.length; i++) {
       const el = wireEls.current.get(wireGeom[i]!.id);
       if (!el) continue;
-      const net = wireNets[i]!;
-      const v = net >= 0 && values[net] ? '1' : '0';
+      const nets = wireNets[i]!;
+      // 버스는 비트 하나라도 1이면 강조
+      const v = nets.some((n) => n >= 0 && values[n]) ? '1' : '0';
       if (el.dataset.value !== v) el.dataset.value = v;
-      const o = osc.size > 0 && net >= 0 && osc.has(nl.netIds[net]!) ? '1' : '0';
+      const o = osc.size > 0 && nets.some((n) => n >= 0 && osc.has(nl.netIds[n]!)) ? '1' : '0';
       if (el.dataset.osc !== o) el.dataset.osc = o;
     }
   }, [wireGeom, wireNets]);
@@ -446,6 +452,7 @@ export function Board() {
               source={g.source}
               junctions={g.junctions}
               halo={layout.routed}
+              bus={g.width > 1}
               selected={selectedWires.has(g.id)}
               highlight={hoverNet === g.source}
               onPointerDown={onWireDown}

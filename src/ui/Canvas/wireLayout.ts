@@ -1,3 +1,4 @@
+import { pinSpec } from '../../sim/pins';
 import type { Circuit, Library } from '../../sim/types';
 import { GRID, partPins, partRect, pinPoint, type Rect } from './geometry';
 import { junctions, orthoJoin, routeAll, simpleRoute, toPath, type Pt, type RouteRequest } from './router';
@@ -19,6 +20,8 @@ export interface WireGeom {
   points: Pt[];
   /** 사용자가 꺾은 전선 */
   manual: boolean;
+  /** 비트 수 (2 이상이면 버스) */
+  width: number;
 }
 
 export interface WireLayout {
@@ -48,6 +51,7 @@ export function layoutWires(circuit: Circuit, library: Library, prev: WireLayout
   const reqs: RouteRequest[] = [];
   // 사용자가 꺾은 전선: 꺾은 점들을 끝점과 직각으로 이은 고정 경로
   const manual = new Map<string, Pt[]>();
+  const widths = new Map<string, number>();
   for (const w of circuit.wires) {
     const fp = parts.get(w.from.partId);
     const tp = parts.get(w.to.partId);
@@ -57,6 +61,7 @@ export function layoutWires(circuit: Circuit, library: Library, prev: WireLayout
     const from = { x: a.x / GRID, y: a.y / GRID };
     const to = { x: b.x / GRID, y: b.y / GRID };
     reqs.push({ id: w.id, net: `${w.from.partId}.${w.from.pin}`, from, to });
+    widths.set(w.id, pinSpec(fp, w.from.pin, library)?.width ?? 1);
     if (w.points?.length) manual.set(w.id, orthoJoin(from, w.points, to));
   }
 
@@ -108,7 +113,7 @@ export function layoutWires(circuit: Circuit, library: Library, prev: WireLayout
 
   const wires = reqs.map((r) => {
     const points = paths.get(r.id)!;
-    return { id: r.id, d: toPath(points, GRID), source: r.net, box: bounds(points), junctions: dots.get(r.id) ?? [], points, manual: manual.has(r.id) };
+    return { id: r.id, d: toPath(points, GRID), source: r.net, box: bounds(points), junctions: dots.get(r.id) ?? [], points, manual: manual.has(r.id), width: widths.get(r.id) ?? 1 };
   });
   return { wires, routed, byId: new Map(wires.map((w) => [w.id, w])) };
 }

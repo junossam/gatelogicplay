@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { partPinSpecs } from '../sim/pins';
 import { createEditorStore, type EditorStore } from './editorStore';
 
 let store: EditorStore;
@@ -345,4 +346,24 @@ describe('가져오기', () => {
     // 라이브러리(10)가 먼저, 그다음 작업 공간(+1)
     expect(seen).toEqual([10, 11]);
   });
+});
+
+describe('다중 비트 버스 (8단계)', () => {
+  it('비트 수가 다른 핀은 연결되지 않고, 비트 수를 바꿔 맞지 않게 된 전선은 지운다', () => {
+    const s = createEditorStore();
+    const st = () => s.getState();
+    const a = st().addPart('SWITCH', 0, 0);
+    st().updatePart(a, { props: { bits: 4 } });
+    const led1 = st().addPart('LED', 10, 0);
+    expect(st().connect({ partId: a, pin: 'y' }, { partId: led1, pin: 'a' })).toBeNull();
+    st().updatePart(led1, { props: { bits: 4 } });
+    expect(st().connect({ partId: a, pin: 'y' }, { partId: led1, pin: 'a' })).not.toBeNull();
+    expect(st().circuit.wires).toHaveLength(1);
+    st().updatePart(led1, { props: { bits: 8 } });
+    expect(st().circuit.wires).toHaveLength(0);
+    // 나누기는 기본 4비트, 출력 핀 y0~y3
+    const sp = st().addPart('SPLIT', 5, 5);
+    expect(partPinSpecs(st().circuit.parts.find((p) => p.id === sp)!).map((p) => p.name)).toEqual(['a', 'y0', 'y1', 'y2', 'y3']);
+  });
+
 });

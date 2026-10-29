@@ -4,7 +4,8 @@ import { orderedIO } from '../../sim/truthTable';
 import type { Part } from '../../sim/types';
 import { circuitUses, usedBy } from '../../model/library';
 import { editorStore, useEditor, useView, workspaceOf } from '../../store/editorStore';
-import { engine, useSim } from '../../store/simStore';
+import { MAX_BITS, partBits, partPinSpecs } from '../../sim/pins';
+import { engine, inputNumber, readPinNumber, simActions, useSim } from '../../store/simStore';
 import { partPins } from '../Canvas/geometry';
 import { TruthTableView, useTruthTable } from '../TruthTable/TruthTableView';
 
@@ -20,13 +21,28 @@ export const KIND_NAMES: Record<string, string> = {
   PUSH: '푸시 버튼',
   LED: 'LED',
   CLOCK: '클럭',
+  SPLIT: '나누기 (버스 → 비트)',
+  MERGE: '묶기 (비트 → 버스)',
 };
+
+/** 비트 수를 바꿀 수 있는 부품 (푸시 버튼·클럭은 1비트만) */
+const BITS_KINDS = new Set(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'LED', 'SPLIT', 'MERGE']);
+
+/** N비트 값: 10진수와 2진수 */
+function MultiBit({ v, width }: { v: number; width: number }) {
+  return (
+    <span className="mono">
+      <span className={`bit bit-${v ? 1 : 0}`}>{v}</span> <span className="muted small">0b{v.toString(2).padStart(width, '0')}</span>
+    </span>
+  );
+}
 
 function delayText(part: Part): string {
   if (part.kind.type === 'chip') return '내부 게이트마다 1틱';
   const k = part.kind.kind;
   if (GATE_KINDS.has(k)) return '1틱';
   if (INPUT_KINDS.has(k) || k === 'CLOCK') return '없음 (틱 시작에 반영)';
+  if (k === 'SPLIT' || k === 'MERGE') return '없음 (배선)';
   return '없음 (표시만)';
 }
 
@@ -66,6 +82,8 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
   const kind = part.kind.type === 'primitive' ? part.kind.kind : null;
   const labelled = kind === 'SWITCH' || kind === 'PUSH' || kind === 'LED';
   const value = (pin: string) => engine.readPin(`${prefix}${part.id}.${pin}`);
+  const widths = new Map(partPinSpecs(part, library).map((p) => [`${p.dir}${p.name}`, p.width]));
+  const bits = partBits(part);
   return (
     <dl className="props" data-testid="inspector-part">
       <dt>종류</dt>
@@ -105,6 +123,46 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
           </dd>
         </>
       )}
+      {kind && BITS_KINDS.has(kind) && (
+        <>
+          <dt>비트 수</dt>
+          <dd>
+            {readOnly ? (
+              <span className="mono">{bits}</span>
+            ) : (
+              <CommitInput
+                label="비트 수"
+                type="number"
+                value={String(bits)}
+                onCommit={(v) => {
+                  const min = kind === 'SPLIT' || kind === 'MERGE' ? 2 : 1;
+                  const n = Math.round(Number(v));
+                  if (!(n >= min && n <= MAX_BITS)) return;
+                  const props: { hz?: number; bits?: number } = { ...part.props, bits: n };
+                  if (n === 1) delete props.bits;
+                  editorStore.getState().updatePart(part.id, { props: Object.keys(props).length ? props : undefined });
+                }}
+              />
+            )}
+          </dd>
+        </>
+      )}
+      {kind === 'SWITCH' && bits > 1 && !readOnly && (
+        <>
+          <dt>값</dt>
+          <dd>
+            <CommitInput
+              label="스위치 값"
+              type="number"
+              value={String(inputNumber(part.id, bits))}
+              onCommit={(v) => {
+                const n = Math.round(Number(v));
+                if (n >= 0 && n < 2 ** bits) simActions.setInputNumber(part.id, n, bits);
+              }}
+            />
+          </dd>
+        </>
+      )}
       <dt>지연</dt>
       <dd>{delayText(part)}</dd>
       {partPins(part, library).map((pin) => {
@@ -117,7 +175,11 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
               {pin.dir === 'in' ? '입력' : '출력'} {pin.name}
             </dt>
             <dd>
-              <Bit v={value(pin.name)} />{' '}
+              {(widths.get(`${pin.dir}${pin.name}`) ?? 1) > 1 ? (
+                <MultiBit v={readPinNumber(`${prefix}${part.id}.${pin.name}`, widths.get(`${pin.dir}${pin.name}`)!)} width={widths.get(`${pin.dir}${pin.name}`)!} />
+              ) : (
+                <Bit v={value(pin.name)} />
+              )}{' '}
               {pin.dir === 'in' ? (
                 wires[0] ? (
                   <span className="mono muted">

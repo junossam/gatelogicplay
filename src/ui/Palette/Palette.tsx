@@ -32,6 +32,11 @@ const IO: Item[] = [
 
 const CLOCK: Item = { kind: 'CLOCK', name: '클럭', desc: '반주기마다 반전 (선택)' };
 
+const BUS: Item[] = [
+  { kind: 'SPLIT', name: '나누기', desc: '버스 → 비트 (기본 4비트)' },
+  { kind: 'MERGE', name: '묶기', desc: '비트 → 버스 (기본 4비트)' },
+];
+
 function matches(name: string, q: string, extra = ''): boolean {
   const s = q.trim().toLowerCase();
   return !s || name.toLowerCase().includes(s) || extra.toLowerCase().includes(s);
@@ -209,6 +214,7 @@ export function Palette() {
   const gates = GATES.filter((i) => matches(i.name, query));
   const clockEnabled = useSettings((s) => s.clockEnabled);
   const io = [...IO, ...(clockEnabled ? [CLOCK] : [])].filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''}`));
+  const bus = BUS.filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''} 버스`));
   const chips = Object.values(library)
     .filter((d) => matches(d.name, query))
     .sort((a, b) => a.name.localeCompare(b.name, 'ko'));
@@ -250,6 +256,17 @@ export function Palette() {
               <PaletteButton key={item.kind} item={item} wide />
             ))}
           </div>
+        </section>
+      )}
+      {bus.length > 0 && (
+        <section>
+          <h2 className="panel-title">버스</h2>
+          <div className="palette-list">
+            {bus.map((item) => (
+              <PaletteButton key={item.kind} item={item} wide />
+            ))}
+          </div>
+          <p className="muted small">스위치·LED·게이트의 비트 수는 인스펙터에서 바꿉니다.</p>
         </section>
       )}
       <section>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
+import { bitKey } from '../../sim/pins';
 import { RECORD_SIZE } from '../../sim/recorder';
 import type { Bit } from '../../sim/types';
 import { useEditor, useView } from '../../store/editorStore';
@@ -11,6 +12,31 @@ const DEFAULT_WINDOW = 20;
 const KIND_LABEL = { in: '입력', out: '출력', fb: '피드백' } as const;
 
 /** 값이 바뀌는 지점만 이어서 M/H/V 경로를 만든다 (SPEC 6.5) */
+/** 값이 같은 구간들: [시작, 끝) */
+export function segments(values: number[]): { start: number; end: number; value: number }[] {
+  const out: { start: number; end: number; value: number }[] = [];
+  values.forEach((v, i) => {
+    const last = out[out.length - 1];
+    if (last && last.value === v) last.end = i + 1;
+    else out.push({ start: i, end: i + 1, value: v });
+  });
+  return out;
+}
+
+/** 버스 파형: 위아래 두 줄, 값이 바뀌는 곳마다 X자로 교차 (SPEC 13장 8단계) */
+export function busPath(values: number[]): string {
+  const segs = segments(values);
+  const e = 0.25;
+  let d = '';
+  segs.forEach((s, i) => {
+    const a = i === 0 ? s.start : s.start + e;
+    const b = i === segs.length - 1 ? s.end : s.end - e;
+    d += ` M${a} 3 H${b} M${a} 17 H${b}`;
+    if (i < segs.length - 1) d += ` M${b} 3 L${s.end + e} 17 M${b} 17 L${s.end + e} 3`;
+  });
+  return d.trim();
+}
+
 export function wavePath(bits: Bit[]): string {
   if (bits.length === 0) return '';
   const y = (b: Bit) => (b ? 3 : 17);
@@ -47,8 +73,8 @@ export function Waveform() {
   const mode = effectiveMode(selected.length, override);
   const nets: NetLookup = useMemo(
     () => ({
-      pinNetId: (partId, pin) => {
-        const i = engine.netlist.pinNet.get(`${prefix}${partId}.${pin}`) ?? -1;
+      pinNetId: (partId, pin, bit = 0) => {
+        const i = engine.netlist.pinNet.get(bitKey(`${prefix}${partId}.${pin}`, bit)) ?? -1;
         return i >= 0 ? engine.netlist.netIds[i]! : null;
       },
       loopOf: (netId) => engine.loopOf(netId),
@@ -99,7 +125,15 @@ export function Waveform() {
     drag.current = null;
   };
 
-  const rows = channels.map((c) => ({ c, bits: c.netId ? recorder.window(c.netId, from, end) : Array<Bit>(span).fill(0) }));
+  // 틱별 값: 1비트는 0/1, 버스는 비트를 모은 숫자
+  const rows = channels.map((c) => {
+    const values = Array<number>(span).fill(0);
+    c.netIds.forEach((id, k) => {
+      if (!id) return;
+      recorder.window(id, from, end).forEach((b, i) => (values[i]! |= b << k));
+    });
+    return { c, bits: values };
+  });
 
   return (
     <section className={`waveform${open ? ' open' : ''}`} aria-label="파형" data-testid="waveform">
@@ -169,17 +203,34 @@ export function Waveform() {
   );
 }
 
-function WaveRow({ channel, bits, span }: { channel: Channel; bits: Bit[]; span: number }) {
-  const value = channel.netId ? engine.read(channel.netId) : 0;
+function WaveRow({ channel, bits, span }: { channel: Channel; bits: number[]; span: number }) {
+  const value = channel.netIds.reduce((v, id, k) => v | ((id ? engine.read(id) : 0) << k), 0);
+  const bus = channel.netIds.length > 1;
   return (
     <div className={`wave-row kind-${channel.kind}`} data-testid="wave-channel" data-kind={channel.kind}>
       <span className={`kind-badge ${channel.kind}`}>{KIND_LABEL[channel.kind]}</span>
       <span className="wave-name mono" title={channel.name}>
         {channel.name}
       </span>
-      <svg className="wave" viewBox={`0 0 ${span} 20`} preserveAspectRatio="none" aria-hidden="true">
-        <path d={wavePath(bits)} vectorEffect="non-scaling-stroke" />
-      </svg>
+      {bus ? (
+        <div className="wave-bus" data-testid="bus-wave">
+          <svg className="wave" viewBox={`0 0 ${span} 20`} preserveAspectRatio="none" aria-hidden="true">
+            <path d={busPath(bits)} vectorEffect="non-scaling-stroke" />
+          </svg>
+          {/* 값 글자는 늘어나지 않게 SVG 밖에서 비율로 놓는다. 너무 좁은 구간은 생략 */}
+          {segments(bits)
+            .filter((s) => (s.end - s.start) / span >= 0.06)
+            .map((s) => (
+              <span key={s.start} className="bus-seg mono" style={{ left: `${((s.start + s.end) / 2 / span) * 100}%` }}>
+                {s.value}
+              </span>
+            ))}
+        </div>
+      ) : (
+        <svg className="wave" viewBox={`0 0 ${span} 20`} preserveAspectRatio="none" aria-hidden="true">
+          <path d={wavePath(bits as Bit[])} vectorEffect="non-scaling-stroke" />
+        </svg>
+      )}
       <span className={`wave-value mono${value ? ' on' : ''}`}>{value}</span>
     </div>
   );

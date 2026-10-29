@@ -2,6 +2,7 @@ import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 import { compile, CompileError } from '../sim/compile';
 import { Engine } from '../sim/engine';
+import { bitKey } from '../sim/pins';
 import { Recorder } from '../sim/recorder';
 import type { Bit, Circuit, Library } from '../sim/types';
 
@@ -21,6 +22,20 @@ export interface SimState {
 }
 
 export const engine = new Engine();
+
+/** 여러 비트 스위치의 현재(다음 틱에 반영될) 값 */
+export function inputNumber(path: string, bits: number): number {
+  let v = 0;
+  for (let k = 0; k < bits; k++) v |= engine.inputValue(bitKey(path, k)) << k;
+  return v;
+}
+
+/** 핀의 N비트 값 (`${경로}.${핀}` 키) */
+export function readPinNumber(key: string, bits: number): number {
+  let v = 0;
+  for (let k = 0; k < bits; k++) v |= engine.readPin(bitKey(key, k)) << k;
+  return v;
+}
 /** 컴파일 오류로 실행을 멈췄는가 (사용자가 멈춘 것과 구분) */
 let pausedByError = false;
 export const recorder = new Recorder();
@@ -125,8 +140,18 @@ export const simActions = {
     engine.setInput(path, v);
     publish();
   },
-  toggleSwitch(path: string) {
+  toggleSwitch(path: string, bits = 1) {
+    if (bits > 1) {
+      // 여러 비트 스위치: 클릭마다 1씩 증가 (2^N에서 0으로)
+      simActions.setInputNumber(path, (inputNumber(path, bits) + 1) % 2 ** bits, bits);
+      return;
+    }
     engine.setInput(path, engine.inputValue(path) ? 0 : 1);
+    publish();
+  },
+  /** 여러 비트 스위치에 숫자 값 넣기 (0번 비트 = 가장 낮은 자리) */
+  setInputNumber(path: string, value: number, bits: number) {
+    for (let k = 0; k < bits; k++) engine.setInput(bitKey(path, k), ((value >> k) & 1) as Bit);
     publish();
   },
   /** 테스트·성능 측정용: 틱 n번 진행 */

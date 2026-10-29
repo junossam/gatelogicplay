@@ -1,6 +1,7 @@
 // 칩 라이브러리: 의존성 그래프, 칩 생성/갱신, 범위를 칩으로, 가져오기 병합 (SPEC 4.2, 8, 9장)
 import { boundary } from '../sim/boundary';
 import { findChipCycle } from '../sim/compile';
+import { pinSpec } from '../sim/pins';
 import { orderedIO, type PinOrder } from '../sim/truthTable';
 import type { ChipDef, Circuit, Library, Part, Wire } from '../sim/types';
 
@@ -246,15 +247,22 @@ export function rangeToChip(
     return `w${n}`;
   };
 
+  // 경계 신호의 비트 수를 칩 핀(내부 스위치·LED)에 그대로 (8단계 버스)
+  const parts = new Map(circuit.parts.map((p) => [p.id, p]));
+  const widthOf = (ref: { partId: string; pin: string }) => {
+    const p = parts.get(ref.partId);
+    return (p && pinSpec(p, ref.pin, lib)?.width) ?? 1;
+  };
+  const withBits = (part: Part, w: number): Part => (w > 1 ? { ...part, props: { bits: w } } : part);
   const inputs = b.inputs.map((pin, i) => {
     const id = freshId('in');
-    innerParts.push({ id, kind: { type: 'primitive', kind: 'SWITCH' }, x: 0, y: 1 + i * 3, label: inNames[i] });
+    innerParts.push(withBits({ id, kind: { type: 'primitive', kind: 'SWITCH' }, x: 0, y: 1 + i * 3, label: inNames[i] }, widthOf(pin.source)));
     for (const w of pin.wires) innerWires.push({ id: freshWire(), from: { partId: id, pin: 'y' }, to: { ...w.to } });
     return { name: inNames[i]!, partId: id };
   });
   const outputs = b.outputs.map((pin, i) => {
     const id = freshId('out');
-    innerParts.push({ id, kind: { type: 'primitive', kind: 'LED' }, x: maxX - minX + 10, y: 1 + i * 3, label: outNames[i] });
+    innerParts.push(withBits({ id, kind: { type: 'primitive', kind: 'LED' }, x: maxX - minX + 10, y: 1 + i * 3, label: outNames[i] }, widthOf(pin.source)));
     innerWires.push({ id: freshWire(), from: { ...pin.source }, to: { partId: id, pin: 'a' } });
     return { name: outNames[i]!, partId: id };
   });

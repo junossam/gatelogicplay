@@ -18,7 +18,7 @@ import {
   type ConflictMode,
 } from '../model/library';
 import { findChipCycle } from '../sim/compile';
-import { pinDef } from '../sim/primitives';
+import { BUS_DEFAULT_BITS, pinSpec } from '../sim/pins';
 import type { ChipDef, Circuit, Library, Part, PinRef, PrimitiveKind, Rotation } from '../sim/types';
 
 const HISTORY_LIMIT = 200;
@@ -126,15 +126,22 @@ function nextLabel(kind: PrimitiveKind, parts: Part[]): string | undefined {
 }
 
 export function pinDirection(circuit: Circuit, ref: PinRef, library: Library = {}): 'in' | 'out' | undefined {
+  return pinOf(circuit, ref, library)?.dir;
+}
+
+/** 핀의 방향과 비트 수 */
+export function pinOf(circuit: Circuit, ref: PinRef, library: Library = {}) {
   const part = circuit.parts.find((p) => p.id === ref.partId);
-  if (!part) return undefined;
-  if (part.kind.type === 'chip') {
-    const def = library[part.kind.chipId];
-    if (def?.inputs.some((p) => p.name === ref.pin)) return 'in';
-    if (def?.outputs.some((p) => p.name === ref.pin)) return 'out';
-    return undefined;
-  }
-  return pinDef(part.kind.kind, ref.pin)?.dir;
+  return part ? pinSpec(part, ref.pin, library) : undefined;
+}
+
+/** 양 끝 핀이 있고 비트 수가 같은 전선만 남긴다 (비트 수를 바꾼 뒤) */
+function keepValidWires(circuit: Circuit, library: Library): Circuit['wires'] {
+  return circuit.wires.filter((w) => {
+    const a = pinOf(circuit, w.from, library);
+    const b = pinOf(circuit, w.to, library);
+    return a?.dir === 'out' && b?.dir === 'in' && a.width === b.width;
+  });
 }
 
 /** 지금 보고 있는 회로: 작업 공간(또는 편집 중인 칩) → viewPath를 따라 들어간 칩 내부 */
@@ -236,6 +243,7 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           const label = nextLabel(kind, parts);
           if (label) part.label = label;
           if (kind === 'CLOCK') part.props = { hz: 1 };
+          if (kind === 'SPLIT' || kind === 'MERGE') part.props = { bits: BUS_DEFAULT_BITS };
           commit((s) => {
             s.circuit.parts.push(part);
             s.selection = { parts: [id], wires: [] };
@@ -317,9 +325,12 @@ export function createEditorStore(initial: Circuit = EMPTY) {
 
         connect(a, b) {
           const { circuit, library } = get();
-          const da = pinDirection(circuit, a, library);
-          const db = pinDirection(circuit, b, library);
-          if (!da || !db || da === db) return null;
+          const pa = pinOf(circuit, a, library);
+          const pb = pinOf(circuit, b, library);
+          const da = pa?.dir;
+          const db = pb?.dir;
+          // 출력↔입력이고 비트 수가 같아야 연결 (SPEC 13장 8단계)
+          if (!da || !db || da === db || pa.width !== pb.width) return null;
           const from = da === 'out' ? a : b;
           const to = da === 'out' ? b : a;
           const existing = circuit.wires.find((w) => w.to.partId === to.partId && w.to.pin === to.pin);
@@ -353,12 +364,15 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           if (!part) return;
           const changed = (Object.keys(patch) as (keyof typeof patch)[]).some((k) => JSON.stringify(part[k]) !== JSON.stringify(patch[k]));
           if (!changed) return;
+          const lib = get().library;
           commit((s) => {
             const draft = s.circuit.parts.find((p) => p.id === id)!;
             for (const [k, v] of Object.entries(patch)) {
               if (v === undefined || v === '' || (k === 'rotation' && v === 0)) delete (draft as unknown as Record<string, unknown>)[k];
               else (draft as unknown as Record<string, unknown>)[k] = v;
             }
+            // 비트 수가 바뀌어 맞지 않게 된 전선은 지운다
+            if ('props' in patch) s.circuit.wires = keepValidWires(s.circuit, lib);
           });
         },
 

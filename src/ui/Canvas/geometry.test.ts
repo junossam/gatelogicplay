@@ -6,10 +6,16 @@ const and: Part = { id: 'and1', kind: { type: 'primitive', kind: 'AND' }, x: 2, 
 
 describe('부품 기하', () => {
   it('모든 핀은 격자점 위에 놓인다', () => {
-    for (const kind of ['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK'] as const) {
-      for (const pin of kindPins(kind)) {
-        expect(pin.dx % GRID, `${kind}.${pin.name}`).toBe(0);
-        expect(pin.dy % GRID, `${kind}.${pin.name}`).toBe(0);
+    for (const kind of ['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK', 'SPLIT', 'MERGE'] as const) {
+      for (const bits of [1, 2, 3, 4, 8, 16]) {
+        const pins = kindPins(kind, bits);
+        for (const pin of pins) {
+          expect(pin.dx % GRID, `${kind}/${bits}.${pin.name}`).toBe(0);
+          expect(pin.dy % GRID, `${kind}/${bits}.${pin.name}`).toBe(0);
+        }
+        // 같은 변의 핀이 겹치지 않는다
+        const keys = pins.map((p) => `${p.dx},${p.dy}`);
+        expect(new Set(keys).size, `${kind}/${bits}`).toBe(keys.length);
       }
     }
   });

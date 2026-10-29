@@ -5,7 +5,61 @@ import { kindSize, GRID } from '../Canvas/geometry';
  * 부품 기호. 캔버스와 팔레트가 같은 도형을 쓴다.
  * 좌표계는 부품 크기(격자 칸 × 20px) 그대로이며, 핀 리드 선이 핀 위치까지 이어진다.
  */
-export function PartShape({ kind, on = false }: { kind: PrimitiveKind; on?: boolean }) {
+/** 여러 비트 부품 기호 (나누기·묶기, 숫자 스위치·LED). 1비트 기호는 아래 PartShape. */
+function BusShape({ kind, bits, value }: { kind: PrimitiveKind; bits: number; value: number }) {
+  const stroke = 'var(--text-2)';
+  const body = { fill: 'var(--bg-chip)', stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };
+  const bus = { stroke, strokeWidth: 4 };
+  const lead = { stroke, strokeWidth: 2 };
+  const h = 2 * bits * GRID;
+  if (kind === 'SPLIT' || kind === 'MERGE') {
+    const split = kind === 'SPLIT';
+    const barX = split ? 12 : 28;
+    return (
+      <g>
+        <rect x={barX - 3} y={8} width={6} height={h - 16} rx={2} fill="var(--text-2)" />
+        <line x1={split ? 0 : barX} y1={h / 2} x2={split ? barX : 40} y2={h / 2} {...bus} />
+        {Array.from({ length: bits }, (_, k) => {
+          const y = (2 * k + 1) * GRID;
+          return (
+            <g key={k}>
+              <line x1={split ? barX : 0} y1={y} x2={split ? 40 : barX} y2={y} {...lead} />
+              <text x={split ? 22 : 8} y={y - 4} className="bus-bit-label">
+                {k}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+    );
+  }
+  const text = String(value);
+  if (kind === 'SWITCH') {
+    return (
+      <g>
+        <line x1={66} y1={20} x2={80} y2={20} {...bus} />
+        <rect x={4} y={6} width={62} height={28} rx={6} {...body} />
+        <text x={35} y={25} textAnchor="middle" className="bus-value">
+          {text}
+        </text>
+      </g>
+    );
+  }
+  // LED: 숫자 표시
+  const on = value !== 0;
+  return (
+    <g>
+      <line x1={0} y1={20} x2={14} y2={20} {...bus} />
+      <rect x={14} y={6} width={62} height={28} rx={4} fill={on ? 'var(--sig-on)' : 'var(--sig-off)'} stroke={on ? 'var(--sig-on)' : stroke} strokeWidth={2} />
+      <text x={45} y={25} textAnchor="middle" className={`bus-value${on ? ' on' : ''}`}>
+        {text}
+      </text>
+    </g>
+  );
+}
+
+export function PartShape({ kind, on = false, bits = 1, value = 0 }: { kind: PrimitiveKind; on?: boolean; bits?: number; value?: number }) {
+  if (kind === 'SPLIT' || kind === 'MERGE' || ((kind === 'SWITCH' || kind === 'LED') && bits > 1)) return <BusShape kind={kind} bits={bits} value={value} />;
   const stroke = 'var(--text-2)';
   const body = { fill: 'var(--bg-chip)', stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };
   const lead = { stroke, strokeWidth: 2 };
@@ -121,15 +175,15 @@ export function PartShape({ kind, on = false }: { kind: PrimitiveKind; on?: bool
   }
 }
 
-export function PartIcon({ kind, size = 36 }: { kind: PrimitiveKind; size?: number }) {
-  const { w, h } = kindSize(kind);
+export function PartIcon({ kind, size = 36, bits = 1 }: { kind: PrimitiveKind; size?: number; bits?: number }) {
+  const { w, h } = kindSize(kind, bits);
   const vw = w * GRID;
   const vh = h * GRID;
   // 정사각형 아이콘 영역 안에 비율을 유지해 넣는다
   const side = Math.max(vw, vh);
   return (
     <svg width={size} height={size} viewBox={`${(vw - side) / 2} ${(vh - side) / 2} ${side} ${side}`} aria-hidden="true">
-      <PartShape kind={kind} />
+      <PartShape kind={kind} bits={kind === 'SPLIT' || kind === 'MERGE' ? 2 : bits} />
     </svg>
   );
 }
