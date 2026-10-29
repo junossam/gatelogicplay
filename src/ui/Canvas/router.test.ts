@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { junctions, routeAll, simplify, type Box, type Pt } from './router';
+import { junctions, moveSegment, orthoJoin, routeAll, simplify, type Box, type Pt } from './router';
 
 /** 경로가 지나는 모든 격자점 */
 function cells(path: Pt[]): Pt[] {
@@ -83,5 +83,71 @@ describe('전선 경로 찾기', () => {
       { x: 2, y: 0 },
       { x: 2, y: 3 },
     ]);
+  });
+});
+
+describe('전선 직접 꺾기', () => {
+  it('moveSegment: 가운데 구간은 직각으로 옮기고, 이웃 구간은 그대로 직각', () => {
+    const path = [
+      { x: 0, y: 0 },
+      { x: 5, y: 0 },
+      { x: 5, y: 4 },
+      { x: 10, y: 4 },
+    ];
+    // 수직 구간(1번)을 오른쪽으로 2칸
+    expect(moveSegment(path, 1, 2)).toEqual([
+      { x: 0, y: 0 },
+      { x: 7, y: 0 },
+      { x: 7, y: 4 },
+      { x: 10, y: 4 },
+    ]);
+  });
+
+  it('moveSegment: 핀에 붙은 구간을 옮기면 끝점은 그대로 두고 꺾는 점을 넣는다', () => {
+    const straight = [
+      { x: 0, y: 0 },
+      { x: 10, y: 0 },
+    ];
+    expect(moveSegment(straight, 0, 3)).toEqual([
+      { x: 0, y: 0 },
+      { x: 0, y: 3 },
+      { x: 10, y: 3 },
+      { x: 10, y: 0 },
+    ]);
+  });
+
+  it('orthoJoin: 부품이 움직여 어긋나면 꺾는 점을 넣어 직각만 남긴다', () => {
+    const path = orthoJoin({ x: 0, y: 1 }, [{ x: 4, y: 0 }, { x: 4, y: 6 }], { x: 9, y: 5 });
+    for (let i = 0; i + 1 < path.length; i++) expect(path[i]!.x === path[i + 1]!.x || path[i]!.y === path[i + 1]!.y).toBe(true);
+    expect(path[0]).toEqual({ x: 0, y: 1 });
+    expect(path[path.length - 1]).toEqual({ x: 9, y: 5 });
+    // 입력 핀에는 수평으로 들어간다
+    expect(path[path.length - 2]!.y).toBe(5);
+  });
+
+  it('꺾은 전선은 고정되고 자동 경로 전선이 그 위로 겹치지 않는다', () => {
+    const fixedPath = [
+      { x: 0, y: 2 },
+      { x: 5, y: 2 },
+      { x: 5, y: 8 },
+      { x: 12, y: 8 },
+    ];
+    const routes = routeAll([{ id: 'w2', net: 'b', from: { x: 0, y: 8 }, to: { x: 12, y: 2 } }], [], [], [{ net: 'a', path: fixedPath }]);
+    const p = routes.get('w2')!;
+    const onFixed = (x: number, y: number) =>
+      fixedPath.some((a, i) => {
+        const b = fixedPath[i + 1];
+        return b && x >= Math.min(a.x, b.x) && x <= Math.max(a.x, b.x) && y >= Math.min(a.y, b.y) && y <= Math.max(a.y, b.y);
+      });
+    // 같은 방향으로 이어 붙은 구간(겹침)이 없어야 한다: 연속한 두 점이 모두 고정 경로 위인 경우가 없음
+    const pts: { x: number; y: number }[] = [];
+    for (let i = 0; i + 1 < p.length; i++) {
+      const a = p[i]!;
+      const b = p[i + 1]!;
+      const sx = Math.sign(b.x - a.x);
+      const sy = Math.sign(b.y - a.y);
+      for (let x = a.x, y = a.y; x !== b.x || y !== b.y; x += sx, y += sy) pts.push({ x, y });
+    }
+    for (let i = 0; i + 1 < pts.length; i++) expect(onFixed(pts[i]!.x, pts[i]!.y) && onFixed(pts[i + 1]!.x, pts[i + 1]!.y)).toBe(false);
   });
 });

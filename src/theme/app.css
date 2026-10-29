@@ -1293,3 +1293,27 @@ button {
 .statusbar .hint + .zoom {
   margin-left: 0;
 }
+
+/* 전선 구간 손잡이 (선택한 전선을 직접 꺾기) */
+.segment-dot {
+  fill: var(--bg);
+  stroke: var(--select);
+  stroke-width: 2;
+  pointer-events: none;
+}
+
+.segment-hit {
+  fill: transparent;
+}
+
+.segment-handle.h .segment-hit {
+  cursor: ns-resize;
+}
+
+.segment-handle.v .segment-hit {
+  cursor: ew-resize;
+}
+
+.segment-handle:hover .segment-dot {
+  fill: var(--select);
+}

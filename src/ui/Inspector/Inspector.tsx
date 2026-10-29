@@ -248,12 +248,24 @@ export function Inspector({ top, extra }: { top?: ReactNode; extra?: ReactNode }
       {part ? (
         <PartDetails part={part} prefix={prefix} readOnly={readOnly} />
       ) : wire ? (
-        <dl className="props">
-          <dt>전선</dt>
-          <dd className="mono">
-            {wire.from.partId}.{wire.from.pin} → {wire.to.partId}.{wire.to.pin}
-          </dd>
-        </dl>
+        <>
+          <dl className="props">
+            <dt>전선</dt>
+            <dd className="mono">
+              {wire.from.partId}.{wire.from.pin} → {wire.to.partId}.{wire.to.pin}
+            </dd>
+            <dt>경로</dt>
+            <dd>{wire.points?.length ? '직접 꺾음' : '자동'}</dd>
+          </dl>
+          {!readOnly && (
+            <p className="muted small">전선 위의 네모 손잡이를 끌면 그 구간을 옮겨 꺾을 수 있습니다.</p>
+          )}
+          {!readOnly && wire.points?.length ? (
+            <button type="button" className="text-button wide-button" onClick={() => editorStore.getState().setWirePoints(wire.id, null)}>
+              자동 경로로 되돌리기
+            </button>
+          ) : null}
+        </>
       ) : selectedParts.length > 1 || selection.wires.length > 1 ? (
         <p className="muted small">
           부품 {selectedParts.length}개, 전선 {selection.wires.length}개 선택됨

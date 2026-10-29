@@ -8,6 +8,7 @@ import { confirmLeaveChip } from '../Palette/Palette';
 import { baseSize, boundsOf, GRID, normalizeRect, partRect, pinPoint, rectContains, type Rect } from './geometry';
 import { challengeById, isAllowedIn } from '../../model/challenges';
 import { PartView } from './PartView';
+import { moveSegment, toPath } from './router';
 import { layoutWires, type WireLayout } from './wireLayout';
 import { WireView } from './WireView';
 
@@ -19,11 +20,14 @@ const intersects = (a: Rect, b: Rect) => a.x <= b.x + b.w && b.x <= a.x + a.w &&
 const MAX_ZOOM = 4;
 
 type Point = { x: number; y: number };
+type GridPt = { x: number; y: number };
 
 type Gesture =
   | { type: 'drag'; start: Point; pointerId: number; partId: string; moved: boolean }
   | { type: 'wire'; from: PinRef; start: Point; pointerId: number }
   | { type: 'box'; start: Point; additive: boolean; pointerId: number }
+  /** 선택한 전선의 index번째 구간을 직각 방향으로 옮기기 */
+  | { type: 'segment'; wireId: string; index: number; base: GridPt[]; start: Point; pointerId: number; preview: GridPt[] }
   /** clearOnClick: 바닥을 끌지 않고 클릭만 했으면 선택 해제 */
   | { type: 'pan'; start: Point; pan: Point; pointerId: number; clearOnClick: boolean };
 
@@ -206,6 +210,13 @@ export function Board() {
       return;
     }
     const world = toWorld(e.clientX, e.clientY);
+    if (gesture.type === 'segment') {
+      const a = gesture.base[gesture.index]!;
+      const b = gesture.base[gesture.index + 1]!;
+      const d = a.y === b.y ? Math.round((world.y - gesture.start.y) / GRID) : Math.round((world.x - gesture.start.x) / GRID);
+      setGesture({ ...gesture, preview: moveSegment(gesture.base, gesture.index, d) });
+      return;
+    }
     if (gesture.type === 'drag') {
       const dx = Math.round((world.x - gesture.start.x) / GRID);
       const dy = Math.round((world.y - gesture.start.y) / GRID);
@@ -219,7 +230,9 @@ export function Board() {
   const onUp = (e: PointerEvent) => {
     if (!gesture || e.pointerId !== gesture.pointerId) return;
     const store = editorStore.getState();
-    if (gesture.type === 'pan') {
+    if (gesture.type === 'segment') {
+      if (gesture.preview !== gesture.base) store.setWirePoints(gesture.wireId, gesture.preview.slice(1, -1));
+    } else if (gesture.type === 'pan') {
       const moved = Math.abs(e.clientX - gesture.start.x) + Math.abs(e.clientY - gesture.start.y) > 3;
       if (gesture.clearOnClick && !moved) store.clearSelection();
     } else if (gesture.type === 'drag') {
@@ -320,6 +333,8 @@ export function Board() {
     return new Map([...m].map(([k, v]) => [k, [...v].sort().join(',')]));
   }, [circuit.wires]);
   const [hoverNet, setHoverNet] = useState<string | null>(null);
+  // 전선 하나만 선택했으면 구간 손잡이를 보인다
+  const selectedWireGeom = selection.wires.length === 1 && selection.parts.length === 0 ? layout.byId.get(selection.wires[0]!) : undefined;
   const partRects = useMemo(() => circuit.parts.map((p) => partRect(p, library)), [circuit.parts, library]);
 
   /** 모든 부품이 화면에 들어오게 배율과 위치를 맞춘다 (100%보다 크게 확대하지는 않음) */
@@ -452,6 +467,37 @@ export function Board() {
               onPush={onPush}
             />
           ))}
+          {selectedWireGeom && !readOnly && (
+            <g className="segment-handles" data-testid="segment-handles">
+              {gesture?.type === 'segment' && <path d={toPath(gesture.preview, GRID)} className="wire-preview" />}
+              {(gesture?.type === 'segment' ? gesture.preview : selectedWireGeom.points).slice(0, -1).map((p, i) => {
+                const q = (gesture?.type === 'segment' ? gesture.preview : selectedWireGeom.points)[i + 1]!;
+                const horizontal = p.y === q.y;
+                const cx = ((p.x + q.x) / 2) * GRID;
+                const cy = ((p.y + q.y) / 2) * GRID;
+                return (
+                  <g key={i} className={`segment-handle ${horizontal ? 'h' : 'v'}`} data-testid={`segment-${i}`}>
+                    <rect x={cx - 5} y={cy - 5} width={10} height={10} rx={2} className="segment-dot" />
+                    <rect
+                      x={cx - 12}
+                      y={cy - 12}
+                      width={24}
+                      height={24}
+                      className="segment-hit"
+                      aria-label={`전선 구간 ${i + 1} ${horizontal ? '위아래' : '좌우'}로 옮기기`}
+                      onPointerDown={(e) => {
+                        if (e.button !== 0) return;
+                        e.stopPropagation();
+                        svgRef.current?.setPointerCapture(e.pointerId);
+                        const base = selectedWireGeom.points;
+                        setGesture({ type: 'segment', wireId: selectedWireGeom.id, index: i, base, start: toWorld(e.clientX, e.clientY), pointerId: e.pointerId, preview: base });
+                      }}
+                    />
+                  </g>
+                );
+              })}
+            </g>
+          )}
           {preview && <path d={preview} className="wire-preview" />}
           {box && (
             <g pointerEvents="none">

@@ -86,6 +86,8 @@ export interface EditorState {
   deleteSelection(): void;
   updatePart(id: string, patch: Partial<Pick<Part, 'label' | 'props' | 'rotation'>>): void;
   rotateSelection(): void;
+  /** 전선을 꺾은 점들(격자 칸, 끝점 제외). null이면 자동 경로로 */
+  setWirePoints(id: string, points: { x: number; y: number }[] | null): void;
   setPinOrder(order: PinOrder): void;
   openChip(chipId: string): void;
   closeChip(): void;
@@ -357,6 +359,17 @@ export function createEditorStore(initial: Circuit = EMPTY) {
               if (v === undefined || v === '' || (k === 'rotation' && v === 0)) delete (draft as unknown as Record<string, unknown>)[k];
               else (draft as unknown as Record<string, unknown>)[k] = v;
             }
+          });
+        },
+
+        setWirePoints(id, points) {
+          const wire = get().circuit.wires.find((w) => w.id === id);
+          if (!wire) return;
+          if (!points?.length && !wire.points) return;
+          commit((s) => {
+            const draft = s.circuit.wires.find((w) => w.id === id)!;
+            if (points?.length) draft.points = points.map((p) => ({ x: p.x, y: p.y }));
+            else delete draft.points;
           });
         },
 

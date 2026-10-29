@@ -241,8 +241,15 @@ export class Router {
 }
 
 /** 같은 Net 전선을 이어서, 짧은 Net부터 경로를 깐다 */
-export function routeAll(reqs: RouteRequest[], obstacles: Box[], terminals: Pt[]): Map<string, Pt[]> {
+export function routeAll(
+  reqs: RouteRequest[],
+  obstacles: Box[],
+  terminals: Pt[],
+  fixed: { net: string; path: Pt[] }[] = [],
+): Map<string, Pt[]> {
   const router = new Router(obstacles, terminals);
+  // 사용자가 꺾은 전선은 그대로 두고, 다른 전선이 피해 가게 먼저 깐다
+  for (const f of fixed) router.commit(f.net, f.path);
   const len = (r: RouteRequest) => Math.abs(r.from.x - r.to.x) + Math.abs(r.from.y - r.to.y);
   const byNet = new Map<string, RouteRequest[]>();
   for (const r of reqs) {
@@ -291,4 +298,41 @@ export function junctions(paths: Pt[][]): Pt[] {
 
 export function toPath(points: Pt[], grid: number): string {
   return points.map((p, i) => `${i ? 'L' : 'M'}${p.x * grid} ${p.y * grid}`).join(' ');
+}
+
+/**
+ * 사용자가 꺾은 점들을 끝점과 직각으로 잇는다.
+ * 부품이 움직여 이웃 점과 어긋나면 꺾는 점을 하나 넣어 수평·수직만 남긴다.
+ */
+export function orthoJoin(from: Pt, points: Pt[], to: Pt): Pt[] {
+  const all = [from, ...points, to];
+  const out: Pt[] = [all[0]!];
+  for (let i = 1; i < all.length; i++) {
+    const a = out[out.length - 1]!;
+    const b = all[i]!;
+    if (a.x !== b.x && a.y !== b.y) {
+      // 마지막 구간은 입력 핀에 수평으로 들어가도록, 그 밖에는 앞 구간과 직각이 되도록
+      const prev = out[out.length - 2];
+      const wasHorizontal = prev ? prev.y === a.y : true;
+      out.push(i === all.length - 1 || !wasHorizontal ? { x: a.x, y: b.y } : { x: b.x, y: a.y });
+    }
+    out.push(b);
+  }
+  return simplify(out);
+}
+
+/**
+ * 경로의 i번째 구간을 직각 방향으로 d칸 옮긴다 (수평 구간은 위아래, 수직 구간은 좌우).
+ * 핀에 붙은 첫·마지막 구간을 옮기면 핀에서 짧게 꺾는 점을 넣어 끝점은 그대로 둔다.
+ */
+export function moveSegment(path: Pt[], i: number, d: number): Pt[] {
+  if (d === 0 || i < 0 || i + 1 >= path.length) return path;
+  const a = path[i]!;
+  const b = path[i + 1]!;
+  const horizontal = a.y === b.y;
+  const shift = (p: Pt) => (horizontal ? { x: p.x, y: p.y + d } : { x: p.x + d, y: p.y });
+  const out = path.map((p, k) => (k === i || k === i + 1 ? shift(p) : p));
+  if (i === 0) out.unshift(path[0]!);
+  if (i + 1 === path.length - 1) out.push(path[path.length - 1]!);
+  return simplify(out);
 }

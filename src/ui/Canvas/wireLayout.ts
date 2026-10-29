@@ -1,6 +1,6 @@
 import type { Circuit, Library } from '../../sim/types';
 import { GRID, partPins, partRect, pinPoint, type Rect } from './geometry';
-import { junctions, routeAll, simpleRoute, toPath, type Pt, type RouteRequest } from './router';
+import { junctions, orthoJoin, routeAll, simpleRoute, toPath, type Pt, type RouteRequest } from './router';
 
 /** 이보다 전선이 많으면 경로 찾기를 하지 않고 단순 경로로 그린다 (성능) */
 export const ROUTE_WIRE_LIMIT = 1500;
@@ -17,6 +17,8 @@ export interface WireGeom {
   junctions: Pt[];
   /** 경로 (격자 칸) */
   points: Pt[];
+  /** 사용자가 꺾은 전선 */
+  manual: boolean;
 }
 
 export interface WireLayout {
@@ -44,13 +46,18 @@ const samePt = (a: Pt | undefined, b: Pt) => a !== undefined && a.x === b.x && a
 export function layoutWires(circuit: Circuit, library: Library, prev: WireLayout | null = null): WireLayout {
   const parts = new Map(circuit.parts.map((p) => [p.id, p]));
   const reqs: RouteRequest[] = [];
+  // 사용자가 꺾은 전선: 꺾은 점들을 끝점과 직각으로 이은 고정 경로
+  const manual = new Map<string, Pt[]>();
   for (const w of circuit.wires) {
     const fp = parts.get(w.from.partId);
     const tp = parts.get(w.to.partId);
     const a = fp && pinPoint(fp, w.from.pin, library);
     const b = tp && pinPoint(tp, w.to.pin, library);
     if (!a || !b) continue;
-    reqs.push({ id: w.id, net: `${w.from.partId}.${w.from.pin}`, from: { x: a.x / GRID, y: a.y / GRID }, to: { x: b.x / GRID, y: b.y / GRID } });
+    const from = { x: a.x / GRID, y: a.y / GRID };
+    const to = { x: b.x / GRID, y: b.y / GRID };
+    reqs.push({ id: w.id, net: `${w.from.partId}.${w.from.pin}`, from, to });
+    if (w.points?.length) manual.set(w.id, orthoJoin(from, w.points, to));
   }
 
   let paths: Map<string, Pt[]>;
@@ -59,6 +66,10 @@ export function layoutWires(circuit: Circuit, library: Library, prev: WireLayout
   if (prev) {
     paths = new Map();
     for (const r of reqs) {
+      if (manual.has(r.id)) {
+        paths.set(r.id, manual.get(r.id)!);
+        continue;
+      }
       const old = prev.byId.get(r.id)?.points;
       if (old && samePt(old[0], r.from) && samePt(old[old.length - 1], r.to)) paths.set(r.id, old);
       else {
@@ -67,14 +78,17 @@ export function layoutWires(circuit: Circuit, library: Library, prev: WireLayout
       }
     }
   } else if (!routed) {
-    paths = new Map(reqs.map((r) => [r.id, simpleRoute(r.from, r.to)]));
+    paths = new Map(reqs.map((r) => [r.id, manual.get(r.id) ?? simpleRoute(r.from, r.to)]));
   } else {
     const obstacles = circuit.parts.map((p) => {
       const r = partRect(p, library);
       return { x: r.x / GRID, y: r.y / GRID, w: r.w / GRID, h: r.h / GRID };
     });
     const terminals = circuit.parts.flatMap((p) => partPins(p, library).map((pin) => ({ x: p.x + pin.dx / GRID, y: p.y + pin.dy / GRID })));
-    paths = routeAll(reqs, obstacles, terminals);
+    const auto = reqs.filter((r) => !manual.has(r.id));
+    const fixed = reqs.filter((r) => manual.has(r.id)).map((r) => ({ net: r.net, path: manual.get(r.id)! }));
+    paths = routeAll(auto, obstacles, terminals, fixed);
+    for (const [id, path] of manual) paths.set(id, path);
   }
 
   // Net별 접점: Net의 마지막 전선에 붙인다 (끄는 중에 바뀐 Net은 접점 생략)
@@ -94,7 +108,7 @@ export function layoutWires(circuit: Circuit, library: Library, prev: WireLayout
 
   const wires = reqs.map((r) => {
     const points = paths.get(r.id)!;
-    return { id: r.id, d: toPath(points, GRID), source: r.net, box: bounds(points), junctions: dots.get(r.id) ?? [], points };
+    return { id: r.id, d: toPath(points, GRID), source: r.net, box: bounds(points), junctions: dots.get(r.id) ?? [], points, manual: manual.has(r.id) };
   });
   return { wires, routed, byId: new Map(wires.map((w) => [w.id, w])) };
 }
