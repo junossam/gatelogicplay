@@ -160,7 +160,8 @@
       },
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-01-01T00:00:00.000Z",
-      "revision": 1
+      "revision": 1,
+      "category": "래치"
     },
     "ff-d-latch": {
       "id": "ff-d-latch",
@@ -369,7 +370,8 @@
       },
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-01-01T00:00:00.000Z",
-      "revision": 1
+      "revision": 1,
+      "category": "래치"
     },
     "ff-d": {
       "id": "ff-d",
@@ -547,7 +549,8 @@
       },
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-01-01T00:00:00.000Z",
-      "revision": 1
+      "revision": 1,
+      "category": "플립플롭"
     },
     "ff-sr": {
       "id": "ff-sr",
@@ -770,7 +773,8 @@
       },
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-01-01T00:00:00.000Z",
-      "revision": 1
+      "revision": 1,
+      "category": "플립플롭"
     },
     "ff-jk": {
       "id": "ff-jk",
@@ -1024,7 +1028,8 @@
       },
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-01-01T00:00:00.000Z",
-      "revision": 1
+      "revision": 1,
+      "category": "플립플롭"
     },
     "ff-t": {
       "id": "ff-t",
@@ -1247,7 +1252,8 @@
       },
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-01-01T00:00:00.000Z",
-      "revision": 2
+      "revision": 2,
+      "category": "플립플롭"
     }
   },
   "workspace": {
