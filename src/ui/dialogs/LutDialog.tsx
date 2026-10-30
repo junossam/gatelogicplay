@@ -90,7 +90,7 @@ export function LutDialog() {
           <thead>
             <tr>
               {Array.from({ length: n }, (_, k) => (
-                <th key={`i${k}`} className="in">
+                <th key={`i${k}`} className="in" style={{ left: k * 44 }}>
                   {letter(k)}
                 </th>
               ))}
@@ -107,7 +107,7 @@ export function LutDialog() {
                 {Array.from({ length: n }, (_, k) => {
                   const b = (i >> (n - 1 - k)) & 1;
                   return (
-                    <td key={`i${k}`} className={`in mono${b ? ' one' : ''}`}>
+                    <td key={`i${k}`} className={`in mono${b ? ' one' : ''}`} style={{ left: k * 44 }}>
                       {b}
                     </td>
                   );

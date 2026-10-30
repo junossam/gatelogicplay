@@ -332,7 +332,7 @@ describe('진리표 부품 (LUT)', () => {
   function lutCircuit(n: number, m: number, table: number[]) {
     const b = new CircuitBuilder().add('LUT', 'lut', 6, 0);
     b.parts[b.parts.length - 1]!.props = { inputs: n, outputs: m, table };
-    for (let k = 0; k < n; k++) b.add('SWITCH', `s${k}`, 0, k * 3, String.fromCharCode(65 + k)).wire(`s${k}.y`, `lut.${'abcdef'[k]}`);
+    for (let k = 0; k < n; k++) b.add('SWITCH', `s${k}`, 0, k * 3, String.fromCharCode(65 + k)).wire(`s${k}.y`, `lut.${'abcdefgh'[k]}`);
     for (let j = 0; j < m; j++) b.add('LED', `y${j}`, 14, j * 3, `Y${j}`).wire(`lut.y${j}`, `y${j}.a`);
     return new Engine(compile(b.build()));
   }
@@ -357,7 +357,7 @@ describe('진리표 부품 (LUT)', () => {
     ]);
   });
 
-  it('입력 1~6개, 출력 1~8개: 6입력 다수결과 비트 세기', () => {
+  it('6입력 다수결과 비트 세기 (출력 4개)', () => {
     const table = Array.from({ length: 64 }, (_, i) => {
       const ones = [0, 1, 2, 3, 4, 5].reduce((s, k) => s + ((i >> k) & 1), 0);
       return (ones >= 4 ? 1 : 0) | (ones << 1); // Y0 = 다수결, Y1~Y3 = 1의 개수
@@ -369,6 +369,17 @@ describe('진리표 부품 (LUT)', () => {
       const ones = [0, 1, 2, 3, 4, 5].reduce((s, k) => s + ((v >> k) & 1), 0);
       expect(e.readPin('y0.a'), `v=${v}`).toBe(ones >= 4 ? 1 : 0);
       expect(e.readPin('y1.a') + 2 * e.readPin('y2.a') + 4 * e.readPin('y3.a'), `v=${v}`).toBe(ones);
+    }
+  });
+
+  it('최대 크기: 입력 8개(256행) · 출력 16개 — 출력 = 입력 값 × 3 (16비트)', () => {
+    const e = lutCircuit(8, 16, Array.from({ length: 256 }, (_, i) => i * 3));
+    for (const v of [0, 1, 85, 170, 200, 255]) {
+      for (let k = 0; k < 8; k++) e.setInput(`s${k}`, ((v >> (7 - k)) & 1) as 0 | 1);
+      e.tick(3);
+      let out = 0;
+      for (let j = 0; j < 16; j++) out |= e.readPin(`y${j}.a`) << j;
+      expect(out, `v=${v}`).toBe(v * 3);
     }
   });
 

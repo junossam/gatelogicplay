@@ -8,8 +8,8 @@ export const BUS_DEFAULT_BITS = 4;
 export const MULTI_INPUT_KINDS = new Set<PrimitiveKind>(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR']);
 export const MAX_INPUTS = 8;
 /** 진리표 부품의 입력·출력 수 범위 */
-export const MAX_LUT_INPUTS = 6;
-export const MAX_LUT_OUTPUTS = 8;
+export const MAX_LUT_INPUTS = 8;
+export const MAX_LUT_OUTPUTS = 16;
 
 export interface PinSpec {
   name: string;
@@ -37,7 +37,7 @@ export function gateInputs(kind: PrimitiveKind, inputs: number | undefined): num
   return MULTI_INPUT_KINDS.has(kind) ? Math.min(MAX_INPUTS, Math.max(2, Math.round(inputs ?? 2))) : 2;
 }
 
-/** 진리표 부품의 출력 수 (1~8, 없으면 1). 다른 부품은 의미 없음. */
+/** 진리표 부품의 출력 수 (1~16, 없으면 1). 다른 부품은 의미 없음. */
 export function lutOutputs(outputs: number | undefined): number {
   return Math.min(MAX_LUT_OUTPUTS, Math.max(1, Math.round(outputs ?? 1)));
 }

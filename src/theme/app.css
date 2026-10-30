@@ -2011,3 +2011,18 @@ button {
 .lut-cell:disabled {
   cursor: default;
 }
+
+/* 진리표 편집 창: 큰 표(출력 16개)도 들어가게 넓게, 입력 열은 가로로 밀어도 왼쪽에 고정 */
+.modal:has(.lut-table) {
+  width: min(1180px, calc(100vw - 32px));
+}
+
+.lut-table .in {
+  position: sticky;
+  background: var(--bg-panel);
+  z-index: 1;
+}
+
+.lut-table thead th.in {
+  z-index: 2;
+}

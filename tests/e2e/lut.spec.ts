@@ -67,3 +67,21 @@ test('진리표 부품: 팔레트에서 놓고, 편집 창에서 입력 3·출�
   // 실행 취소 한 번이면 편집 전으로 (입력 2개)
   await expect(page.getByTestId('save-status')).toHaveText('저장됨');
 });
+
+test('진리표 부품 최대 크기: 입력 8개(256행) · 출력 16개', async ({ page }) => {
+  const b = new CircuitBuilder().add('LUT', 'lut', 4, 2);
+  await seed(page, b.build());
+  await page.getByTestId('part-lut').locator('.part-hit').click({ position: { x: 30, y: 10 } });
+  await page.getByRole('button', { name: '진리표 편집' }).click();
+  const dialog = page.getByRole('dialog', { name: '진리표 편집' });
+  await dialog.getByLabel('진리표 입력 수').selectOption('8');
+  await dialog.getByLabel('진리표 출력 수').selectOption('16');
+  await expect(dialog.locator('tbody tr')).toHaveCount(256);
+  await expect(dialog.locator('thead th')).toHaveCount(24);
+  await dialog.getByRole('button', { name: '255행 Y15' }).click();
+  await expect(dialog.getByRole('button', { name: '255행 Y15' })).toHaveAttribute('aria-pressed', 'true');
+  await page.screenshot({ path: test.info().outputPath('lut-max.png') });
+  await dialog.getByRole('button', { name: '적용' }).click();
+  await expect(page.locator('[data-pin="lut:h"]')).toHaveCount(1);
+  await expect(page.locator('[data-pin="lut:y15"]')).toHaveCount(1);
+});

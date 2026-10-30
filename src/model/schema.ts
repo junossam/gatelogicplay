@@ -26,8 +26,8 @@ export const partSchema = z.object({
       hz: z.number().positive().optional(),
       bits: z.number().int().min(1).max(16).optional(),
       inputs: z.number().int().min(1).max(8).optional(),
-      outputs: z.number().int().min(1).max(8).optional(),
-      table: z.array(z.number().int().min(0).max(255)).max(64).optional(),
+      outputs: z.number().int().min(1).max(16).optional(),
+      table: z.array(z.number().int().min(0).max(65535)).max(256).optional(),
     })
     .optional(),
 });
