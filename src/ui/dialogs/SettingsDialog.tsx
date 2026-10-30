@@ -11,7 +11,7 @@ export function SettingsDialog() {
         <input type="checkbox" checked={clockEnabled} onChange={(e) => setClockEnabled(e.target.checked)} />
         클럭 부품 사용
       </label>
-      <p className="muted small">켜면 팔레트에 클럭이 보입니다. 클럭은 설정한 주파수(Hz)로 반전합니다. 단, 한 틱에 한 번보다 자주 바뀔 수는 없어서 시뮬레이션 속도의 절반보다 높은 주파수는 그만큼 느려집니다(예: 속도 1Hz에서는 클럭이 최대 0.5Hz).</p>
+      <p className="muted small">켜면 팔레트에 클럭이 보입니다. 클럭은 시뮬레이션 속도와 관계없이 설정한 주파수(Hz)로 반전합니다.</p>
     </Modal>
   );
 }

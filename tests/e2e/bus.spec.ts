@@ -12,7 +12,7 @@ async function setValue(page: Page, id: string, value: number) {
 
 test('8단계 완료 기준: 4비트 스위치 두 개를 버스로 가산기 칩에 연결하면 합이 숫자 LED에 표시', async ({ page }) => {
   await seed(page, busAdderWorkspace(), { 'logiclab:v1:library': serializeLibrary(busLibrary()) });
-  await page.getByLabel('시뮬레이션 속도').fill('19');
+  await page.getByLabel('시뮬레이션 속도').fill('60');
 
   // 버스 전선은 굵게, 칩 핀에는 비트 수 표시
   await expect(page.locator('[data-testid="wire-w1"]')).toHaveClass(/\bbus\b/);

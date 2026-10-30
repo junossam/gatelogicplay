@@ -6,24 +6,12 @@ import { bitKey } from '../sim/pins';
 import { Recorder } from '../sim/recorder';
 import type { Bit, Circuit, Library } from '../sim/types';
 
-/** 슬라이더 눈금 (초당 틱 수). 느린 쪽을 촘촘하게 — 0.1~1Hz를 0.1 단위로 볼 수 있게 */
-export const SPEED_STEPS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
-export const MIN_SPEED = 0.1;
-export const MAX_SPEED = 10;
-export const DEFAULT_SPEED = 1;
-
-/** 속도에 가장 가까운 눈금 번호 */
-export function speedStep(hz: number): number {
-  let best = 0;
-  SPEED_STEPS.forEach((s, i) => {
-    if (Math.abs(s - hz) < Math.abs(SPEED_STEPS[best]! - hz)) best = i;
-  });
-  return best;
-}
+export const MIN_SPEED = 1;
+export const MAX_SPEED = 60;
 
 export interface SimState {
   running: boolean;
-  /** 초당 틱 수 (0.1~10Hz) */
+  /** 초당 틱 수 (1~60Hz) */
   speed: number;
   tick: number;
   /** 화면 갱신 신호 — 값이 바뀐 프레임마다 1씩 증가 */
@@ -74,7 +62,7 @@ export function setRecordedPrefix(prefix: string | null) {
 
 export const simStore = createStore<SimState>(() => ({
   running: true,
-  speed: DEFAULT_SPEED,
+  speed: 10,
   tick: 0,
   version: 0,
   oscillating: new Set(),
@@ -133,7 +121,7 @@ export const simActions = {
     publish();
   },
   setSpeed(hz: number) {
-    const speed = Math.min(MAX_SPEED, Math.max(MIN_SPEED, Math.round(hz * 10) / 10));
+    const speed = Math.min(MAX_SPEED, Math.max(MIN_SPEED, Math.round(hz)));
     engine.setTicksPerSecond(speed);
     simStore.setState({ speed });
   },
