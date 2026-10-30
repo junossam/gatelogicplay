@@ -22,9 +22,7 @@ export function BuiltinChipsDialog() {
     };
   }, []);
 
-  const groups = new Map<string, SampleEntry[]>();
-  if (state && 'items' in state) for (const s of state.items) groups.set(s.category, [...(groups.get(s.category) ?? []), s]);
-  const showHeaders = [...groups.keys()].some((c) => c !== '');
+  const items = state && 'items' in state ? state.items : [];
 
   return (
     <Modal title="기본 제공 칩" onClose={close} wide>
@@ -35,39 +33,36 @@ export function BuiltinChipsDialog() {
           기본 제공 칩 목록을 불러올 수 없습니다. {state.error}
         </p>
       )}
-      {state && 'items' in state && state.items.length === 0 && <p className="muted">아직 기본 제공 칩이 없습니다.</p>}
-      {[...groups.entries()].map(([category, list]) => (
-        <section key={category} className="sample-group">
-          {showHeaders && <h3 className="panel-title">{category || '기타'}</h3>}
-          <ul className="sample-list">
-            {list.map((s) => {
-              const have = s.chips.length > 0 && s.chips.every((n) => owned.has(n));
-              return (
-                <li key={s.file} className="sample-card" data-testid={`builtin-${s.file}`}>
-                  <strong>{s.title}</strong>
-                  {s.description && <p className="small">{s.description}</p>}
-                  <p className="muted small">
-                    칩 {s.chips.length}개 · {s.chips.join(', ')}
-                  </p>
-                  <div className="sample-actions">
-                    <button
-                      type="button"
-                      className="text-button primary"
-                      onClick={() => {
-                        close();
-                        void openSample(s.file, CHIPS_DIR, true);
-                      }}
-                    >
-                      {have ? '다시 추가' : '내 칩에 추가'}
-                    </button>
-                    {have && <span className="muted small">이미 있음</span>}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ))}
+      {state && 'items' in state && items.length === 0 && <p className="muted">아직 기본 제공 칩이 없습니다.</p>}
+      {/* 분류는 카드 위 꼬리표로, 카드는 한 줄에 3개 */}
+      <ul className="builtin-list">
+        {items.map((s) => {
+          const have = s.chips.length > 0 && s.chips.every((n) => owned.has(n));
+          return (
+            <li key={s.file} className="builtin-card" data-testid={`builtin-${s.file}`}>
+              {s.category && <span className="builtin-tag">{s.category}</span>}
+              <strong>{s.title}</strong>
+              {s.description && <p className="small">{s.description}</p>}
+              <div className="builtin-foot">
+                <span className="builtin-count muted small" title={s.chips.join('\n')} tabIndex={0} aria-label={`칩 ${s.chips.length}개: ${s.chips.join(', ')}`}>
+                  칩 {s.chips.length}개
+                </span>
+                {have && <span className="muted small">· 이미 있음</span>}
+              </div>
+              <button
+                type="button"
+                className="text-button primary"
+                onClick={() => {
+                  close();
+                  void openSample(s.file, CHIPS_DIR, true);
+                }}
+              >
+                {have ? '다시 추가' : '내 칩에 추가'}
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </Modal>
   );
 }

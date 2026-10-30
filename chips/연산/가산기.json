@@ -2,7 +2,7 @@
   "format": "logiclab",
   "version": 4,
   "title": "가산기",
-  "description": "이진 덧셈 회로: 반가산기와 전가산기, 둘을 중첩한 4비트 버스 가산기.",
+  "description": "반가산기 · 전가산기 · 4비트 가산기",
   "library": {
     "chip-ha": {
       "id": "chip-ha",

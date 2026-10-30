@@ -2,11 +2,11 @@
   "format": "logiclab",
   "version": 6,
   "title": "16진수 표시 (8세그먼트)",
-  "description": "4비트 스위치 → 2진수→8세그먼트 디코더 칩 → 8세그먼트. 스위치를 클릭하면 0~F가 차례로 표시됩니다.",
+  "description": "4비트 스위치 → 디코더 칩 → 8세그먼트. 클릭할 때마다 0~F",
   "library": {
     "builtin-hex-7seg": {
       "id": "builtin-hex-7seg",
-      "name": "2진수→8세그먼트",
+      "name": "2진수→8세그먼트(버스)",
       "color": "chip-5",
       "inputs": [
         {

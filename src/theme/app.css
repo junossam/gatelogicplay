@@ -1770,3 +1770,51 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* 기본 제공 칩: 한 줄에 3개 */
+.builtin-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.builtin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.builtin-card p {
+  margin: 0;
+}
+
+.builtin-card .text-button {
+  margin-top: auto;
+}
+
+.builtin-tag {
+  align-self: flex-start;
+  padding: 1px 8px;
+  border: 1px solid var(--border-2);
+  border-radius: 999px;
+  font-size: 11px;
+  color: var(--text-2);
+}
+
+.builtin-foot {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.builtin-count {
+  text-decoration: underline dotted;
+  cursor: help;
+}

@@ -2,7 +2,7 @@
   "format": "logiclab",
   "version": 1,
   "title": "래치·플립플롭",
-  "description": "값을 기억하는 회로: 래치 2종과 상승 에지에서 바뀌는 플립플롭 4종. 카운터·레지스터를 만들 때 바로 쓸 수 있습니다.",
+  "description": "래치 2종 · 플립플롭 4종",
   "library": {
     "ff-sr-latch": {
       "id": "ff-sr-latch",

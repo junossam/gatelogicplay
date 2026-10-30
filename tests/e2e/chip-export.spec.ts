@@ -66,8 +66,19 @@ test('기본 제공 칩: 아이콘 버튼으로 열어 chips/ 폴더의 칩 묶�
   await actions.getByRole('button', { name: '기본 제공 칩' }).click();
   const dialog = page.getByRole('dialog', { name: '기본 제공 칩' });
   const adder = dialog.getByTestId('builtin-연산/가산기.json');
-  await expect(adder).toContainText('칩 3개 · 반가산기, 전가산기, 4비트 가산기(버스)');
-  await expect(dialog.getByTestId('builtin-기억 소자/플립플롭.json')).toContainText('칩 6개');
+  await expect(dialog.locator('.builtin-card')).toHaveCount(4);
+  // 한 줄에 3개
+  const cards = dialog.locator('.builtin-card');
+  const [c0, c1, c2, c3] = await Promise.all([0, 1, 2, 3].map(async (i) => (await cards.nth(i).boundingBox())!));
+  expect(Math.abs(c0!.y - c2!.y)).toBeLessThan(2);
+  expect(c1!.x).toBeGreaterThan(c0!.x);
+  expect(c3!.y).toBeGreaterThan(c0!.y + 10);
+  // 칩 목록은 "칩 N개"에 마우스를 올리면 (툴팁)
+  const count = adder.locator('.builtin-count');
+  await expect(count).toHaveText('칩 3개');
+  await expect(count).toHaveAttribute('title', ['반가산기', '전가산기', '4비트 가산기(버스)'].join('\n'));
+  await expect(adder).not.toContainText('반가산기,');
+  await expect(dialog.getByTestId('builtin-표시/02-8세그먼트 디코더.json')).toContainText('8세그먼트 디코더 (비트 입력)');
   await page.screenshot({ path: test.info().outputPath('builtin.png') });
   await adder.getByRole('button', { name: '내 칩에 추가' }).click();
 

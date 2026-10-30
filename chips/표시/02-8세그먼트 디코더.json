@@ -1,17 +1,29 @@
 {
   "format": "logiclab",
   "version": 6,
-  "title": "2진수 → 8세그먼트 디코더",
-  "description": "4비트 2진수 입력 N을 받아 8세그먼트의 a~g로 0~F(16진)를 표시합니다. 출력 a~g를 8세그먼트의 같은 이름 핀에 이으세요.",
+  "title": "8세그먼트 디코더 (비트 입력)",
+  "description": "1비트 입력 B0~B3 → a~g (0~F)",
   "library": {
-    "builtin-hex-7seg": {
-      "id": "builtin-hex-7seg",
+    "builtin-hex-7seg-bits": {
+      "id": "builtin-hex-7seg-bits",
       "name": "2진수→8세그먼트",
       "color": "chip-5",
       "inputs": [
         {
-          "name": "N",
-          "partId": "n"
+          "name": "B0",
+          "partId": "b0"
+        },
+        {
+          "name": "B1",
+          "partId": "b1"
+        },
+        {
+          "name": "B2",
+          "partId": "b2"
+        },
+        {
+          "name": "B3",
+          "partId": "b3"
         }
       ],
       "outputs": [
@@ -47,29 +59,44 @@
       "circuit": {
         "parts": [
           {
-            "id": "n",
+            "id": "b0",
             "kind": {
               "type": "primitive",
               "kind": "SWITCH"
             },
             "x": 0,
-            "y": 14,
-            "label": "N",
-            "props": {
-              "bits": 4
-            }
+            "y": 9,
+            "label": "B0"
           },
           {
-            "id": "sp",
+            "id": "b1",
             "kind": {
               "type": "primitive",
-              "kind": "SPLIT"
+              "kind": "SWITCH"
             },
-            "x": 5,
-            "y": 11,
-            "props": {
-              "bits": 4
-            }
+            "x": 0,
+            "y": 13,
+            "label": "B1"
+          },
+          {
+            "id": "b2",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 17,
+            "label": "B2"
+          },
+          {
+            "id": "b3",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 21,
+            "label": "B3"
           },
           {
             "id": "inv0",
@@ -446,382 +473,371 @@
           {
             "id": "w1",
             "from": {
-              "partId": "n",
+              "partId": "b0",
               "pin": "y"
             },
             "to": {
-              "partId": "sp",
+              "partId": "inv0",
               "pin": "a"
             }
           },
           {
             "id": "w2",
             "from": {
-              "partId": "sp",
-              "pin": "y0"
+              "partId": "b1",
+              "pin": "y"
             },
             "to": {
-              "partId": "inv0",
+              "partId": "inv1",
               "pin": "a"
             }
           },
           {
             "id": "w3",
             "from": {
-              "partId": "sp",
-              "pin": "y1"
+              "partId": "b2",
+              "pin": "y"
             },
             "to": {
-              "partId": "inv1",
+              "partId": "inv2",
               "pin": "a"
             }
           },
           {
             "id": "w4",
             "from": {
-              "partId": "sp",
-              "pin": "y2"
+              "partId": "b3",
+              "pin": "y"
             },
             "to": {
-              "partId": "inv2",
+              "partId": "inv3",
               "pin": "a"
             }
           },
           {
             "id": "w5",
             "from": {
-              "partId": "sp",
-              "pin": "y3"
+              "partId": "inv0",
+              "pin": "y"
             },
             "to": {
-              "partId": "inv3",
+              "partId": "m0",
               "pin": "a"
             }
           },
           {
             "id": "w6",
             "from": {
-              "partId": "inv0",
+              "partId": "inv1",
               "pin": "y"
             },
             "to": {
               "partId": "m0",
-              "pin": "a"
+              "pin": "b"
             }
           },
           {
             "id": "w7",
             "from": {
-              "partId": "inv1",
+              "partId": "inv2",
               "pin": "y"
             },
             "to": {
               "partId": "m0",
-              "pin": "b"
+              "pin": "c"
             }
           },
           {
             "id": "w8",
             "from": {
-              "partId": "inv2",
+              "partId": "inv3",
               "pin": "y"
             },
             "to": {
               "partId": "m0",
-              "pin": "c"
+              "pin": "d"
             }
           },
           {
             "id": "w9",
             "from": {
-              "partId": "inv3",
+              "partId": "b0",
               "pin": "y"
             },
             "to": {
-              "partId": "m0",
-              "pin": "d"
+              "partId": "m1",
+              "pin": "a"
             }
           },
           {
             "id": "w10",
             "from": {
-              "partId": "sp",
-              "pin": "y0"
+              "partId": "inv1",
+              "pin": "y"
             },
             "to": {
               "partId": "m1",
-              "pin": "a"
+              "pin": "b"
             }
           },
           {
             "id": "w11",
             "from": {
-              "partId": "inv1",
+              "partId": "inv2",
               "pin": "y"
             },
             "to": {
               "partId": "m1",
-              "pin": "b"
+              "pin": "c"
             }
           },
           {
             "id": "w12",
             "from": {
-              "partId": "inv2",
+              "partId": "inv3",
               "pin": "y"
             },
             "to": {
               "partId": "m1",
-              "pin": "c"
+              "pin": "d"
             }
           },
           {
             "id": "w13",
             "from": {
-              "partId": "inv3",
+              "partId": "inv0",
               "pin": "y"
             },
             "to": {
-              "partId": "m1",
-              "pin": "d"
+              "partId": "m2",
+              "pin": "a"
             }
           },
           {
             "id": "w14",
             "from": {
-              "partId": "inv0",
+              "partId": "b1",
               "pin": "y"
             },
             "to": {
               "partId": "m2",
-              "pin": "a"
+              "pin": "b"
             }
           },
           {
             "id": "w15",
             "from": {
-              "partId": "sp",
-              "pin": "y1"
+              "partId": "inv2",
+              "pin": "y"
             },
             "to": {
               "partId": "m2",
-              "pin": "b"
+              "pin": "c"
             }
           },
           {
             "id": "w16",
             "from": {
-              "partId": "inv2",
+              "partId": "inv3",
               "pin": "y"
             },
             "to": {
               "partId": "m2",
-              "pin": "c"
+              "pin": "d"
             }
           },
           {
             "id": "w17",
             "from": {
-              "partId": "inv3",
+              "partId": "b0",
               "pin": "y"
             },
             "to": {
-              "partId": "m2",
-              "pin": "d"
+              "partId": "m3",
+              "pin": "a"
             }
           },
           {
             "id": "w18",
             "from": {
-              "partId": "sp",
-              "pin": "y0"
+              "partId": "b1",
+              "pin": "y"
             },
             "to": {
               "partId": "m3",
-              "pin": "a"
+              "pin": "b"
             }
           },
           {
             "id": "w19",
             "from": {
-              "partId": "sp",
-              "pin": "y1"
+              "partId": "inv2",
+              "pin": "y"
             },
             "to": {
               "partId": "m3",
-              "pin": "b"
+              "pin": "c"
             }
           },
           {
             "id": "w20",
             "from": {
-              "partId": "inv2",
+              "partId": "inv3",
               "pin": "y"
             },
             "to": {
               "partId": "m3",
-              "pin": "c"
+              "pin": "d"
             }
           },
           {
             "id": "w21",
             "from": {
-              "partId": "inv3",
+              "partId": "inv0",
               "pin": "y"
             },
             "to": {
-              "partId": "m3",
-              "pin": "d"
+              "partId": "m4",
+              "pin": "a"
             }
           },
           {
             "id": "w22",
             "from": {
-              "partId": "inv0",
+              "partId": "inv1",
               "pin": "y"
             },
             "to": {
               "partId": "m4",
-              "pin": "a"
+              "pin": "b"
             }
           },
           {
             "id": "w23",
             "from": {
-              "partId": "inv1",
+              "partId": "b2",
               "pin": "y"
             },
             "to": {
               "partId": "m4",
-              "pin": "b"
+              "pin": "c"
             }
           },
           {
             "id": "w24",
             "from": {
-              "partId": "sp",
-              "pin": "y2"
+              "partId": "inv3",
+              "pin": "y"
             },
             "to": {
               "partId": "m4",
-              "pin": "c"
+              "pin": "d"
             }
           },
           {
             "id": "w25",
             "from": {
-              "partId": "inv3",
+              "partId": "b0",
               "pin": "y"
             },
             "to": {
-              "partId": "m4",
-              "pin": "d"
+              "partId": "m5",
+              "pin": "a"
             }
           },
           {
             "id": "w26",
             "from": {
-              "partId": "sp",
-              "pin": "y0"
+              "partId": "inv1",
+              "pin": "y"
             },
             "to": {
               "partId": "m5",
-              "pin": "a"
+              "pin": "b"
             }
           },
           {
             "id": "w27",
             "from": {
-              "partId": "inv1",
+              "partId": "b2",
               "pin": "y"
             },
             "to": {
               "partId": "m5",
-              "pin": "b"
+              "pin": "c"
             }
           },
           {
             "id": "w28",
             "from": {
-              "partId": "sp",
-              "pin": "y2"
+              "partId": "inv3",
+              "pin": "y"
             },
             "to": {
               "partId": "m5",
-              "pin": "c"
+              "pin": "d"
             }
           },
           {
             "id": "w29",
             "from": {
-              "partId": "inv3",
+              "partId": "inv0",
               "pin": "y"
             },
             "to": {
-              "partId": "m5",
-              "pin": "d"
+              "partId": "m6",
+              "pin": "a"
             }
           },
           {
             "id": "w30",
             "from": {
-              "partId": "inv0",
+              "partId": "b1",
               "pin": "y"
             },
             "to": {
               "partId": "m6",
-              "pin": "a"
+              "pin": "b"
             }
           },
           {
             "id": "w31",
             "from": {
-              "partId": "sp",
-              "pin": "y1"
+              "partId": "b2",
+              "pin": "y"
             },
             "to": {
               "partId": "m6",
-              "pin": "b"
+              "pin": "c"
             }
           },
           {
             "id": "w32",
             "from": {
-              "partId": "sp",
-              "pin": "y2"
+              "partId": "inv3",
+              "pin": "y"
             },
             "to": {
               "partId": "m6",
-              "pin": "c"
+              "pin": "d"
             }
           },
           {
             "id": "w33",
             "from": {
-              "partId": "inv3",
+              "partId": "b0",
               "pin": "y"
             },
             "to": {
-              "partId": "m6",
-              "pin": "d"
+              "partId": "m7",
+              "pin": "a"
             }
           },
           {
             "id": "w34",
             "from": {
-              "partId": "sp",
-              "pin": "y0"
-            },
-            "to": {
-              "partId": "m7",
-              "pin": "a"
-            }
-          },
-          {
-            "id": "w35",
-            "from": {
-              "partId": "sp",
-              "pin": "y1"
+              "partId": "b1",
+              "pin": "y"
             },
             "to": {
               "partId": "m7",
@@ -829,10 +845,10 @@
             }
           },
           {
-            "id": "w36",
+            "id": "w35",
             "from": {
-              "partId": "sp",
-              "pin": "y2"
+              "partId": "b2",
+              "pin": "y"
             },
             "to": {
               "partId": "m7",
@@ -840,7 +856,7 @@
             }
           },
           {
-            "id": "w37",
+            "id": "w36",
             "from": {
               "partId": "inv3",
               "pin": "y"
@@ -851,98 +867,98 @@
             }
           },
           {
-            "id": "w38",
+            "id": "w37",
             "from": {
-              "partId": "sp",
-              "pin": "y0"
+              "partId": "b0",
+              "pin": "y"
             },
             "to": {
               "partId": "m9",
               "pin": "a"
+            }
+          },
+          {
+            "id": "w38",
+            "from": {
+              "partId": "inv1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m9",
+              "pin": "b"
             }
           },
           {
             "id": "w39",
             "from": {
-              "partId": "inv1",
+              "partId": "inv2",
               "pin": "y"
             },
             "to": {
               "partId": "m9",
-              "pin": "b"
+              "pin": "c"
             }
           },
           {
             "id": "w40",
             "from": {
-              "partId": "inv2",
+              "partId": "b3",
               "pin": "y"
             },
             "to": {
               "partId": "m9",
-              "pin": "c"
+              "pin": "d"
             }
           },
           {
             "id": "w41",
             "from": {
-              "partId": "sp",
-              "pin": "y3"
+              "partId": "inv0",
+              "pin": "y"
             },
             "to": {
-              "partId": "m9",
-              "pin": "d"
+              "partId": "m10",
+              "pin": "a"
             }
           },
           {
             "id": "w42",
             "from": {
-              "partId": "inv0",
+              "partId": "b1",
               "pin": "y"
             },
             "to": {
               "partId": "m10",
-              "pin": "a"
+              "pin": "b"
             }
           },
           {
             "id": "w43",
             "from": {
-              "partId": "sp",
-              "pin": "y1"
+              "partId": "inv2",
+              "pin": "y"
             },
             "to": {
               "partId": "m10",
-              "pin": "b"
+              "pin": "c"
             }
           },
           {
             "id": "w44",
             "from": {
-              "partId": "inv2",
+              "partId": "b3",
               "pin": "y"
             },
             "to": {
               "partId": "m10",
-              "pin": "c"
+              "pin": "d"
             }
           },
           {
             "id": "w45",
             "from": {
-              "partId": "sp",
-              "pin": "y3"
-            },
-            "to": {
-              "partId": "m10",
-              "pin": "d"
-            }
-          },
-          {
-            "id": "w46",
-            "from": {
-              "partId": "sp",
-              "pin": "y0"
+              "partId": "b0",
+              "pin": "y"
             },
             "to": {
               "partId": "m11",
@@ -950,10 +966,10 @@
             }
           },
           {
-            "id": "w47",
+            "id": "w46",
             "from": {
-              "partId": "sp",
-              "pin": "y1"
+              "partId": "b1",
+              "pin": "y"
             },
             "to": {
               "partId": "m11",
@@ -961,7 +977,7 @@
             }
           },
           {
-            "id": "w48",
+            "id": "w47",
             "from": {
               "partId": "inv2",
               "pin": "y"
@@ -972,10 +988,10 @@
             }
           },
           {
-            "id": "w49",
+            "id": "w48",
             "from": {
-              "partId": "sp",
-              "pin": "y3"
+              "partId": "b3",
+              "pin": "y"
             },
             "to": {
               "partId": "m11",
@@ -983,7 +999,7 @@
             }
           },
           {
-            "id": "w50",
+            "id": "w49",
             "from": {
               "partId": "inv0",
               "pin": "y"
@@ -991,24 +1007,24 @@
             "to": {
               "partId": "m12",
               "pin": "a"
+            }
+          },
+          {
+            "id": "w50",
+            "from": {
+              "partId": "inv1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m12",
+              "pin": "b"
             }
           },
           {
             "id": "w51",
             "from": {
-              "partId": "inv1",
+              "partId": "b2",
               "pin": "y"
-            },
-            "to": {
-              "partId": "m12",
-              "pin": "b"
-            }
-          },
-          {
-            "id": "w52",
-            "from": {
-              "partId": "sp",
-              "pin": "y2"
             },
             "to": {
               "partId": "m12",
@@ -1016,10 +1032,10 @@
             }
           },
           {
-            "id": "w53",
+            "id": "w52",
             "from": {
-              "partId": "sp",
-              "pin": "y3"
+              "partId": "b3",
+              "pin": "y"
             },
             "to": {
               "partId": "m12",
@@ -1027,10 +1043,10 @@
             }
           },
           {
-            "id": "w54",
+            "id": "w53",
             "from": {
-              "partId": "sp",
-              "pin": "y0"
+              "partId": "b0",
+              "pin": "y"
             },
             "to": {
               "partId": "m13",
@@ -1038,7 +1054,7 @@
             }
           },
           {
-            "id": "w55",
+            "id": "w54",
             "from": {
               "partId": "inv1",
               "pin": "y"
@@ -1049,10 +1065,10 @@
             }
           },
           {
-            "id": "w56",
+            "id": "w55",
             "from": {
-              "partId": "sp",
-              "pin": "y2"
+              "partId": "b2",
+              "pin": "y"
             },
             "to": {
               "partId": "m13",
@@ -1060,10 +1076,10 @@
             }
           },
           {
-            "id": "w57",
+            "id": "w56",
             "from": {
-              "partId": "sp",
-              "pin": "y3"
+              "partId": "b3",
+              "pin": "y"
             },
             "to": {
               "partId": "m13",
@@ -1071,7 +1087,7 @@
             }
           },
           {
-            "id": "w58",
+            "id": "w57",
             "from": {
               "partId": "inv0",
               "pin": "y"
@@ -1082,10 +1098,10 @@
             }
           },
           {
-            "id": "w59",
+            "id": "w58",
             "from": {
-              "partId": "sp",
-              "pin": "y1"
+              "partId": "b1",
+              "pin": "y"
             },
             "to": {
               "partId": "m14",
@@ -1093,10 +1109,10 @@
             }
           },
           {
-            "id": "w60",
+            "id": "w59",
             "from": {
-              "partId": "sp",
-              "pin": "y2"
+              "partId": "b2",
+              "pin": "y"
             },
             "to": {
               "partId": "m14",
@@ -1104,10 +1120,10 @@
             }
           },
           {
-            "id": "w61",
+            "id": "w60",
             "from": {
-              "partId": "sp",
-              "pin": "y3"
+              "partId": "b3",
+              "pin": "y"
             },
             "to": {
               "partId": "m14",
@@ -1115,10 +1131,10 @@
             }
           },
           {
-            "id": "w62",
+            "id": "w61",
             "from": {
-              "partId": "sp",
-              "pin": "y0"
+              "partId": "b0",
+              "pin": "y"
             },
             "to": {
               "partId": "m15",
@@ -1126,10 +1142,10 @@
             }
           },
           {
-            "id": "w63",
+            "id": "w62",
             "from": {
-              "partId": "sp",
-              "pin": "y1"
+              "partId": "b1",
+              "pin": "y"
             },
             "to": {
               "partId": "m15",
@@ -1137,10 +1153,10 @@
             }
           },
           {
-            "id": "w64",
+            "id": "w63",
             "from": {
-              "partId": "sp",
-              "pin": "y2"
+              "partId": "b2",
+              "pin": "y"
             },
             "to": {
               "partId": "m15",
@@ -1148,10 +1164,10 @@
             }
           },
           {
-            "id": "w65",
+            "id": "w64",
             "from": {
-              "partId": "sp",
-              "pin": "y3"
+              "partId": "b3",
+              "pin": "y"
             },
             "to": {
               "partId": "m15",
@@ -1159,7 +1175,7 @@
             }
           },
           {
-            "id": "w66",
+            "id": "w65",
             "from": {
               "partId": "m1",
               "pin": "y"
@@ -1170,7 +1186,7 @@
             }
           },
           {
-            "id": "w67",
+            "id": "w66",
             "from": {
               "partId": "m4",
               "pin": "y"
@@ -1181,7 +1197,7 @@
             }
           },
           {
-            "id": "w68",
+            "id": "w67",
             "from": {
               "partId": "m11",
               "pin": "y"
@@ -1192,7 +1208,7 @@
             }
           },
           {
-            "id": "w69",
+            "id": "w68",
             "from": {
               "partId": "m13",
               "pin": "y"
@@ -1203,7 +1219,7 @@
             }
           },
           {
-            "id": "w70",
+            "id": "w69",
             "from": {
               "partId": "seg_a",
               "pin": "y"
@@ -1214,7 +1230,7 @@
             }
           },
           {
-            "id": "w71",
+            "id": "w70",
             "from": {
               "partId": "m5",
               "pin": "y"
@@ -1225,7 +1241,7 @@
             }
           },
           {
-            "id": "w72",
+            "id": "w71",
             "from": {
               "partId": "m6",
               "pin": "y"
@@ -1236,7 +1252,7 @@
             }
           },
           {
-            "id": "w73",
+            "id": "w72",
             "from": {
               "partId": "m11",
               "pin": "y"
@@ -1247,7 +1263,7 @@
             }
           },
           {
-            "id": "w74",
+            "id": "w73",
             "from": {
               "partId": "m12",
               "pin": "y"
@@ -1258,7 +1274,7 @@
             }
           },
           {
-            "id": "w75",
+            "id": "w74",
             "from": {
               "partId": "m14",
               "pin": "y"
@@ -1269,7 +1285,7 @@
             }
           },
           {
-            "id": "w76",
+            "id": "w75",
             "from": {
               "partId": "m15",
               "pin": "y"
@@ -1280,7 +1296,7 @@
             }
           },
           {
-            "id": "w77",
+            "id": "w76",
             "from": {
               "partId": "seg_b",
               "pin": "y"
@@ -1291,7 +1307,7 @@
             }
           },
           {
-            "id": "w78",
+            "id": "w77",
             "from": {
               "partId": "m2",
               "pin": "y"
@@ -1302,7 +1318,7 @@
             }
           },
           {
-            "id": "w79",
+            "id": "w78",
             "from": {
               "partId": "m12",
               "pin": "y"
@@ -1313,7 +1329,7 @@
             }
           },
           {
-            "id": "w80",
+            "id": "w79",
             "from": {
               "partId": "m14",
               "pin": "y"
@@ -1324,7 +1340,7 @@
             }
           },
           {
-            "id": "w81",
+            "id": "w80",
             "from": {
               "partId": "m15",
               "pin": "y"
@@ -1335,7 +1351,7 @@
             }
           },
           {
-            "id": "w82",
+            "id": "w81",
             "from": {
               "partId": "seg_c",
               "pin": "y"
@@ -1346,7 +1362,7 @@
             }
           },
           {
-            "id": "w83",
+            "id": "w82",
             "from": {
               "partId": "m1",
               "pin": "y"
@@ -1357,7 +1373,7 @@
             }
           },
           {
-            "id": "w84",
+            "id": "w83",
             "from": {
               "partId": "m4",
               "pin": "y"
@@ -1368,7 +1384,7 @@
             }
           },
           {
-            "id": "w85",
+            "id": "w84",
             "from": {
               "partId": "m7",
               "pin": "y"
@@ -1379,7 +1395,7 @@
             }
           },
           {
-            "id": "w86",
+            "id": "w85",
             "from": {
               "partId": "m10",
               "pin": "y"
@@ -1390,7 +1406,7 @@
             }
           },
           {
-            "id": "w87",
+            "id": "w86",
             "from": {
               "partId": "m15",
               "pin": "y"
@@ -1401,7 +1417,7 @@
             }
           },
           {
-            "id": "w88",
+            "id": "w87",
             "from": {
               "partId": "seg_d",
               "pin": "y"
@@ -1412,7 +1428,7 @@
             }
           },
           {
-            "id": "w89",
+            "id": "w88",
             "from": {
               "partId": "m1",
               "pin": "y"
@@ -1423,7 +1439,7 @@
             }
           },
           {
-            "id": "w90",
+            "id": "w89",
             "from": {
               "partId": "m3",
               "pin": "y"
@@ -1434,7 +1450,7 @@
             }
           },
           {
-            "id": "w91",
+            "id": "w90",
             "from": {
               "partId": "m4",
               "pin": "y"
@@ -1445,7 +1461,7 @@
             }
           },
           {
-            "id": "w92",
+            "id": "w91",
             "from": {
               "partId": "m5",
               "pin": "y"
@@ -1456,7 +1472,7 @@
             }
           },
           {
-            "id": "w93",
+            "id": "w92",
             "from": {
               "partId": "m7",
               "pin": "y"
@@ -1467,7 +1483,7 @@
             }
           },
           {
-            "id": "w94",
+            "id": "w93",
             "from": {
               "partId": "m9",
               "pin": "y"
@@ -1478,7 +1494,7 @@
             }
           },
           {
-            "id": "w95",
+            "id": "w94",
             "from": {
               "partId": "seg_e",
               "pin": "y"
@@ -1489,7 +1505,7 @@
             }
           },
           {
-            "id": "w96",
+            "id": "w95",
             "from": {
               "partId": "m1",
               "pin": "y"
@@ -1500,7 +1516,7 @@
             }
           },
           {
-            "id": "w97",
+            "id": "w96",
             "from": {
               "partId": "m2",
               "pin": "y"
@@ -1511,7 +1527,7 @@
             }
           },
           {
-            "id": "w98",
+            "id": "w97",
             "from": {
               "partId": "m3",
               "pin": "y"
@@ -1522,7 +1538,7 @@
             }
           },
           {
-            "id": "w99",
+            "id": "w98",
             "from": {
               "partId": "m7",
               "pin": "y"
@@ -1533,7 +1549,7 @@
             }
           },
           {
-            "id": "w100",
+            "id": "w99",
             "from": {
               "partId": "m13",
               "pin": "y"
@@ -1544,7 +1560,7 @@
             }
           },
           {
-            "id": "w101",
+            "id": "w100",
             "from": {
               "partId": "seg_f",
               "pin": "y"
@@ -1555,7 +1571,7 @@
             }
           },
           {
-            "id": "w102",
+            "id": "w101",
             "from": {
               "partId": "m0",
               "pin": "y"
@@ -1566,7 +1582,7 @@
             }
           },
           {
-            "id": "w103",
+            "id": "w102",
             "from": {
               "partId": "m1",
               "pin": "y"
@@ -1577,7 +1593,7 @@
             }
           },
           {
-            "id": "w104",
+            "id": "w103",
             "from": {
               "partId": "m7",
               "pin": "y"
@@ -1588,7 +1604,7 @@
             }
           },
           {
-            "id": "w105",
+            "id": "w104",
             "from": {
               "partId": "m12",
               "pin": "y"
@@ -1599,7 +1615,7 @@
             }
           },
           {
-            "id": "w106",
+            "id": "w105",
             "from": {
               "partId": "seg_g",
               "pin": "y"
