@@ -140,7 +140,7 @@ function GateShape({ kind, inputs }: { kind: keyof typeof GATE_BODIES; inputs: n
 }
 
 /** 진리표 부품: 상자에 "진리표"와 핀 이름 (입력 A~, 출력 Y0~) */
-function LutShape({ inputs, outputs, width, label }: { inputs: number; outputs: number; width: number; label: (pin: string) => string }) {
+function LutShape({ inputs, outputs, width, label, title }: { inputs: number; outputs: number; width: number; label: (pin: string) => string; title: string }) {
   const { w, h } = kindSize('LUT', 1, inputs, outputs, width);
   const W = w * GRID;
   const H = h * GRID;
@@ -159,7 +159,7 @@ function LutShape({ inputs, outputs, width, label }: { inputs: number; outputs: 
         <line x1={W / 2 + 2} y1={H / 2 - 12} x2={W / 2 + 2} y2={H / 2 + 2} />
       </g>
       <text x={W / 2} y={H / 2 + 14} textAnchor="middle" className="lut-title">
-        진리표
+        {title}
       </text>
       {pins.map((p) => (
         <text key={p.name} x={p.dir === 'in' ? 18 : W - 18} y={p.dy + 4} textAnchor={p.dir === 'in' ? 'start' : 'end'} className="seg-pin-name">
@@ -179,6 +179,7 @@ export function PartShape({
   outputs = 1,
   width = 5,
   pinLabel = (pin: string) => pin.toUpperCase(),
+  title = '진리표',
 }: {
   kind: PrimitiveKind;
   on?: boolean;
@@ -190,8 +191,10 @@ export function PartShape({
   width?: number;
   /** 진리표 부품 핀 이름 */
   pinLabel?: (pin: string) => string;
+  /** 진리표 부품 가운데 이름 */
+  title?: string;
 }) {
-  if (kind === 'LUT') return <LutShape inputs={inputs} outputs={outputs} width={width} label={pinLabel} />;
+  if (kind === 'LUT') return <LutShape inputs={inputs} outputs={outputs} width={width} label={pinLabel} title={title} />;
   if (kind === 'SPLIT' || kind === 'MERGE' || ((kind === 'SWITCH' || kind === 'LED') && bits > 1)) return <BusShape kind={kind} bits={bits} value={value} />;
   const stroke = 'var(--text-2)';
   const body = { fill: 'var(--bg-chip)', stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };

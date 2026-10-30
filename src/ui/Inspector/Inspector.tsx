@@ -9,7 +9,7 @@ import { ExpandControl } from '../Canvas/ExpandControl';
 import { PanelHead } from '../Layout';
 import { useUi } from '../../store/uiStore';
 import type { Group, Note } from '../../sim/types';
-import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs, partOutputs, pinLabel } from '../../sim/pins';
+import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs, partOutputs, pinLabel, lutTitle, LUT_TITLE_DEFAULT, MAX_LUT_TITLE } from '../../sim/pins';
 import { engine, inputNumber, readPinNumber, simActions, useSim } from '../../store/simStore';
 import { partPins } from '../Canvas/geometry';
 import { TruthTableView, useTruthTable } from '../TruthTable/TruthTableView';
@@ -135,6 +135,21 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
       )}
       {kind === 'LUT' && (
         <>
+          <dt>이름</dt>
+          <dd>
+            {readOnly ? (
+              lutTitle(part)
+            ) : (
+              <CommitInput
+                label="진리표 부품 이름"
+                value={part.label ?? ''}
+                onCommit={(v) => {
+                  const name = v.trim().slice(0, MAX_LUT_TITLE);
+                  editorStore.getState().updatePart(part.id, { label: name && name !== LUT_TITLE_DEFAULT ? name : undefined });
+                }}
+              />
+            )}
+          </dd>
           <dt>진리표</dt>
           <dd>
             입력 {partInputs(part)}개 · 출력 {partOutputs(part)}개

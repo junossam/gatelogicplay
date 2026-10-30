@@ -121,7 +121,18 @@ test('진리표 부품: 핀 이름 바꾸기, 진리표 내려받기(CSV) · 올
   await expect(dialog.getByRole('alert')).toContainText('2번째 줄: 입력 A은 0이나 1이어야 합니다');
   await expect(dialog.locator('tbody tr')).toHaveCount(8);
 
+  await dialog.getByLabel('진리표 부품 이름').fill('다수결');
   await dialog.getByRole('button', { name: '적용' }).click();
+  // 부품 가운데 이름
+  await expect(page.getByTestId('part-lut').locator('.lut-title')).toHaveText('다수결');
+  // 인스펙터에서도 바꿀 수 있다 (비우면 "진리표")
+  const nameField = page.getByTestId('inspector-part').getByLabel('진리표 부품 이름');
+  await nameField.fill('');
+  await nameField.press('Enter');
+  await expect(page.getByTestId('part-lut').locator('.lut-title')).toHaveText('진리표');
+  await nameField.fill('투표기');
+  await nameField.press('Enter');
+  await expect(page.getByTestId('part-lut').locator('.lut-title')).toHaveText('투표기');
   // 부품과 인스펙터에 새 핀 이름
   const lut = page.getByTestId('part-lut');
   await expect(lut.locator('text', { hasText: '다수' })).toHaveCount(1);

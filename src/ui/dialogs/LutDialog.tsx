@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { defaultInName, defaultOutName, lutToCsv, MAX_PIN_NAME, parseLutCsv } from '../../model/lutCsv';
-import { lutTable, MAX_LUT_INPUTS, MAX_LUT_OUTPUTS, partInputs, partOutputs } from '../../sim/pins';
+import { LUT_TITLE_DEFAULT, lutTable, MAX_LUT_INPUTS, MAX_LUT_OUTPUTS, MAX_LUT_TITLE, partInputs, partOutputs } from '../../sim/pins';
 import { editorStore } from '../../store/editorStore';
 import { useUi } from '../../store/uiStore';
 import { useDisplayView } from '../Canvas/expand';
@@ -40,6 +40,7 @@ export function LutDialog() {
   const [table, setTable] = useState(() => (part ? lutTable(part) : [0, 0, 0, 0]));
   const [inNames, setInNames] = useState<string[]>(() => [...(part?.props?.inNames ?? [])]);
   const [outNames, setOutNames] = useState<string[]>(() => [...(part?.props?.outNames ?? [])]);
+  const [title, setTitle] = useState(() => part?.label ?? '');
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -62,12 +63,13 @@ export function LutDialog() {
     else delete props.inNames;
     if (outs) props.outNames = outs;
     else delete props.outNames;
-    editorStore.getState().updatePart(part.id, { props });
+    const name = title.trim();
+    editorStore.getState().updatePart(part.id, { props, label: name && name !== LUT_TITLE_DEFAULT ? name : undefined });
     close();
   };
   const inName = (k: number) => inNames[k] || defaultInName(k);
   const outName = (j: number) => outNames[j] || defaultOutName(j);
-  const exportCsv = () => download(`${part.label || part.id} 진리표.csv`, lutToCsv({ inputs: n, outputs: m, table, inNames, outNames }));
+  const exportCsv = () => download(`${title.trim() || part.label || part.id} 진리표.csv`, lutToCsv({ inputs: n, outputs: m, table, inNames, outNames }));
   const importCsv = async (file: File) => {
     const r = parseLutCsv(await file.text(), n);
     if (!r.ok) {
@@ -113,6 +115,17 @@ export function LutDialog() {
     >
       {!readOnly && (
         <div className="lut-controls">
+          <label className="field-label inline">
+            부품 이름
+            <input
+              className="field lut-title-field"
+              aria-label="진리표 부품 이름"
+              value={title}
+              placeholder={LUT_TITLE_DEFAULT}
+              maxLength={MAX_LUT_TITLE}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </label>
           <label className="field-label inline">
             입력 수
             <select className="field" aria-label="진리표 입력 수" value={n} onChange={(e) => resize(Number(e.target.value), m)}>

@@ -46,6 +46,13 @@ export function partOutputs(part: Part): number {
   return part.kind.type === 'primitive' && part.kind.kind === 'LUT' ? lutOutputs(part.props?.outputs) : 1;
 }
 
+/** 진리표 부품 가운데 이름 (부품 라벨, 없으면 "진리표") */
+export const LUT_TITLE_DEFAULT = '진리표';
+export const MAX_LUT_TITLE = 12;
+export function lutTitle(part: Part): string {
+  return part.label?.trim() || LUT_TITLE_DEFAULT;
+}
+
 /** 화면에 보일 핀 이름: 진리표 부품은 사용자가 정한 이름(없으면 A~·Y0~), 나머지는 핀 이름 그대로 */
 export function pinLabel(part: Part, pin: string): string {
   if (part.kind.type !== 'primitive' || part.kind.kind !== 'LUT') return pin;

@@ -1,4 +1,4 @@
-import { gateInputs, lutOutputs, MULTI_INPUT_KINDS, partBits, partInputs, partOutputs, primitiveBits, primitivePins, pinLabel } from '../../sim/pins';
+import { gateInputs, lutOutputs, MULTI_INPUT_KINDS, partBits, partInputs, partOutputs, primitiveBits, primitivePins, pinLabel, lutTitle } from '../../sim/pins';
 import type { PinDir } from '../../sim/primitives';
 import type { ChipDef, Library, Part, PrimitiveKind, Rotation } from '../../sim/types';
 
@@ -44,10 +44,14 @@ export function kindSize(kind: PrimitiveKind, bits = 1, inputs = 2, outputs = 1,
 /** 진리표 부품 폭 (격자 칸): 양쪽 핀 이름과 가운데 "진리표" 글자가 들어가게 */
 export function lutWidth(part: Part): number {
   if (part.kind.type !== 'primitive' || part.kind.kind !== 'LUT') return 5;
-  const len = (pins: string[]) => Math.max(1, ...pins.map((p) => [...pinLabel(part, p)].reduce((s, ch) => s + (ch.charCodeAt(0) > 0x2000 ? 2 : 1), 0)));
+  /** 글자 폭 단위 (한글 등은 2) */
+  const units = (t: string) => [...t].reduce((s, ch) => s + (ch.charCodeAt(0) > 0x2000 ? 2 : 1), 0);
+  const len = (pins: string[]) => Math.max(1, ...pins.map((p) => units(pinLabel(part, p))));
   const ins = Array.from({ length: partInputs(part) }, (_, k) => String.fromCharCode(97 + k));
   const outs = Array.from({ length: partOutputs(part) }, (_, j) => `y${j}`);
-  const px = 18 + len(ins) * 6.5 + 44 + len(outs) * 6.5 + 18;
+  // 가운데 이름 (11px 굵은 글씨)
+  const middle = Math.max(44, units(lutTitle(part)) * 6.5 + 16);
+  const px = 18 + len(ins) * 6.5 + middle + len(outs) * 6.5 + 18;
   return Math.max(5, Math.ceil(px / GRID));
 }
 

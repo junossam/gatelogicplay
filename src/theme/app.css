@@ -2053,3 +2053,7 @@ button {
 .lut-table thead th {
   height: 44px;
 }
+
+.lut-title-field {
+  width: 9em;
+}
