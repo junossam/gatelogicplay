@@ -9,31 +9,31 @@ import { chipDef, CircuitBuilder, HEX_SEGMENTS } from './circuits';
 const PIN = 'abcdefgh';
 
 /** 게이트 하나: 입력 신호들을 a, b, c… 에 잇는다 */
-function gate(b: CircuitBuilder, kind: PrimitiveKind, id: string, srcs: string[], bits = 1): void {
+export function gate(b: CircuitBuilder, kind: PrimitiveKind, id: string, srcs: string[], bits = 1): void {
   b.add(kind, id);
   if (bits > 1) b.bits(bits);
   if (kind !== 'NOT' && srcs.length !== 2) b.inputs(srcs.length);
   srcs.forEach((s, k) => b.wire(s, `${id}.${PIN[k]}`));
 }
 
-const sw = (b: CircuitBuilder, id: string, label: string, bits = 1) => {
+export const sw = (b: CircuitBuilder, id: string, label: string, bits = 1) => {
   b.add('SWITCH', id, 0, 0, label);
   if (bits > 1) b.bits(bits);
 };
-const led = (b: CircuitBuilder, id: string, label: string, src: string, bits = 1) => {
+export const led = (b: CircuitBuilder, id: string, label: string, src: string, bits = 1) => {
   b.add('LED', id, 0, 0, label);
   if (bits > 1) b.bits(bits);
   b.wire(src, `${id}.a`);
 };
-const split = (b: CircuitBuilder, id: string, src: string, bits: number) => {
+export const split = (b: CircuitBuilder, id: string, src: string, bits: number) => {
   b.add('SPLIT', id).bits(bits);
   b.wire(src, `${id}.a`);
 };
-const merge = (b: CircuitBuilder, id: string, srcs: string[]) => {
+export const merge = (b: CircuitBuilder, id: string, srcs: string[]) => {
   b.add('MERGE', id).bits(srcs.length);
   srcs.forEach((s, k) => b.wire(s, `${id}.a${k}`));
 };
-const use = (b: CircuitBuilder, chipId: string, id: string, pins: Record<string, string>) => {
+export const use = (b: CircuitBuilder, chipId: string, id: string, pins: Record<string, string>) => {
   b.chip(chipId, id);
   for (const [pin, src] of Object.entries(pins)) b.wire(src, `${id}.${pin}`);
 };
@@ -94,7 +94,7 @@ export function autoLayout(c: Circuit, library: Library = {}, top = 0): Circuit 
   return c;
 }
 
-function makeChip(id: string, name: string, build: (b: CircuitBuilder) => void, ins: [string, string][], outs: [string, string][], library: Library = {}): ChipDef {
+export function makeChip(id: string, name: string, build: (b: CircuitBuilder) => void, ins: [string, string][], outs: [string, string][], library: Library = {}): ChipDef {
   const b = new CircuitBuilder();
   build(b);
   const def = chipDef(id, name, autoLayout(b.build(), library), ins, outs);

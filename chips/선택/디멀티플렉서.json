@@ -1,0 +1,573 @@
+{
+  "format": "logiclab",
+  "version": 8,
+  "title": "디멀티플렉서",
+  "description": "1:2 · 1:4 DEMUX. 앞 단 출력 → 뒤 단 D로 1:8 이상",
+  "library": {
+    "bi-demux2": {
+      "id": "bi-demux2",
+      "name": "1:2 DEMUX",
+      "color": "chip-3",
+      "inputs": [
+        {
+          "name": "D",
+          "partId": "d"
+        },
+        {
+          "name": "S",
+          "partId": "s"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Y0",
+          "partId": "y0"
+        },
+        {
+          "name": "Y1",
+          "partId": "y1"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "d",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 0,
+            "label": "D"
+          },
+          {
+            "id": "s",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 4,
+            "label": "S"
+          },
+          {
+            "id": "ns",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 7
+          },
+          {
+            "id": "g0",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 3
+          },
+          {
+            "id": "g1",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 8,
+            "y": 1
+          },
+          {
+            "id": "y0",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 26,
+            "y": 6,
+            "label": "Y0"
+          },
+          {
+            "id": "y1",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 26,
+            "y": 2,
+            "label": "Y1"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "s",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ns",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "ns",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g0",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "s",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "g0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "y0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "g1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "y1",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1,
+      "category": "디멀티플렉서"
+    },
+    "bi-demux4": {
+      "id": "bi-demux4",
+      "name": "1:4 DEMUX",
+      "color": "chip-3",
+      "inputs": [
+        {
+          "name": "D",
+          "partId": "d"
+        },
+        {
+          "name": "S0",
+          "partId": "s0"
+        },
+        {
+          "name": "S1",
+          "partId": "s1"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Y0",
+          "partId": "y0"
+        },
+        {
+          "name": "Y1",
+          "partId": "y1"
+        },
+        {
+          "name": "Y2",
+          "partId": "y2"
+        },
+        {
+          "name": "Y3",
+          "partId": "y3"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "d",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 0,
+            "label": "D"
+          },
+          {
+            "id": "s0",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 4,
+            "label": "S0"
+          },
+          {
+            "id": "s1",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 8,
+            "label": "S1"
+          },
+          {
+            "id": "n0",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 4
+          },
+          {
+            "id": "n1",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 16
+          },
+          {
+            "id": "g0",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 10,
+            "props": {
+              "inputs": 3
+            }
+          },
+          {
+            "id": "y0",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 26,
+            "y": 14,
+            "label": "Y0"
+          },
+          {
+            "id": "g1",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 18,
+            "props": {
+              "inputs": 3
+            }
+          },
+          {
+            "id": "y1",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 26,
+            "y": 20,
+            "label": "Y1"
+          },
+          {
+            "id": "g2",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 2,
+            "props": {
+              "inputs": 3
+            }
+          },
+          {
+            "id": "y2",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 26,
+            "y": 4,
+            "label": "Y2"
+          },
+          {
+            "id": "g3",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 8,
+            "y": 8,
+            "props": {
+              "inputs": 3
+            }
+          },
+          {
+            "id": "y3",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 26,
+            "y": 10,
+            "label": "Y3"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "s0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "n0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "s1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "n1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "n1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g0",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "n0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g0",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "g0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "y0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "n1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "s0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g1",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w10",
+            "from": {
+              "partId": "g1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "y1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w11",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g2",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w12",
+            "from": {
+              "partId": "s1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g2",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w13",
+            "from": {
+              "partId": "n0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g2",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w14",
+            "from": {
+              "partId": "g2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "y2",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w15",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g3",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w16",
+            "from": {
+              "partId": "s1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g3",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w17",
+            "from": {
+              "partId": "s0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g3",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w18",
+            "from": {
+              "partId": "g3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "y3",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1,
+      "category": "디멀티플렉서"
+    }
+  },
+  "workspace": {
+    "parts": [],
+    "wires": []
+  },
+  "openChipId": null
+}

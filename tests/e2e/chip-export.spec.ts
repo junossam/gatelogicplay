@@ -66,7 +66,7 @@ test('기본 제공 칩: 아이콘 버튼으로 열어 chips/ 폴더의 칩 묶�
   await actions.getByRole('button', { name: '기본 제공 칩' }).click();
   const dialog = page.getByRole('dialog', { name: '기본 제공 칩' });
   const adder = dialog.getByTestId('builtin-연산/가산기.json');
-  await expect(dialog.locator('.builtin-card')).toHaveCount(3);
+  await expect(dialog.locator('.builtin-card')).toHaveCount(8);
   // 한 줄에 3개
   const cards = dialog.locator('.builtin-card');
   const [c0, c1, c2] = await Promise.all([0, 1, 2].map(async (i) => (await cards.nth(i).boundingBox())!));

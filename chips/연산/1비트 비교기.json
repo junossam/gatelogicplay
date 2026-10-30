@@ -1,0 +1,465 @@
+{
+  "format": "logiclab",
+  "version": 8,
+  "title": "1비트 비교기 (확장)",
+  "description": "Gi·Ei·Li → G·E·L. 이어서 n비트 비교",
+  "library": {
+    "bi-cmp1": {
+      "id": "bi-cmp1",
+      "name": "1비트 비교기 (확장)",
+      "color": "chip-1",
+      "inputs": [
+        {
+          "name": "A",
+          "partId": "a"
+        },
+        {
+          "name": "B",
+          "partId": "b"
+        },
+        {
+          "name": "Gi",
+          "partId": "gi"
+        },
+        {
+          "name": "Ei",
+          "partId": "ei"
+        },
+        {
+          "name": "Li",
+          "partId": "li"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "G",
+          "partId": "og"
+        },
+        {
+          "name": "E",
+          "partId": "oe"
+        },
+        {
+          "name": "L",
+          "partId": "ol"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "a",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 0,
+            "label": "A"
+          },
+          {
+            "id": "b",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 4,
+            "label": "B"
+          },
+          {
+            "id": "gi",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 8,
+            "label": "Gi"
+          },
+          {
+            "id": "ei",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 12,
+            "label": "Ei"
+          },
+          {
+            "id": "li",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 16,
+            "label": "Li"
+          },
+          {
+            "id": "na",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 0
+          },
+          {
+            "id": "nb",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 10
+          },
+          {
+            "id": "same",
+            "kind": {
+              "type": "primitive",
+              "kind": "XNOR"
+            },
+            "x": 8,
+            "y": 4
+          },
+          {
+            "id": "gt",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 7
+          },
+          {
+            "id": "lt",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 1
+          },
+          {
+            "id": "gk",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 13
+          },
+          {
+            "id": "lk",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 25
+          },
+          {
+            "id": "ek",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 19
+          },
+          {
+            "id": "g",
+            "kind": {
+              "type": "primitive",
+              "kind": "OR"
+            },
+            "x": 26,
+            "y": 10
+          },
+          {
+            "id": "l",
+            "kind": {
+              "type": "primitive",
+              "kind": "OR"
+            },
+            "x": 26,
+            "y": 16
+          },
+          {
+            "id": "og",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 35,
+            "y": 11,
+            "label": "G"
+          },
+          {
+            "id": "oe",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 35,
+            "y": 21,
+            "label": "E"
+          },
+          {
+            "id": "ol",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 35,
+            "y": 17,
+            "label": "L"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "a",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "na",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "b",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nb",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "a",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "same",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "b",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "same",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "a",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "gt",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "nb",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "gt",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "na",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "lt",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "b",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "lt",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "same",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "gk",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w10",
+            "from": {
+              "partId": "gi",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "gk",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w11",
+            "from": {
+              "partId": "same",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "lk",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w12",
+            "from": {
+              "partId": "li",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "lk",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w13",
+            "from": {
+              "partId": "same",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ek",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w14",
+            "from": {
+              "partId": "ei",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ek",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w15",
+            "from": {
+              "partId": "gt",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w16",
+            "from": {
+              "partId": "gk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "g",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w17",
+            "from": {
+              "partId": "lt",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "l",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w18",
+            "from": {
+              "partId": "lk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "l",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w19",
+            "from": {
+              "partId": "g",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "og",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w20",
+            "from": {
+              "partId": "ek",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "oe",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w21",
+            "from": {
+              "partId": "l",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ol",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1,
+      "category": "비교기"
+    }
+  },
+  "workspace": {
+    "parts": [],
+    "wires": []
+  },
+  "openChipId": null
+}

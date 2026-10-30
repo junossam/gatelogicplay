@@ -1,0 +1,716 @@
+{
+  "format": "logiclab",
+  "version": 8,
+  "title": "멀티플렉서 (EN)",
+  "description": "2:1 · 4:1 MUX. EN과 OR로 8:1 이상",
+  "library": {
+    "bi-mux2": {
+      "id": "bi-mux2",
+      "name": "2:1 MUX (EN)",
+      "color": "chip-3",
+      "inputs": [
+        {
+          "name": "D0",
+          "partId": "d0"
+        },
+        {
+          "name": "D1",
+          "partId": "d1"
+        },
+        {
+          "name": "S",
+          "partId": "s"
+        },
+        {
+          "name": "EN",
+          "partId": "en"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Y",
+          "partId": "y"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "d0",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 0,
+            "label": "D0"
+          },
+          {
+            "id": "d1",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 4,
+            "label": "D1"
+          },
+          {
+            "id": "s",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 8,
+            "label": "S"
+          },
+          {
+            "id": "en",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 12,
+            "label": "EN"
+          },
+          {
+            "id": "ns",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 8
+          },
+          {
+            "id": "a0",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 5,
+            "props": {
+              "inputs": 3
+            }
+          },
+          {
+            "id": "a1",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 8,
+            "y": 12,
+            "props": {
+              "inputs": 3
+            }
+          },
+          {
+            "id": "o",
+            "kind": {
+              "type": "primitive",
+              "kind": "OR"
+            },
+            "x": 26,
+            "y": 10
+          },
+          {
+            "id": "y",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 35,
+            "y": 11,
+            "label": "Y"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "s",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ns",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "d0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "ns",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a0",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "en",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a0",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "d1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "s",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "en",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "a0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "a1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w10",
+            "from": {
+              "partId": "o",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "y",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1,
+      "category": "멀티플렉서"
+    },
+    "bi-mux4": {
+      "id": "bi-mux4",
+      "name": "4:1 MUX (EN)",
+      "color": "chip-3",
+      "inputs": [
+        {
+          "name": "D0",
+          "partId": "d0"
+        },
+        {
+          "name": "D1",
+          "partId": "d1"
+        },
+        {
+          "name": "D2",
+          "partId": "d2"
+        },
+        {
+          "name": "D3",
+          "partId": "d3"
+        },
+        {
+          "name": "S0",
+          "partId": "s0"
+        },
+        {
+          "name": "S1",
+          "partId": "s1"
+        },
+        {
+          "name": "EN",
+          "partId": "en"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Y",
+          "partId": "y"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "d0",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 0,
+            "label": "D0"
+          },
+          {
+            "id": "d1",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 4,
+            "label": "D1"
+          },
+          {
+            "id": "d2",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 8,
+            "label": "D2"
+          },
+          {
+            "id": "d3",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 12,
+            "label": "D3"
+          },
+          {
+            "id": "s0",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 16,
+            "label": "S0"
+          },
+          {
+            "id": "s1",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 20,
+            "label": "S1"
+          },
+          {
+            "id": "en",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 24,
+            "label": "EN"
+          },
+          {
+            "id": "n0",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 16
+          },
+          {
+            "id": "n1",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 30
+          },
+          {
+            "id": "a0",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 24,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "a1",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 34,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "a2",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 17,
+            "y": 14,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "a3",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 8,
+            "y": 20,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "o",
+            "kind": {
+              "type": "primitive",
+              "kind": "OR"
+            },
+            "x": 26,
+            "y": 23,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "y",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 35,
+            "y": 26,
+            "label": "Y"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "s0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "n0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "s1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "n1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "d0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "n1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a0",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "n0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a0",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "en",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a0",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "d1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "n1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "s0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w10",
+            "from": {
+              "partId": "en",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w11",
+            "from": {
+              "partId": "d2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a2",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w12",
+            "from": {
+              "partId": "s1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a2",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w13",
+            "from": {
+              "partId": "n0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a2",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w14",
+            "from": {
+              "partId": "en",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a2",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w15",
+            "from": {
+              "partId": "d3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a3",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w16",
+            "from": {
+              "partId": "s1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a3",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w17",
+            "from": {
+              "partId": "s0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a3",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w18",
+            "from": {
+              "partId": "en",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a3",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w19",
+            "from": {
+              "partId": "a0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w20",
+            "from": {
+              "partId": "a1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w21",
+            "from": {
+              "partId": "a2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w22",
+            "from": {
+              "partId": "a3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w23",
+            "from": {
+              "partId": "o",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "y",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1,
+      "category": "멀티플렉서"
+    }
+  },
+  "workspace": {
+    "parts": [],
+    "wires": []
+  },
+  "openChipId": null
+}
