@@ -34,7 +34,7 @@ describe('예제 목록', () => {
   });
 
   it('저장소의 chips/ 기본 제공 칩은 모두 검증을 통과하고 작업 공간이 비어 있다', () => {
-    for (const file of ['기억 소자/플립플롭.json', '연산/가산기.json', '표시/01-8세그먼트 디코더 (버스).json', '표시/02-8세그먼트 디코더.json']) {
+    for (const file of ['기억 소자/플립플롭.json', '연산/가산기.json', '표시/8세그먼트 디코더.json']) {
       const r = describeSample(file, readFileSync(join(__dirname, '..', '..', 'chips', file), 'utf8'));
       expect(r.ok, file).toBe(true);
       if (r.ok) {

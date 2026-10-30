@@ -8,10 +8,11 @@ import { Engine } from '../../src/sim/engine';
 import { bitKey } from '../../src/sim/pins';
 import { CircuitBuilder, HEX_SEGMENTS } from '../fixtures/circuits';
 
-function load(name: string) {
-  const r = parseBundle(readFileSync(join(__dirname, '..', '..', 'chips', '표시', name), 'utf8'));
+/** chips/표시/8세그먼트 디코더.json 한 파일에 버스 입력·비트 입력 칩이 함께 들어 있다 */
+function load(chipName: string) {
+  const r = parseBundle(readFileSync(join(__dirname, '..', '..', 'chips', '표시', '8세그먼트 디코더.json'), 'utf8'));
   if (!r.ok) throw new Error(r.error);
-  return { lib: r.data.library, def: Object.values(r.data.library)[0]! };
+  return { lib: r.data.library, def: Object.values(r.data.library).find((d) => d.name === chipName)! };
 }
 
 /** 입력을 n으로 두고 8세그먼트에 켜진 세그먼트 */
@@ -24,7 +25,7 @@ function litFor(engine: Engine, set: (n: number) => void, n: number): string {
 
 describe('8세그먼트 디코더 (기본 제공 칩)', () => {
   it('버스 입력: N[4] → a~g, 0~F 모두 표준 16진 모양', () => {
-    const { lib, def } = load('01-8세그먼트 디코더 (버스).json');
+    const { lib, def } = load('2진수→8세그먼트(버스)');
     expect(def.inputs.map((p) => p.name)).toEqual(['N']);
     expect(def.outputs.map((p) => p.name)).toEqual(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
     const b = new CircuitBuilder().add('SWITCH', 'sw', 0, 0, 'N').bits(4).chip(def.id, 'dec', 6, 0).add('SEG8', 'disp', 16, 0).wire('sw.y', 'dec.N');
@@ -35,7 +36,7 @@ describe('8세그먼트 디코더 (기본 제공 칩)', () => {
   });
 
   it('비트 입력: B0~B3(나누기 없음) → a~g, 0~F 모두 표준 16진 모양', () => {
-    const { lib, def } = load('02-8세그먼트 디코더.json');
+    const { lib, def } = load('2진수→8세그먼트');
     expect(def.inputs.map((p) => p.name)).toEqual(['B0', 'B1', 'B2', 'B3']);
     expect(def.circuit.parts.some((p) => p.kind.type === 'primitive' && p.kind.kind === 'SPLIT')).toBe(false);
     const b = new CircuitBuilder().chip(def.id, 'dec', 6, 0).add('SEG8', 'disp', 16, 0);
