@@ -515,11 +515,27 @@ export function Palette() {
       <section>
         <h2 className="panel-title">내 칩</h2>
         <div className="chip-file-actions">
-          <button type="button" className="text-button small-button" onClick={() => chipFileRef.current?.click()} title="내보낸 칩 파일(JSON)을 내 칩에 추가">
-            칩 가져오기
+          <button type="button" className="icon-button chip-file-button" aria-label="칩 가져오기" title="칩 가져오기: 내보낸 칩 파일(JSON)을 내 칩에 추가" onClick={() => chipFileRef.current?.click()}>
+            📂
           </button>
-          <button type="button" className="text-button small-button" disabled={Object.keys(library).length === 0} onClick={exportAllChips} title="내 칩 전부를 JSON 파일로 저장">
-            모두 내보내기
+          <button
+            type="button"
+            className="icon-button chip-file-button"
+            aria-label="모두 내보내기"
+            title="모두 내보내기: 내 칩 전부를 JSON 파일로 저장"
+            disabled={Object.keys(library).length === 0}
+            onClick={exportAllChips}
+          >
+            💾
+          </button>
+          <button
+            type="button"
+            className="icon-button chip-file-button"
+            aria-label="기본 제공 칩"
+            title="기본 제공 칩: 미리 만들어 둔 칩을 골라 내 칩에 추가"
+            onClick={() => useUi.getState().setBuiltinChipsOpen(true)}
+          >
+            📦
           </button>
           <input
             ref={chipFileRef}

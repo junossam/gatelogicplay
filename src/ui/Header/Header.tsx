@@ -134,6 +134,7 @@ export function Header() {
         { label: '가져오기', run: () => fileRef.current?.click() },
         { label: '내보내기', run: exportCurrent },
         { label: '내 칩 모두 내보내기', disabled: Object.keys(library).length === 0, run: exportAllChips },
+        { label: '기본 제공 칩', run: () => ui().setBuiltinChipsOpen(true) },
         null,
         { label: '예제', disabled: !!challengeId, run: () => ui().setSamplesOpen(true) },
         { label: '공유 링크', disabled: !!challengeId, run: () => ui().setShareOpen(true) },

@@ -1,0 +1,1258 @@
+{
+  "format": "logiclab",
+  "version": 1,
+  "title": "래치·플립플롭",
+  "description": "값을 기억하는 회로: 래치 2종과 상승 에지에서 바뀌는 플립플롭 4종. 카운터·레지스터를 만들 때 바로 쓸 수 있습니다.",
+  "library": {
+    "ff-sr-latch": {
+      "id": "ff-sr-latch",
+      "name": "SR 래치",
+      "color": "chip-3",
+      "inputs": [
+        {
+          "name": "R",
+          "partId": "r"
+        },
+        {
+          "name": "S",
+          "partId": "s"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Q",
+          "partId": "q"
+        },
+        {
+          "name": "Q̄",
+          "partId": "qn"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "r",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 2,
+            "label": "R"
+          },
+          {
+            "id": "s",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 8,
+            "label": "S"
+          },
+          {
+            "id": "nor1",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOR"
+            },
+            "x": 6,
+            "y": 1
+          },
+          {
+            "id": "nor2",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOR"
+            },
+            "x": 6,
+            "y": 7
+          },
+          {
+            "id": "q",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 15,
+            "y": 2,
+            "label": "Q"
+          },
+          {
+            "id": "qn",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 15,
+            "y": 8,
+            "label": "Q̄"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "r",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nor1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "nor2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nor1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "s",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nor2",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "nor1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nor2",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "nor1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "q",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "nor2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "qn",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1
+    },
+    "ff-d-latch": {
+      "id": "ff-d-latch",
+      "name": "D 래치",
+      "color": "chip-3",
+      "inputs": [
+        {
+          "name": "D",
+          "partId": "d"
+        },
+        {
+          "name": "CLK",
+          "partId": "clk"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Q",
+          "partId": "q"
+        },
+        {
+          "name": "Q̄",
+          "partId": "qn"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "d",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 2,
+            "label": "D"
+          },
+          {
+            "id": "clk",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 9,
+            "label": "CLK"
+          },
+          {
+            "id": "nd",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 5,
+            "y": 0
+          },
+          {
+            "id": "andr",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 11,
+            "y": 0
+          },
+          {
+            "id": "ands",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 11,
+            "y": 6
+          },
+          {
+            "id": "latch",
+            "kind": {
+              "type": "chip",
+              "chipId": "ff-sr-latch"
+            },
+            "x": 18,
+            "y": 2
+          },
+          {
+            "id": "q",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 28,
+            "y": 2,
+            "label": "Q"
+          },
+          {
+            "id": "qn",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 28,
+            "y": 6,
+            "label": "Q̄"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nd",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "nd",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "andr",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "clk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "andr",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ands",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "clk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ands",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "andr",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "latch",
+              "pin": "R"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "ands",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "latch",
+              "pin": "S"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "latch",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "q",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "latch",
+              "pin": "Q̄"
+            },
+            "to": {
+              "partId": "qn",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1
+    },
+    "ff-d": {
+      "id": "ff-d",
+      "name": "D 플립플롭",
+      "color": "chip-2",
+      "inputs": [
+        {
+          "name": "D",
+          "partId": "d"
+        },
+        {
+          "name": "CLK",
+          "partId": "clk"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Q",
+          "partId": "q"
+        },
+        {
+          "name": "Q̄",
+          "partId": "qn"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "d",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 2,
+            "label": "D"
+          },
+          {
+            "id": "clk",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 10,
+            "label": "CLK"
+          },
+          {
+            "id": "nclk",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 6,
+            "y": 7
+          },
+          {
+            "id": "master",
+            "kind": {
+              "type": "chip",
+              "chipId": "ff-d-latch"
+            },
+            "x": 13,
+            "y": 1
+          },
+          {
+            "id": "slave",
+            "kind": {
+              "type": "chip",
+              "chipId": "ff-d-latch"
+            },
+            "x": 23,
+            "y": 1
+          },
+          {
+            "id": "q",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 33,
+            "y": 1,
+            "label": "Q"
+          },
+          {
+            "id": "qn",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 33,
+            "y": 5,
+            "label": "Q̄"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "master",
+              "pin": "D"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "clk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nclk",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "nclk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "master",
+              "pin": "CLK"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "master",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "slave",
+              "pin": "D"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "clk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "slave",
+              "pin": "CLK"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "slave",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "q",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "slave",
+              "pin": "Q̄"
+            },
+            "to": {
+              "partId": "qn",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1
+    },
+    "ff-sr": {
+      "id": "ff-sr",
+      "name": "SR 플립플롭",
+      "color": "chip-1",
+      "inputs": [
+        {
+          "name": "S",
+          "partId": "s"
+        },
+        {
+          "name": "R",
+          "partId": "r"
+        },
+        {
+          "name": "CLK",
+          "partId": "clk"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Q",
+          "partId": "q"
+        },
+        {
+          "name": "Q̄",
+          "partId": "qn"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "s",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 1,
+            "label": "S"
+          },
+          {
+            "id": "r",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 6,
+            "label": "R"
+          },
+          {
+            "id": "clk",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 14,
+            "label": "CLK"
+          },
+          {
+            "id": "nr",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 5,
+            "y": 5
+          },
+          {
+            "id": "a1",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 11,
+            "y": 5
+          },
+          {
+            "id": "o1",
+            "kind": {
+              "type": "primitive",
+              "kind": "OR"
+            },
+            "x": 18,
+            "y": 1
+          },
+          {
+            "id": "ff",
+            "kind": {
+              "type": "chip",
+              "chipId": "ff-d"
+            },
+            "x": 25,
+            "y": 5
+          },
+          {
+            "id": "q",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 35,
+            "y": 5,
+            "label": "Q"
+          },
+          {
+            "id": "qn",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 35,
+            "y": 9,
+            "label": "Q̄"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "r",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nr",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "nr",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "ff",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "s",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "a1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "o1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ff",
+              "pin": "D"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "clk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ff",
+              "pin": "CLK"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "ff",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "q",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "ff",
+              "pin": "Q̄"
+            },
+            "to": {
+              "partId": "qn",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1
+    },
+    "ff-jk": {
+      "id": "ff-jk",
+      "name": "JK 플립플롭",
+      "color": "chip-4",
+      "inputs": [
+        {
+          "name": "J",
+          "partId": "j"
+        },
+        {
+          "name": "K",
+          "partId": "k"
+        },
+        {
+          "name": "CLK",
+          "partId": "clk"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Q",
+          "partId": "q"
+        },
+        {
+          "name": "Q̄",
+          "partId": "qn"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "j",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 1,
+            "label": "J"
+          },
+          {
+            "id": "k",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 7,
+            "label": "K"
+          },
+          {
+            "id": "clk",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 14,
+            "label": "CLK"
+          },
+          {
+            "id": "nk",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 5,
+            "y": 6
+          },
+          {
+            "id": "a1",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 11,
+            "y": 0
+          },
+          {
+            "id": "a2",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 11,
+            "y": 6
+          },
+          {
+            "id": "o1",
+            "kind": {
+              "type": "primitive",
+              "kind": "OR"
+            },
+            "x": 18,
+            "y": 3
+          },
+          {
+            "id": "ff",
+            "kind": {
+              "type": "chip",
+              "chipId": "ff-d"
+            },
+            "x": 25,
+            "y": 5
+          },
+          {
+            "id": "q",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 35,
+            "y": 5,
+            "label": "Q"
+          },
+          {
+            "id": "qn",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 35,
+            "y": 9,
+            "label": "Q̄"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "k",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nk",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "j",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "ff",
+              "pin": "Q̄"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "nk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a2",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "ff",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "a2",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "a1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "a2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "o1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "o1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ff",
+              "pin": "D"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "clk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ff",
+              "pin": "CLK"
+            }
+          },
+          {
+            "id": "w10",
+            "from": {
+              "partId": "ff",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "q",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w11",
+            "from": {
+              "partId": "ff",
+              "pin": "Q̄"
+            },
+            "to": {
+              "partId": "qn",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1
+    },
+    "ff-t": {
+      "id": "ff-t",
+      "name": "T 플립플롭",
+      "color": "chip-5",
+      "inputs": [
+        {
+          "name": "T",
+          "partId": "t"
+        },
+        {
+          "name": "CLR",
+          "partId": "clr"
+        },
+        {
+          "name": "CLK",
+          "partId": "clk"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Q",
+          "partId": "q"
+        },
+        {
+          "name": "Q̄",
+          "partId": "qn"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "t",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 2,
+            "label": "T"
+          },
+          {
+            "id": "clr",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 7,
+            "label": "CLR"
+          },
+          {
+            "id": "clk",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 12,
+            "label": "CLK"
+          },
+          {
+            "id": "x1",
+            "kind": {
+              "type": "primitive",
+              "kind": "XOR"
+            },
+            "x": 6,
+            "y": 1
+          },
+          {
+            "id": "ncl",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 6,
+            "y": 6
+          },
+          {
+            "id": "a1",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 12,
+            "y": 2
+          },
+          {
+            "id": "ff",
+            "kind": {
+              "type": "chip",
+              "chipId": "ff-d"
+            },
+            "x": 18,
+            "y": 3
+          },
+          {
+            "id": "q",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 28,
+            "y": 3,
+            "label": "Q"
+          },
+          {
+            "id": "qn",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 28,
+            "y": 7,
+            "label": "Q̄"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "t",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "x1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "ff",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "x1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "clr",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ncl",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "x1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "ncl",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "a1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "a1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ff",
+              "pin": "D"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "clk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ff",
+              "pin": "CLK"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "ff",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "q",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "ff",
+              "pin": "Q̄"
+            },
+            "to": {
+              "partId": "qn",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 2
+    }
+  },
+  "workspace": {
+    "parts": [],
+    "wires": []
+  },
+  "openChipId": null
+}

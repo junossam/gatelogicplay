@@ -33,6 +33,17 @@ describe('예제 목록', () => {
     expect(errors[0]).toMatch(/^bad\.json: /);
   });
 
+  it('저장소의 chips/ 기본 제공 칩은 모두 검증을 통과하고 작업 공간이 비어 있다', () => {
+    for (const file of ['기억 소자/플립플롭.json', '연산/가산기.json']) {
+      const r = describeSample(file, readFileSync(join(__dirname, '..', '..', 'chips', file), 'utf8'));
+      expect(r.ok, file).toBe(true);
+      if (r.ok) {
+        expect(r.entry.parts).toBe(0);
+        expect(r.entry.chips.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it('저장소의 samples/ 예제는 모두 검증을 통과한다', () => {
     for (const file of ['기억 소자/플립플롭 모음.json', '연산/4비트 가산기.json']) {
       const r = describeSample(file, readFileSync(join(__dirname, '..', '..', 'samples', file), 'utf8'));

@@ -21,6 +21,7 @@ src/store/   editorStore(문서·선택·undo), simStore(실행·속도·틱)
 src/ui/      Header, Palette, Canvas, Inspector, Waveform, dialogs
 src/theme/   tokens.css
 samples/     운영자 예제 JSON (빌드 때 scripts/samples-plugin.ts가 검증·목록 생성)
+chips/       기본 제공 칩 JSON (samples/와 같은 방식)
 ```
 
 ## 꼭 지킬 규칙

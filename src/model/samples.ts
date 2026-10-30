@@ -4,6 +4,8 @@ import { parseBundle } from './storage';
 
 /** 배포 결과 안의 예제 폴더 */
 export const SAMPLES_DIR = 'samples';
+/** 기본 제공 칩 폴더 (같은 형식·같은 목록 파일) */
+export const CHIPS_DIR = 'chips';
 export const MANIFEST_FILE = 'index.json';
 /** 예제 바로 열기 링크: `#sample=분류/파일.json` */
 export const SAMPLE_PREFIX = '#sample=';
@@ -87,9 +89,9 @@ export function sampleFileFrom(hash: string): string | null {
   return isSafeSamplePath(file) ? file : null;
 }
 
-/** 예제 파일 URL (현재 페이지 기준 상대 경로라 하위 폴더 배포에서도 동작) */
-export function sampleUrl(file: string, base: string): string {
-  return new URL(`${SAMPLES_DIR}/${file.split('/').map(encodeURIComponent).join('/')}`, base).href;
+/** 예제(또는 기본 제공 칩) 파일 URL (현재 페이지 기준 상대 경로라 하위 폴더 배포에서도 동작) */
+export function sampleUrl(file: string, base: string, dir: string = SAMPLES_DIR): string {
+  return new URL(`${dir}/${file.split('/').map(encodeURIComponent).join('/')}`, base).href;
 }
 
 /** 예제 바로 열기 링크 */

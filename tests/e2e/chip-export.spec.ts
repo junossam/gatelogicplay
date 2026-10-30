@@ -55,3 +55,29 @@ test('칩 내보내기: 하나(쓰는 칩 포함)·모두 내보내기, 그 파�
   await other.screenshot({ path: test.info().outputPath('imported.png') });
   await other.close();
 });
+
+test('기본 제공 칩: 아이콘 버튼으로 열어 chips/ 폴더의 칩 묶음을 내 칩에 추가 (작업 공간은 그대로)', async ({ page }) => {
+  await seed(page, new CircuitBuilder().add('SWITCH', 's', 0, 0, 'A').build());
+  const actions = page.locator('.chip-file-actions');
+  await expect(actions.getByRole('button')).toHaveCount(3);
+  for (const name of ['칩 가져오기', '모두 내보내기', '기본 제공 칩']) await expect(actions.getByRole('button', { name, exact: true })).toBeVisible();
+  await expect(actions.getByRole('button', { name: '모두 내보내기' })).toBeDisabled();
+
+  await actions.getByRole('button', { name: '기본 제공 칩' }).click();
+  const dialog = page.getByRole('dialog', { name: '기본 제공 칩' });
+  const adder = dialog.getByTestId('builtin-연산/가산기.json');
+  await expect(adder).toContainText('칩 3개 · 반가산기, 전가산기, 4비트 가산기(버스)');
+  await expect(dialog.getByTestId('builtin-기억 소자/플립플롭.json')).toContainText('칩 6개');
+  await page.screenshot({ path: test.info().outputPath('builtin.png') });
+  await adder.getByRole('button', { name: '내 칩에 추가' }).click();
+
+  const imp = page.getByRole('dialog', { name: '가져오기' });
+  await expect(imp).toContainText('칩 3개가 들어 있습니다');
+  await imp.getByRole('button', { name: '가져오기' }).click();
+  await expect(page.getByTestId('chip-item-4비트 가산기(버스)')).toHaveCount(1);
+  await expect(page.getByTestId('part-s')).toHaveCount(1);
+
+  // 다시 열면 "이미 있음"
+  await actions.getByRole('button', { name: '기본 제공 칩' }).click();
+  await expect(page.getByTestId('builtin-연산/가산기.json')).toContainText('이미 있음');
+});

@@ -6,22 +6,32 @@ import { Modal } from './Modal';
 
 const pageUrl = () => `${location.origin}${location.pathname}`;
 
-async function fetchText(url: string): Promise<string> {
+export async function fetchText(url: string): Promise<string> {
   const res = await fetch(url, { cache: 'no-cache' });
   if (!res.ok) throw new Error(`파일을 받을 수 없습니다 (HTTP ${res.status})`);
   return res.text();
 }
 
-/** 예제 파일을 받아 검증한 뒤 가져오기 대화상자로 (SPEC 4.3) */
-async function openSample(file: string): Promise<void> {
+/**
+ * 예제(또는 기본 제공 칩) 파일을 받아 검증한 뒤 가져오기 대화상자로 (SPEC 4.3).
+ * chipsOnly면 작업 공간은 빼고 칩만 가져온다.
+ */
+export async function openSample(file: string, dir: string = SAMPLES_DIR, chipsOnly = false): Promise<void> {
   const ui = useUi.getState();
   try {
-    const r = parseBundle(await fetchText(sampleUrl(file, document.baseURI)));
+    const r = parseBundle(await fetchText(sampleUrl(file, document.baseURI, dir)));
     if (!r.ok) throw new Error(`파일 검증에 실패했습니다. ${r.error}`);
-    ui.setPendingImport(r.data);
+    ui.setPendingImport(chipsOnly ? { ...r.data, workspace: { parts: [], wires: [] }, openChipId: null } : r.data);
   } catch (e) {
-    ui.setMessage({ title: '예제를 열 수 없습니다', body: (e as Error).message });
+    ui.setMessage({ title: chipsOnly ? '칩을 가져올 수 없습니다' : '예제를 열 수 없습니다', body: (e as Error).message });
   }
+}
+
+/** 폴더의 목록 파일(index.json)을 받는다 */
+export async function fetchManifest(dir: string): Promise<SampleEntry[]> {
+  const r = manifestSchema.safeParse(JSON.parse(await fetchText(new URL(`${dir}/${MANIFEST_FILE}`, document.baseURI).href)));
+  if (!r.success) throw new Error('목록 형식이 올바르지 않습니다');
+  return r.data.samples;
 }
 
 /** `#sample=` 링크로 열었을 때: 해시를 지우고 그 예제를 가져오기 대화상자로 */
@@ -80,12 +90,8 @@ export function SamplesDialog() {
 
   useEffect(() => {
     let alive = true;
-    fetchText(new URL(`${SAMPLES_DIR}/${MANIFEST_FILE}`, document.baseURI).href)
-      .then((text) => {
-        const r = manifestSchema.safeParse(JSON.parse(text));
-        if (!r.success) throw new Error('예제 목록 형식이 올바르지 않습니다');
-        if (alive) setState({ samples: r.data.samples });
-      })
+    fetchManifest(SAMPLES_DIR)
+      .then((samples) => alive && setState({ samples }))
       .catch((e: Error) => alive && setState({ error: e.message }));
     return () => {
       alive = false;
