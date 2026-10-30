@@ -14,6 +14,10 @@ export interface Message {
 interface UiState {
   /** 팔레트에서 클릭해 고른 부품. 캔버스를 클릭하면 그 자리에 배치된다. */
   armed: PartKind | null;
+  /** 메모 도구를 골랐으면 캔버스를 클릭한 자리에 메모를 놓는다 */
+  armedNote: boolean;
+  /** 바닥을 끌 때: 이동(손) = 화면 이동, 선택 = 범위 선택 */
+  tool: 'hand' | 'select';
   zoom: number;
   waveOpen: boolean;
   truthOpen: boolean;
@@ -46,11 +50,15 @@ interface UiState {
   setMessage(message: Message | null): void;
   setPendingImport(bundle: Bundle | null): void;
   setArmed(kind: PartKind | null): void;
+  setArmedNote(on: boolean): void;
+  setTool(tool: 'hand' | 'select'): void;
   setZoom(zoom: number): void;
 }
 
 export const useUi = create<UiState>((set) => ({
   armed: null,
+  armedNote: false,
+  tool: 'hand',
   zoom: 1,
   waveOpen: true,
   truthOpen: false,
@@ -77,7 +85,10 @@ export const useUi = create<UiState>((set) => ({
   setCategoryEdit: (categoryEdit) => set({ categoryEdit }),
   setMessage: (message) => set({ message }),
   setPendingImport: (pendingImport) => set({ pendingImport }),
-  setArmed: (armed) => set({ armed }),
+  // 부품과 메모 도구는 하나만 고른 상태가 된다
+  setArmed: (armed) => set(armed ? { armed, armedNote: false } : { armed }),
+  setArmedNote: (armedNote) => set(armedNote ? { armedNote, armed: null } : { armedNote }),
+  setTool: (tool) => set({ tool }),
   setZoom: (zoom) => set({ zoom }),
 }));
 

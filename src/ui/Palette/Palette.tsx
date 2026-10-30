@@ -399,6 +399,49 @@ export async function importBundleFile(file: File) {
   useUi.getState().setPendingImport(r.data);
 }
 
+/** 팔레트 맨 위 도구: 바닥 끌기 동작(이동/선택)과 메모 놓기 */
+function CanvasTools() {
+  const tool = useUi((s) => s.tool);
+  const armedNote = useUi((s) => s.armedNote);
+  const readOnly = useEditor((s) => s.viewPath.length > 0);
+  const ui = useUi.getState;
+  return (
+    <div className="palette-tools" role="toolbar" aria-label="캔버스 도구">
+      <button
+        type="button"
+        className="tool-button"
+        aria-pressed={tool === 'hand'}
+        title="이동 (H): 바닥을 끌면 화면 이동"
+        onClick={() => ui().setTool('hand')}
+      >
+        <span aria-hidden="true">✋</span>
+        <span>이동</span>
+      </button>
+      <button
+        type="button"
+        className="tool-button"
+        aria-pressed={tool === 'select'}
+        title="선택 (V): 바닥을 끌면 범위 선택"
+        onClick={() => ui().setTool('select')}
+      >
+        <span aria-hidden="true">⬚</span>
+        <span>선택</span>
+      </button>
+      <button
+        type="button"
+        className="tool-button"
+        aria-pressed={armedNote}
+        disabled={readOnly}
+        title="메모: 누른 뒤 캔버스를 클릭한 자리에 메모를 놓습니다"
+        onClick={() => ui().setArmedNote(!armedNote)}
+      >
+        <span aria-hidden="true">📝</span>
+        <span>메모</span>
+      </button>
+    </div>
+  );
+}
+
 export function Palette() {
   const [query, setQuery] = useState('');
   const library = useEditor((s) => s.library);
@@ -415,6 +458,7 @@ export function Palette() {
 
   return (
     <aside className="palette" aria-label="부품 팔레트">
+      <CanvasTools />
       <input
         className="palette-search"
         type="search"

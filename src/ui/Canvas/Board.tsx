@@ -47,6 +47,7 @@ export function escapeAction() {
   const ui = useUi.getState();
   const st = editorStore.getState();
   if (ui.armed) return ui.setArmed(null);
+  if (ui.armedNote) return ui.setArmedNote(false);
   if (st.selection.parts.length || st.selection.wires.length || st.selection.notes.length) return st.clearSelection();
   if (st.viewPath.length) return st.setViewPath(st.viewPath.slice(0, -1));
   if (st.openChipId) confirmLeaveChip(() => editorStore.getState().closeChip());
@@ -74,6 +75,8 @@ export function Board() {
   const selection = useEditor((s) => s.selection);
   const dragging = useEditor((s) => s.dragBase !== null);
   const armed = useUi((s) => s.armed);
+  const armedNote = useUi((s) => s.armedNote);
+  const tool = useUi((s) => s.tool);
   const zoom = useUi((s) => s.zoom);
   const oscillating = useSim((s) => s.oscillating);
   const hasFeedback = useSim((s) => s.hasFeedback);
@@ -166,8 +169,17 @@ export function Board() {
       useUi.getState().setArmed(null);
       return;
     }
-    if (e.shiftKey) {
-      // Shift+드래그: 범위 선택 (Ctrl/⌘도 누르면 지금 선택에 더하기)
+    if (armedNote && !readOnly) {
+      // 메모 도구: 클릭한 자리를 메모의 왼쪽 위로 놓고 바로 쓰기.
+      // 기본 동작(mousedown 포커스)을 막지 않으면 새 메모 입력칸의 포커스를 캔버스가 가져간다
+      e.preventDefault();
+      const id = editorStore.getState().addNote(Math.floor(world.x / GRID), Math.floor(world.y / GRID));
+      useUi.getState().setArmedNote(false);
+      useUi.getState().setEditingNote(id);
+      return;
+    }
+    if (e.shiftKey || tool === 'select') {
+      // 선택 도구나 Shift+드래그: 범위 선택 (Ctrl/⌘도 누르면 지금 선택에 더하기)
       setCursor(world);
       setGesture({ type: 'box', start: world, additive: e.ctrlKey || e.metaKey, pointerId: e.pointerId });
       return;
@@ -385,6 +397,10 @@ export function Board() {
       simActions.step();
     } else if (key === 'r' && !mod && !readOnly) {
       store.rotateSelection();
+    } else if (key === 'h' && !mod) {
+      useUi.getState().setTool('hand');
+    } else if (key === 'v' && !mod) {
+      useUi.getState().setTool('select');
     }
   };
 
@@ -518,7 +534,7 @@ export function Board() {
     <div className="board">
       <svg
         ref={svgRef}
-        className={`board-svg${armed && !readOnly ? ' armed' : ''}${gesture?.type === 'pan' ? ' panning' : ''}${readOnly ? ' readonly' : ''}`}
+        className={`board-svg${(armed || armedNote) && !readOnly ? ' armed' : ''}${gesture?.type === 'pan' ? ' panning' : ''}${readOnly ? ' readonly' : ''} tool-${tool}`}
         tabIndex={0}
         role="application"
         aria-label="회로 캔버스"
@@ -669,7 +685,9 @@ export function Board() {
             {notice}
           </span>
         ) : (
-          <span className="hint">드래그: 화면 이동 · Shift+드래그: 범위 선택</span>
+          <span className="hint">
+            {armedNote ? '클릭한 자리에 메모를 놓습니다 · Esc: 취소' : tool === 'select' ? '드래그: 범위 선택 · Space+드래그: 화면 이동' : '드래그: 화면 이동 · Shift+드래그: 범위 선택'}
+          </span>
         )}
         <span className="zoom">{Math.round(zoom * 100)}%</span>
       </footer>

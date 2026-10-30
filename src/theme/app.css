@@ -1671,3 +1671,45 @@ button {
   resize: vertical;
   font: inherit;
 }
+
+/* 팔레트 맨 위 캔버스 도구 */
+.palette-tools {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.tool-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 6px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.tool-button:hover:not(:disabled) {
+  border-color: var(--border-2);
+}
+
+.tool-button[aria-pressed='true'] {
+  border-color: var(--sig-on);
+  background: var(--bg-chip);
+  color: var(--sig-on);
+}
+
+.tool-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.board-svg.tool-select:not(.armed):not(.panning) {
+  cursor: crosshair;
+}
