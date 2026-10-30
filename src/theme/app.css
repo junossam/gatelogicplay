@@ -1738,3 +1738,35 @@ button {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* 헤더가 좁아져도 글자가 세로로 꺾이지 않게: 버튼·메뉴는 한 줄, 이동 경로만 줄임표로 줄인다 */
+.header .menubar-trigger,
+.header .text-button,
+.header .save-badge,
+.header .speed,
+.logo {
+  white-space: nowrap;
+  flex: none;
+}
+
+.header .menubar,
+.header .sim-controls,
+.header .header-actions {
+  flex: none;
+}
+
+.breadcrumb {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.breadcrumb ol {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.breadcrumb li {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

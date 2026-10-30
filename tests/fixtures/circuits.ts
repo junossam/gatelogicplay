@@ -312,3 +312,37 @@ export function busLibrary(): Record<string, ChipDef> {
   const defs = [halfAdderChip(), fullAdderChip(), busAdderChip()];
   return Object.fromEntries(defs.map((d) => [d.id, d]));
 }
+
+/** 16진 7세그먼트 표준 모양: 숫자 0~F에서 켜지는 세그먼트 (a~g) */
+export const HEX_SEGMENTS: Record<number, string> = {
+  0: 'abcdef', 1: 'bc', 2: 'abdeg', 3: 'abcdg', 4: 'bcfg', 5: 'acdfg', 6: 'acdefg', 7: 'abc',
+  8: 'abcdefg', 9: 'abcdfg', 10: 'abcefg', 11: 'cdefg', 12: 'adef', 13: 'bcdeg', 14: 'adefg', 15: 'aefg',
+};
+
+/**
+ * 2진수 → 8세그먼트 디코더 칩: 4비트 입력 N[4] → 출력 a~g (16진 0~F).
+ * NOT 4개 → 4입력 AND(최소항) → 세그먼트마다 꺼지는 숫자의 최소항을 NOR. 지연 3틱.
+ */
+export function hexDecoderChip(id = 'builtin-hex-7seg'): ChipDef {
+  const segs = ['a', 'b', 'c', 'd', 'e', 'f', 'g'];
+  const off = (s: string) => Object.keys(HEX_SEGMENTS).map(Number).filter((n) => !HEX_SEGMENTS[n]!.includes(s));
+  const used = [...new Set(segs.flatMap(off))].sort((x, y) => x - y);
+  const b = new CircuitBuilder().add('SWITCH', 'n', 0, 14, 'N').bits(4).add('SPLIT', 'sp', 5, 11).bits(4).wire('n.y', 'sp.a');
+  for (let k = 0; k < 4; k++) b.add('NOT', `inv${k}`, 9, 11 + 2 * k).wire(`sp.y${k}`, `inv${k}.a`);
+  used.forEach((m, i) => {
+    b.add('AND', `m${m}`, 18, i * 9);
+    b.parts[b.parts.length - 1]!.props = { inputs: 4 };
+    for (let k = 0; k < 4; k++) b.wire((m >> k) & 1 ? `sp.y${k}` : `inv${k}.y`, `m${m}.${'abcd'[k]}`);
+  });
+  segs.forEach((s, i) => {
+    const ms = off(s);
+    b.add('NOR', `seg_${s}`, 30, 6 + i * 14);
+    b.parts[b.parts.length - 1]!.props = { inputs: ms.length };
+    ms.forEach((m, k) => b.wire(`m${m}.y`, `seg_${s}.${'abcdefgh'[k]}`));
+    b.add('LED', `out_${s}`, 38, 8 + i * 14, s).wire(`seg_${s}.y`, `out_${s}.a`);
+  });
+  const def = chipDef(id, '2진수→8세그먼트', b.build(), [['N', 'n']], segs.map((s) => [s, `out_${s}`] as [string, string]));
+  def.color = 'chip-5';
+  def.category = '표시';
+  return def;
+}

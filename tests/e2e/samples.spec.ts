@@ -39,3 +39,23 @@ test('이미 열린 페이지에서 해시만 #sample=로 바뀌어도 가져오
   await page.evaluate(() => (location.hash = `#sample=${encodeURIComponent('연산/4비트 가산기.json')}`));
   await expect(page.getByRole('dialog', { name: '가져오기' })).toContainText('칩 3개');
 });
+
+test('16진수 표시 예제: 4비트 스위치를 누를 때마다 디코더 칩을 거쳐 8세그먼트에 0, 1, 2, 3 …', async ({ context }) => {
+  const p = await context.newPage();
+  await p.goto(`/#sample=${encodeURIComponent('표시/16진수 표시.json')}`);
+  await p.getByRole('dialog', { name: '가져오기' }).getByRole('button', { name: '가져오기' }).click();
+  const disp = p.getByTestId('part-disp');
+  const mask = (segs: string) => [...segs].reduce((v, s) => v | (1 << 'abcdefg'.indexOf(s)), 0);
+  await expect(disp).toHaveAttribute('data-value', String(mask('abcdef'))); // 0
+  const sw = p.getByTestId('part-sw').locator('.part-hit');
+  for (const segs of ['bc', 'abdeg', 'abcdg']) {
+    const box = (await sw.boundingBox())!;
+    await p.mouse.click(box.x + 8, box.y + box.height / 2);
+    await expect(disp).toHaveAttribute('data-value', String(mask(segs)));
+  }
+  await p.screenshot({ path: test.info().outputPath('hex.png') });
+  // 칩 안 보기
+  await p.getByTestId('part-dec').dblclick();
+  await p.getByRole('button', { name: '전체 보기' }).click();
+  await p.screenshot({ path: test.info().outputPath('hex-inside.png') });
+});
