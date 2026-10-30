@@ -185,17 +185,17 @@ button {
 
 .palette-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
 }
 
 .palette-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  min-height: 72px;
-  padding: 8px;
+  gap: 2px;
+  min-height: 60px;
+  padding: 6px 2px;
   text-align: center;
   background: var(--bg-raised);
   border: 1px solid var(--border);
@@ -214,6 +214,12 @@ button {
 
 .palette-name {
   font-weight: 500;
+}
+
+.palette-grid .palette-name {
+  font-size: 12px;
+  line-height: 1.25;
+  word-break: keep-all;
 }
 
 .palette-desc {

@@ -22,13 +22,18 @@ const GATES: Item[] = [
   { kind: 'XOR', name: 'XOR' },
   { kind: 'XNOR', name: 'XNOR' },
   { kind: 'NOT', name: 'NOT' },
+];
+
+/** 입력 (클럭은 설정에서 켜면 푸시 버튼 뒤에) */
+const INPUTS: Item[] = [
+  { kind: 'SWITCH', name: '스위치', desc: '누르면 켜짐 유지' },
+  { kind: 'PUSH', name: '푸시 버튼', desc: '누르는 동안만 켜짐' },
+];
+const CONSTANTS: Item[] = [
   { kind: 'VCC', name: 'VCC', desc: '항상 1' },
   { kind: 'GND', name: 'GND', desc: '항상 0' },
 ];
-
-const IO: Item[] = [
-  { kind: 'SWITCH', name: '스위치', desc: '누르면 켜짐 유지' },
-  { kind: 'PUSH', name: '푸시 버튼', desc: '누르는 동안만 켜짐' },
+const OUTPUTS: Item[] = [
   { kind: 'LED', name: 'LED', desc: '입력 값을 표시' },
   { kind: 'SEG8', name: '8세그먼트', desc: 'a~g와 점(dp) 표시' },
 ];
@@ -71,11 +76,14 @@ function PaletteButton({ item }: { item: Item }) {
         e.dataTransfer.effectAllowed = 'copy';
       }}
       onClick={() => setArmed(armed ? null : kind)}
-      title={!allowed ? '이 챌린지에서는 쓸 수 없습니다' : armed ? '캔버스를 클릭하면 배치됩니다' : '클릭한 뒤 캔버스를 클릭하거나, 끌어다 놓으세요'}
+      // 설명은 마우스를 올리면 (칸을 좁게 쓰려고 버튼에는 이름만)
+      title={`${item.name}${item.desc ? ` — ${item.desc}` : ''}
+${
+        !allowed ? '이 챌린지에서는 쓸 수 없습니다' : armed ? '캔버스를 클릭하면 배치됩니다' : '클릭한 뒤 캔버스를 클릭하거나, 끌어다 놓으세요'
+      }`}
     >
-      <PartIcon kind={item.kind} />
+      <PartIcon kind={item.kind} size={28} />
       <span className="palette-name">{item.name}</span>
-      {item.desc && <span className="palette-desc">{item.desc}</span>}
     </button>
   );
 }
@@ -461,7 +469,7 @@ export function Palette() {
   const chipFileRef = useRef<HTMLInputElement>(null);
   const gates = GATES.filter((i) => matches(i.name, query));
   const clockEnabled = useSettings((s) => s.clockEnabled);
-  const io = [...IO, ...(clockEnabled ? [CLOCK] : [])].filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''}`));
+  const io = [...INPUTS, ...(clockEnabled ? [CLOCK] : []), ...CONSTANTS, ...OUTPUTS].filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''}`));
   const bus = BUS.filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''} 버스`));
   const chips = Object.values(library)
     .filter((d) => matches(d.name, query, d.category ?? ''))

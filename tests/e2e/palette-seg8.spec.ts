@@ -8,18 +8,31 @@ async function toggle(page: Page, id: string) {
   await page.mouse.click(box.x + 8, box.y + box.height / 2);
 }
 
-test('입력·출력, 버스, 내 칩도 한 줄에 2개씩 놓인다', async ({ page }) => {
+test('부품은 한 줄에 3개(이름만, 설명은 툴팁), 내 칩은 2개, VCC·GND는 입력·출력에', async ({ page }) => {
   await seed(page, new CircuitBuilder().build(), { 'logiclab:v1:library': serializeLibrary(nestedLibrary()) });
-  const sameRow = async (a: string, b: string) => {
-    const ra = (await page.getByTestId(a).boundingBox())!;
-    const rb = (await page.getByTestId(b).boundingBox())!;
-    expect(Math.abs(ra.y - rb.y)).toBeLessThan(2);
-    expect(rb.x).toBeGreaterThan(ra.x + ra.width - 1);
+  const box = async (id: string) => (await page.getByTestId(id).boundingBox())!;
+  /** 같은 줄에 왼쪽부터 이 순서로 */
+  const row = async (...ids: string[]) => {
+    const rs = await Promise.all(ids.map(box));
+    for (let i = 1; i < rs.length; i++) {
+      expect(Math.abs(rs[i]!.y - rs[0]!.y)).toBeLessThan(2);
+      expect(rs[i]!.x).toBeGreaterThan(rs[i - 1]!.x + rs[i - 1]!.width - 1);
+    }
   };
   await page.locator('.palette').screenshot({ path: test.info().outputPath('palette.png') });
-  await sameRow('palette-SWITCH', 'palette-PUSH');
-  await sameRow('palette-LED', 'palette-SEG8');
-  await sameRow('palette-SPLIT', 'palette-MERGE');
+  await row('palette-AND', 'palette-NAND', 'palette-OR');
+  // 클럭은 설정에서 기본으로 켜져 있다
+  await row('palette-SWITCH', 'palette-PUSH', 'palette-CLOCK');
+  await row('palette-VCC', 'palette-GND', 'palette-LED');
+  await row('palette-SPLIT', 'palette-MERGE');
+  // VCC·GND는 입력·출력 칸에
+  const io = page.locator('section', { has: page.getByRole('heading', { name: '입력 · 출력' }) });
+  await expect(io.getByTestId('palette-VCC')).toBeVisible();
+  await expect(io.getByTestId('palette-GND')).toBeVisible();
+  // 설명은 버튼 글자가 아니라 툴팁
+  const sw = page.getByTestId('palette-SWITCH');
+  await expect(sw).toHaveText('스위치');
+  await expect(sw).toHaveAttribute('title', /누르면 켜짐 유지/);
   const chips = page.locator('.chip-item');
   const r0 = (await chips.nth(0).boundingBox())!;
   const r1 = (await chips.nth(1).boundingBox())!;
@@ -86,7 +99,7 @@ test('8세그먼트: 스위치를 세그먼트 핀에 연결하면 그 세그먼
   await expect(page.locator('[data-testid^="part-"][data-value]')).toHaveCount(4);
 });
 
-test('VCC·GND: 기본 게이트에 있고, VCC는 1·GND는 0을 낸다', async ({ page }) => {
+test('VCC·GND: VCC는 1·GND는 0을 낸다', async ({ page }) => {
   await seed(
     page,
     new CircuitBuilder().add('VCC', 'v', 0, 0).add('GND', 'g', 0, 4).add('LED', 'y1', 6, 0, 'Y1').add('LED', 'y2', 6, 4, 'Y2').wire('v.y', 'y1.a').wire('g.y', 'y2.a').build(),
