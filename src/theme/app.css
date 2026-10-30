@@ -183,9 +183,10 @@ button {
   font: inherit;
 }
 
+/* 버튼 크기는 그대로, 팔레트 폭에 따라 한 줄에 들어가는 개수가 바뀐다 */
 .palette-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fill, 66px);
   gap: 6px;
 }
 
@@ -921,7 +922,7 @@ button {
   padding: 0;
   list-style: none;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fill, 100px);
   gap: 8px;
 }
 

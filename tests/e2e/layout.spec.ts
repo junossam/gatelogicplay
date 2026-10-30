@@ -28,6 +28,15 @@ test('왼쪽·오른쪽 창: 숨기기·펼치기, 경계를 끌어(또는 ←�
   const w1 = (await palette.boundingBox())!.width;
   expect(Math.round(w1 - w0)).toBe(100);
 
+  // 팔레트를 넓혀도 부품 버튼 크기는 그대로이고, 한 줄에 들어가는 개수가 늘어난다
+  const perRow = async () => {
+    const ys = await palette.locator('.palette-grid').first().locator('.palette-item').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
+    return ys.filter((y) => y === ys[0]).length;
+  };
+  const btnW = async () => (await palette.getByTestId('palette-AND').boundingBox())!.width;
+  expect(await perRow()).toBe(4);
+  const bw = await btnW();
+
   // 오른쪽 경계는 키보드로 (← = 넓게)
   const right = page.getByRole('separator', { name: '인스펙터 폭 조절' });
   const r0 = (await inspector.boundingBox())!.width;
@@ -40,6 +49,12 @@ test('왼쪽·오른쪽 창: 숨기기·펼치기, 경계를 끌어(또는 ←�
   await left.focus();
   await page.keyboard.press('Home');
   await expect(left).toHaveAttribute('aria-valuenow', '180');
+  expect(await perRow()).toBe(2);
+  expect(await btnW()).toBe(bw);
+  await page.keyboard.press('End');
+  expect(await perRow()).toBe(6);
+  expect(await btnW()).toBe(bw);
+  await page.keyboard.press('Home');
 
   // 숨기기 → 캔버스가 넓어지고, 펼치기 버튼으로 되돌린다
   const c0 = await canvasW();
