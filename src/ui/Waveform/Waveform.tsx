@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { bitKey } from '../../sim/pins';
 import { RECORD_SIZE } from '../../sim/recorder';
 import type { Bit } from '../../sim/types';
-import { groupOfSelection, useEditor, useView } from '../../store/editorStore';
+import { groupOfSelection, useEditor } from '../../store/editorStore';
+import { useDisplayView } from '../Canvas/expand';
 import { engine, recorder, simActions, useSim } from '../../store/simStore';
 import { useUi } from '../../store/uiStore';
 import { channelsFor, effectiveMode, type Channel, type NetLookup, type WaveMode } from './channels';
@@ -46,7 +47,7 @@ export function wavePath(bits: Bit[]): string {
 }
 
 export function Waveform() {
-  const { circuit, prefix, readOnly } = useView();
+  const { circuit, prefix, readOnly } = useDisplayView();
   const library = useEditor((s) => s.library);
   const selected = useEditor((s) => s.selection.parts);
   const selection = useEditor((s) => s.selection);

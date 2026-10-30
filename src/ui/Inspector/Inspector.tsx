@@ -4,6 +4,7 @@ import { orderedIO } from '../../sim/truthTable';
 import type { Part } from '../../sim/types';
 import { circuitUses, usedBy } from '../../model/library';
 import { editorStore, groupOfSelection, useEditor, useView, workspaceOf } from '../../store/editorStore';
+import { useDisplayView } from '../Canvas/expand';
 import { useUi } from '../../store/uiStore';
 import type { Group, Note } from '../../sim/types';
 import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs } from '../../sim/pins';
@@ -401,7 +402,7 @@ function NoteDetails({ note, readOnly }: { note: Note; readOnly: boolean }) {
 }
 
 export function Inspector({ top, extra }: { top?: ReactNode; extra?: ReactNode }) {
-  const { circuit, prefix, readOnly, chain } = useView();
+  const { circuit, prefix, readOnly, chain } = useDisplayView();
   const openChipId = useEditor((s) => s.openChipId);
   const selection = useEditor((s) => s.selection);
 

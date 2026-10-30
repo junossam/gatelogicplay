@@ -7,6 +7,7 @@ import { challengeById } from '../../model/challenges';
 import { exitChallenge } from '../challenges/actions';
 import { confirmLeaveChip, exportAllChips, exportCurrent, importBundleFile } from '../Palette/Palette';
 import { MenuBar, type MenuDef } from './MenuBar';
+import { useDisplayView } from '../Canvas/expand';
 
 const STATUS_TEXT = { saved: '저장됨', saving: '저장 중…', error: '저장 실패' } as const;
 
@@ -88,8 +89,11 @@ export function Header() {
   const dirty = useEditor(isChipDirty);
   const openChipId = useEditor((s) => s.openChipId);
   const challengeId = useEditor((s) => s.openChallengeId);
-  // 칩 내부를 읽기 전용으로 보는 중이면 편집 메뉴를 막는다
-  const readOnly = useEditor((s) => s.viewPath.length > 0);
+  // 칩 내부를 읽기 전용으로 보거나 펼쳐 보는 중이면 편집 메뉴를 막는다
+  const insideChip = useEditor((s) => s.viewPath.length > 0);
+  // 펼칠 칩이 없는 회로에서는 펼쳐 보기 단계와 관계없이 편집할 수 있다
+  const expanding = useDisplayView().expanded;
+  const readOnly = insideChip || expanding;
   const hasSelection = useEditor((s) => s.selection.parts.length + s.selection.wires.length + s.selection.notes.length > 0);
   const hasParts = useEditor((s) => s.selection.parts.length > 0);
   const undo = useEditor((s) => s.undo);

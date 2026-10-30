@@ -18,6 +18,8 @@ interface UiState {
   armedNote: boolean;
   /** 바닥을 끌 때: 이동(손) = 화면 이동, 선택 = 범위 선택 */
   tool: 'hand' | 'select';
+  /** 칩 펼쳐 보기: 0 = 안 함, 1 = 한 단계, Infinity = 전부 */
+  expandDepth: number;
   zoom: number;
   waveOpen: boolean;
   truthOpen: boolean;
@@ -54,6 +56,7 @@ interface UiState {
   setArmed(kind: PartKind | null): void;
   setArmedNote(on: boolean): void;
   setTool(tool: 'hand' | 'select'): void;
+  setExpandDepth(depth: number): void;
   setZoom(zoom: number): void;
 }
 
@@ -61,6 +64,7 @@ export const useUi = create<UiState>((set) => ({
   armed: null,
   armedNote: false,
   tool: 'hand',
+  expandDepth: 0,
   zoom: 1,
   waveOpen: true,
   truthOpen: false,
@@ -93,6 +97,7 @@ export const useUi = create<UiState>((set) => ({
   setArmed: (armed) => set(armed ? { armed, armedNote: false } : { armed }),
   setArmedNote: (armedNote) => set(armedNote ? { armedNote, armed: null } : { armedNote }),
   setTool: (tool) => set({ tool }),
+  setExpandDepth: (expandDepth) => set({ expandDepth }),
   setZoom: (zoom) => set({ zoom }),
 }));
 

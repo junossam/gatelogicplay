@@ -26,9 +26,9 @@ test('플립플롭 예제 파일을 가져오면 T 플립플롭이 CLR 후 클�
   const canvas = (await page.getByTestId('canvas').boundingBox())!;
   await page.getByTestId('canvas').focus();
   await page.keyboard.down(' ');
-  await page.mouse.move(canvas.x + 600, canvas.y + 500);
+  await page.mouse.move(canvas.x + 600, canvas.y + canvas.height - 10);
   await page.mouse.down();
-  await page.mouse.move(canvas.x + 600, canvas.y + 50, { steps: 5 });
+  await page.mouse.move(canvas.x + 600, canvas.y + 10, { steps: 5 });
   await page.mouse.up();
   await page.keyboard.up(' ');
 

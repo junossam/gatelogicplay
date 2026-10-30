@@ -2,7 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { bitKey, partBits } from '../../sim/pins';
 import { GATE_KINDS } from '../../sim/primitives';
 import type { Circuit, Library, Part, PartKind, PinRef } from '../../sim/types';
-import { editorStore, groupOfSelection, pinOf, useEditor, useView } from '../../store/editorStore';
+import { editorStore, groupOfSelection, pinOf, useEditor } from '../../store/editorStore';
+import { useDisplayView } from './expand';
 import { engine, simActions, simStore, useSim } from '../../store/simStore';
 import { decodeKind, PART_DRAG_MIME, useUi } from '../../store/uiStore';
 import { confirmLeaveChip } from '../Palette/Palette';
@@ -63,6 +64,11 @@ function connectProblem(circuit: Circuit, a: PinRef, b: PinRef, library: Library
   return null;
 }
 
+/** 맨 바깥 스위치·푸시 버튼 (펼쳐 보는 중에도 조작할 수 있다) */
+function isTopInput(p: Part): boolean {
+  return !p.id.includes('/') && p.kind.type === 'primitive' && (p.kind.kind === 'SWITCH' || p.kind.kind === 'PUSH');
+}
+
 function TickCount() {
   const tick = useSim((s) => s.tick);
   return <span data-testid="tick">틱 {tick}</span>;
@@ -70,7 +76,11 @@ function TickCount() {
 
 export function Board() {
   const svgRef = useRef<SVGSVGElement>(null);
-  const { circuit, chain, prefix, readOnly } = useView();
+  // 칩 펼쳐 보기 중이면 펼친 회로(읽기 전용)
+  const { circuit, chain, prefix, readOnly, expanded, hasChips } = useDisplayView();
+  const expandDepth = useUi((s) => s.expandDepth);
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
   const library = useEditor((s) => s.library);
   const selection = useEditor((s) => s.selection);
   const dragging = useEditor((s) => s.dragBase !== null);
@@ -200,7 +210,14 @@ export function Board() {
         return;
       }
       if (!store.selection.parts.includes(partId)) store.setSelection({ parts: [partId] });
-      if (readOnly) return;
+      if (readOnly) {
+        // 펼쳐 보는 중에도 맨 바깥 스위치는 눌러 볼 수 있다 (공부용)
+        const part = viewCircuit.current.parts.find((p) => p.id === partId);
+        if (expandedRef.current && !partId.includes('/') && part?.kind.type === 'primitive' && part.kind.kind === 'SWITCH') {
+          simActions.toggleSwitch(part.id, partBits(part));
+        }
+        return;
+      }
       store.beginDrag();
       setGesture({ type: 'drag', start: toWorld(e.clientX, e.clientY), pointerId: e.pointerId, partId, moved: false });
     },
@@ -257,7 +274,7 @@ export function Board() {
   }, []);
 
   const onPinDown = useCallback((e: PointerEvent, ref: PinRef) => {
-    if (e.button !== 0 || space.current.held) return;
+    if (e.button !== 0 || space.current.held || expandedRef.current) return;
     e.stopPropagation();
     svgRef.current?.setPointerCapture(e.pointerId);
     focusCanvas();
@@ -464,6 +481,16 @@ export function Board() {
     useUi.getState().setZoom(z);
   }, [partRects, size]);
 
+  // 펼쳐 보기 단계를 바꾸면 전체가 보이게 맞춘다
+  const lastDepth = useRef(expandDepth);
+  useEffect(() => {
+    if (lastDepth.current === expandDepth) return;
+    lastDepth.current = expandDepth;
+    fitView();
+    // 단계가 바뀐 뒤 그려진 회로 기준으로 한 번만
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expandDepth]);
+
   // 다른 회로(칩 편집·칩 내부·챌린지)로 바뀌었는데 부품이 하나도 보이지 않으면 전체 보기.
   // 처음 열 때는 하지 않는다: 큰 회로를 25%까지 줄여 전부 그리면 느려진다.
   const docKey = `${useEditor((s) => s.openChipId)}|${useEditor((s) => s.openChallengeId)}|${prefix}`;
@@ -532,6 +559,25 @@ export function Board() {
 
   return (
     <div className="board">
+      {/* 칩 내부 보기: 캔버스를 가리지 않게 캔버스 위 한 줄로 */}
+      {(hasChips || expanded) && (
+        <div className="expand-control canvas-toolbar" role="group" aria-label="칩 내부 보기">
+          <span className="expand-label">칩 내부</span>
+          {(
+            [
+              [0, '보지 않기'],
+              [1, '1단계'],
+              [Infinity, '전체'],
+            ] as const
+          ).map(([d, label]) => (
+            <button key={label} type="button" aria-pressed={expandDepth === d} onClick={() => useUi.getState().setExpandDepth(d)}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+      {/* 캔버스와 그 위에 겹치는 것(전체 보기 버튼·상태 배지)은 이 안에서만 자리 잡는다 */}
+      <div className="board-stage">
       <svg
         ref={svgRef}
         className={`board-svg${(armed || armedNote) && !readOnly ? ' armed' : ''}${gesture?.type === 'pan' ? ' panning' : ''}${readOnly ? ' readonly' : ''} tool-${tool}`}
@@ -621,7 +667,7 @@ export function Board() {
               selected={selectedParts.has(p.id)}
               connected={connectedPins.get(p.id) ?? ''}
               prefix={prefix}
-              readOnly={readOnly}
+              readOnly={readOnly && !(expanded && isTopInput(p))}
               onPartDown={onPartDown}
               onPinDown={onPinDown}
               onPush={onPush}
@@ -671,6 +717,7 @@ export function Board() {
           </div>
         )}
       </div>
+      </div>
       <footer className="statusbar" data-testid="statusbar">
         <TickCount />
         <span>
@@ -686,7 +733,9 @@ export function Board() {
           </span>
         ) : (
           <span className="hint">
-            {armedNote ? '클릭한 자리에 메모를 놓습니다 · Esc: 취소' : tool === 'select' ? '드래그: 범위 선택 · Space+드래그: 화면 이동' : '드래그: 화면 이동 · Shift+드래그: 범위 선택'}
+            {expanded
+              ? '칩 내부를 펼쳐 보는 중 · 바깥 스위치·푸시 버튼만 조작 · 편집은 "보지 않기"에서'
+              : armedNote ? '클릭한 자리에 메모를 놓습니다 · Esc: 취소' : tool === 'select' ? '드래그: 범위 선택 · Space+드래그: 화면 이동' : '드래그: 화면 이동 · Shift+드래그: 범위 선택'}
           </span>
         )}
         <span className="zoom">{Math.round(zoom * 100)}%</span>
