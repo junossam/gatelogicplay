@@ -155,12 +155,12 @@ button {
 }
 
 .palette {
-  width: 240px;
+  width: var(--left-w, 240px);
   border-right: 1px solid var(--border);
 }
 
 .inspector {
-  width: 280px;
+  width: var(--right-w, 280px);
   border-left: 1px solid var(--border);
 }
 
@@ -1819,15 +1819,16 @@ button {
   cursor: help;
 }
 
-/* 칩 펼쳐 보기 (캔버스 위 한 줄) */
+/* 칩 내부 보기 (인스펙터 맨 위) */
 .expand-control {
-  flex: none;
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 2px 8px;
-  background: var(--bg-panel);
-  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+  padding: 2px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .expand-label {
@@ -1837,8 +1838,9 @@ button {
 }
 
 .expand-control button {
+  flex: 1;
   min-height: 44px;
-  padding: 0 12px;
+  padding: 0 4px;
   background: none;
   border: 1px solid transparent;
   border-radius: var(--radius);
@@ -1860,4 +1862,64 @@ button {
   display: flex;
   flex-direction: column;
   min-height: 0;
+}
+
+/* 패널 머리·숨기기·폭 조절 */
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -8px -4px 4px 0;
+}
+
+.panel-head-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-2);
+}
+
+.panel-collapse {
+  font-size: 16px;
+  color: var(--text-2);
+}
+
+.collapsed-rail {
+  flex: none;
+  width: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+  background: var(--bg-panel);
+}
+
+.collapsed-rail.left {
+  border-right: 1px solid var(--border);
+}
+
+.collapsed-rail.right {
+  border-left: 1px solid var(--border);
+}
+
+.collapsed-label {
+  writing-mode: vertical-rl;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.resizer {
+  flex: none;
+  width: 6px;
+  margin: 0 -3px;
+  z-index: 2;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.resizer:hover,
+.resizer:focus-visible {
+  background: var(--sig-on);
+  outline: none;
 }

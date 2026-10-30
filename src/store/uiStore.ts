@@ -11,7 +11,49 @@ export interface Message {
   onConfirm?: () => void;
 }
 
-interface UiState {
+type Side = 'left' | 'right';
+
+/** 패널 폭 범위 (px) */
+export const LAYOUT_LIMITS: Record<Side, { min: number; max: number; initial: number }> = {
+  left: { min: 180, max: 480, initial: 240 },
+  right: { min: 220, max: 560, initial: 280 },
+};
+
+const LAYOUT_KEY = 'logiclab:v1:layout';
+
+interface Layout {
+  leftWidth: number;
+  rightWidth: number;
+  leftCollapsed: boolean;
+  rightCollapsed: boolean;
+}
+
+const clampWidth = (side: Side, w: number) => Math.round(Math.min(LAYOUT_LIMITS[side].max, Math.max(LAYOUT_LIMITS[side].min, w)));
+
+function loadLayout(): Layout {
+  const base: Layout = { leftWidth: LAYOUT_LIMITS.left.initial, rightWidth: LAYOUT_LIMITS.right.initial, leftCollapsed: false, rightCollapsed: false };
+  try {
+    const raw = JSON.parse(localStorage.getItem(LAYOUT_KEY) ?? '{}') as Partial<Layout>;
+    return {
+      leftWidth: typeof raw.leftWidth === 'number' ? clampWidth('left', raw.leftWidth) : base.leftWidth,
+      rightWidth: typeof raw.rightWidth === 'number' ? clampWidth('right', raw.rightWidth) : base.rightWidth,
+      leftCollapsed: raw.leftCollapsed === true,
+      rightCollapsed: raw.rightCollapsed === true,
+    };
+  } catch {
+    return base;
+  }
+}
+
+function saveLayout(l: Layout) {
+  try {
+    localStorage.setItem(LAYOUT_KEY, JSON.stringify(l));
+  } catch {
+    // 저장 실패는 무시 (이번 세션에만 적용)
+  }
+}
+
+interface UiState extends Layout {
   /** 팔레트에서 클릭해 고른 부품. 캔버스를 클릭하면 그 자리에 배치된다. */
   armed: PartKind | null;
   /** 메모 도구를 골랐으면 캔버스를 클릭한 자리에 메모를 놓는다 */
@@ -57,10 +99,15 @@ interface UiState {
   setArmedNote(on: boolean): void;
   setTool(tool: 'hand' | 'select'): void;
   setExpandDepth(depth: number): void;
+  setPanelWidth(side: Side, width: number): void;
+  setPanelCollapsed(side: Side, collapsed: boolean): void;
   setZoom(zoom: number): void;
 }
 
-export const useUi = create<UiState>((set) => ({
+export const useUi = create<UiState>((set, get) => ({
+  ...(typeof localStorage === 'undefined'
+    ? { leftWidth: LAYOUT_LIMITS.left.initial, rightWidth: LAYOUT_LIMITS.right.initial, leftCollapsed: false, rightCollapsed: false }
+    : loadLayout()),
   armed: null,
   armedNote: false,
   tool: 'hand',
@@ -98,6 +145,16 @@ export const useUi = create<UiState>((set) => ({
   setArmedNote: (armedNote) => set(armedNote ? { armedNote, armed: null } : { armedNote }),
   setTool: (tool) => set({ tool }),
   setExpandDepth: (expandDepth) => set({ expandDepth }),
+  setPanelWidth: (side, width) => {
+    set(side === 'left' ? { leftWidth: clampWidth('left', width) } : { rightWidth: clampWidth('right', width) });
+    const { leftWidth, rightWidth, leftCollapsed, rightCollapsed } = get();
+    saveLayout({ leftWidth, rightWidth, leftCollapsed, rightCollapsed });
+  },
+  setPanelCollapsed: (side, collapsed) => {
+    set(side === 'left' ? { leftCollapsed: collapsed } : { rightCollapsed: collapsed });
+    const { leftWidth, rightWidth, leftCollapsed, rightCollapsed } = get();
+    saveLayout({ leftWidth, rightWidth, leftCollapsed, rightCollapsed });
+  },
   setZoom: (zoom) => set({ zoom }),
 }));
 

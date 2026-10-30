@@ -77,7 +77,7 @@ function TickCount() {
 export function Board() {
   const svgRef = useRef<SVGSVGElement>(null);
   // 칩 펼쳐 보기 중이면 펼친 회로(읽기 전용)
-  const { circuit, chain, prefix, readOnly, expanded, hasChips } = useDisplayView();
+  const { circuit, chain, prefix, readOnly, expanded } = useDisplayView();
   const expandDepth = useUi((s) => s.expandDepth);
   const expandedRef = useRef(expanded);
   expandedRef.current = expanded;
@@ -559,23 +559,6 @@ export function Board() {
 
   return (
     <div className="board">
-      {/* 칩 내부 보기: 캔버스를 가리지 않게 캔버스 위 한 줄로 */}
-      {(hasChips || expanded) && (
-        <div className="expand-control canvas-toolbar" role="group" aria-label="칩 내부 보기">
-          <span className="expand-label">칩 내부</span>
-          {(
-            [
-              [0, '보지 않기'],
-              [1, '1단계'],
-              [Infinity, '전체'],
-            ] as const
-          ).map(([d, label]) => (
-            <button key={label} type="button" aria-pressed={expandDepth === d} onClick={() => useUi.getState().setExpandDepth(d)}>
-              {label}
-            </button>
-          ))}
-        </div>
-      )}
       {/* 캔버스와 그 위에 겹치는 것(전체 보기 버튼·상태 배지)은 이 안에서만 자리 잡는다 */}
       <div className="board-stage">
       <svg

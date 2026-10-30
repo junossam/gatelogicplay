@@ -6,6 +6,7 @@ import type { ChipDef, PartKind, PrimitiveKind } from '../../sim/types';
 import { editorStore, isChipDirty, useEditor, workspaceOf } from '../../store/editorStore';
 import { useSettings } from '../../store/settingsStore';
 import { encodeKind, PART_DRAG_MIME, sameKind, useUi } from '../../store/uiStore';
+import { PanelHead } from '../Layout';
 import { PartIcon } from './PartIcons';
 
 interface Item {
@@ -480,6 +481,7 @@ export function Palette() {
 
   return (
     <aside className="palette" aria-label="부품 팔레트">
+      <PanelHead side="left" title="부품" />
       <CanvasTools />
       <input
         className="palette-search"

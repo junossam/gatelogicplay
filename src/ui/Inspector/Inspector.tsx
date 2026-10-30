@@ -5,6 +5,8 @@ import type { Part } from '../../sim/types';
 import { circuitUses, usedBy } from '../../model/library';
 import { editorStore, groupOfSelection, useEditor, useView, workspaceOf } from '../../store/editorStore';
 import { useDisplayView } from '../Canvas/expand';
+import { ExpandControl } from '../Canvas/ExpandControl';
+import { PanelHead } from '../Layout';
 import { useUi } from '../../store/uiStore';
 import type { Group, Note } from '../../sim/types';
 import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs } from '../../sim/pins';
@@ -418,6 +420,8 @@ export function Inspector({ top, extra }: { top?: ReactNode; extra?: ReactNode }
 
   return (
     <aside className="inspector" aria-label="인스펙터">
+      <PanelHead side="right" title="속성" />
+      <ExpandControl />
       {top}
       <h2 className="panel-title">선택한 부품</h2>
       {group ? (

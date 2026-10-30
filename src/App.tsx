@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { useEditor } from './store/editorStore';
 import { useUi } from './store/uiStore';
 import { ChallengeListDialog } from './ui/challenges/ChallengeListDialog';
@@ -12,6 +13,7 @@ import { SamplesDialog } from './ui/dialogs/SamplesDialog';
 import { ShareDialog } from './ui/dialogs/ShareDialog';
 import { CategoryDialog } from './ui/dialogs/CategoryDialog';
 import { Header } from './ui/Header/Header';
+import { CollapsedRail, Resizer } from './ui/Layout';
 import { Inspector } from './ui/Inspector/Inspector';
 import { Palette } from './ui/Palette/Palette';
 import { TruthTableDialog } from './ui/TruthTable/TruthTableDialog';
@@ -30,16 +32,22 @@ export function App() {
   const groupEdit = useUi((s) => s.groupEdit);
   const categoryEdit = useUi((s) => s.categoryEdit);
   const challengeId = useEditor((s) => s.openChallengeId);
+  const leftWidth = useUi((s) => s.leftWidth);
+  const rightWidth = useUi((s) => s.rightWidth);
+  const leftCollapsed = useUi((s) => s.leftCollapsed);
+  const rightCollapsed = useUi((s) => s.rightCollapsed);
   return (
     <div className="app">
       <Header />
-      <div className="workspace">
-        <Palette />
+      <div className="workspace" style={{ '--left-w': `${leftWidth}px`, '--right-w': `${rightWidth}px` } as CSSProperties}>
+        {leftCollapsed ? <CollapsedRail side="left" /> : <Palette />}
+        {!leftCollapsed && <Resizer side="left" />}
         <main className="canvas-area">
           <Board />
           <Waveform />
         </main>
-        <Inspector top={challengeId ? <ChallengePanel id={challengeId} /> : null} />
+        {!rightCollapsed && <Resizer side="right" />}
+        {rightCollapsed ? <CollapsedRail side="right" /> : <Inspector top={challengeId ? <ChallengePanel id={challengeId} /> : null} />}
       </div>
       {truthOpen && <TruthTableDialog />}
       {saveOpen && <SaveChipDialog />}
