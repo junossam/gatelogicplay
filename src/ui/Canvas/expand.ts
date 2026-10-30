@@ -60,6 +60,8 @@ function expandLevel(circuit: Circuit, library: Library, depth: number, prefix: 
     ins: Map<string, PinRef[]>;
     /** 칩 출력 핀 → 그 핀을 내는 안쪽 출력 */
     outs: Map<string, PinRef | undefined>;
+    /** 안쪽 입력 핀 부품 id → 칩 입력 핀 이름 (출력이 입력을 그대로 내보낼 때) */
+    inPins: Map<string, string>;
     ids: string[];
     name: string;
   }
@@ -71,7 +73,7 @@ function expandLevel(circuit: Circuit, library: Library, depth: number, prefix: 
     const ip = `${prefix}${p.id}/`;
     const inner = expandLevel(def.circuit, library, depth - 1, ip);
     const ioIds = new Set([...def.inputs, ...def.outputs].map((q) => ip + q.partId));
-    const ins = new Map(def.inputs.map((q) => [q.name, inner.wires.filter((w) => w.from.partId === ip + q.partId).map((w) => w.to)]));
+    const ins = new Map(def.inputs.map((q) => [q.name, inner.wires.filter((w) => w.from.partId === ip + q.partId && !ioIds.has(w.to.partId)).map((w) => w.to)]));
     const outs = new Map(def.outputs.map((q) => [q.name, inner.wires.find((w) => w.to.partId === ip + q.partId)?.from]));
     const kept: Circuit = {
       ...inner,
@@ -85,7 +87,8 @@ function expandLevel(circuit: Circuit, library: Library, depth: number, prefix: 
     // 그룹 사각형 여백과 이름표 자리를 둔다
     const W = Math.ceil(box.w) + 2;
     const H = Math.ceil(box.h) + 4;
-    insts.set(p.id, { part: p, inner: kept, box, w, h, dx: Math.max(0, W - w), dy: Math.max(0, H - h), ins, outs, ids: kept.parts.map((q) => q.id), name: def.name });
+    const inPins = new Map(def.inputs.map((q) => [ip + q.partId, q.name]));
+    insts.set(p.id, { part: p, inner: kept, box, w, h, dx: Math.max(0, W - w), dy: Math.max(0, H - h), ins, outs, inPins, ids: kept.parts.map((q) => q.id), name: def.name });
   }
   if (!insts.size) return prefixCircuit(circuit, prefix);
 
@@ -114,11 +117,21 @@ function expandLevel(circuit: Circuit, library: Library, depth: number, prefix: 
   }
 
   // 바깥 전선: 펼친 칩의 핀은 안쪽 부품으로 바꾼다
+  /** 바깥에서 (부품, 출력 핀)이 내는 신호의 실제 출처. 칩 출력이 칩 입력을 그대로 내보내면 그 입력을 넣는 바깥 신호까지 따라간다. */
+  const sourceOf = (partId: string, pin: string, depthLeft = 32): PinRef | undefined => {
+    const inst = insts.get(partId);
+    if (!inst) return { partId: prefix + partId, pin };
+    const src = inst.outs.get(pin);
+    const passPin = src && inst.inPins.get(src.partId);
+    if (passPin === undefined || depthLeft <= 0) return src;
+    const feed = circuit.wires.find((x) => x.to.partId === partId && x.to.pin === passPin);
+    return feed ? sourceOf(feed.from.partId, feed.from.pin, depthLeft - 1) : undefined;
+  };
   let n = 0;
   for (const w of circuit.wires) {
     const fromInst = insts.get(w.from.partId);
     const toInst = insts.get(w.to.partId);
-    const src = fromInst ? fromInst.outs.get(w.from.pin) : { partId: prefix + w.from.partId, pin: w.from.pin };
+    const src = sourceOf(w.from.partId, w.from.pin);
     if (!src) continue;
     const targets = toInst ? (toInst.ins.get(w.to.pin) ?? []) : [{ partId: prefix + w.to.partId, pin: w.to.pin }];
     for (const t of targets) {

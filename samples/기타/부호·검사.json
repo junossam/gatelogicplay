@@ -1,0 +1,804 @@
+{
+  "format": "logiclab",
+  "version": 6,
+  "title": "패리티·그레이 코드",
+  "description": "짝수 패리티 생성·검사 · 2진↔그레이 변환",
+  "library": {},
+  "workspace": {
+    "parts": [
+      {
+        "id": "d0",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 7,
+        "label": "D0"
+      },
+      {
+        "id": "d1",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 11,
+        "label": "D1"
+      },
+      {
+        "id": "d2",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 15,
+        "label": "D2"
+      },
+      {
+        "id": "d3",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 27,
+        "label": "D3"
+      },
+      {
+        "id": "pin",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 31,
+        "label": "받은 P"
+      },
+      {
+        "id": "b0",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 35,
+        "label": "B0"
+      },
+      {
+        "id": "b1",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 46,
+        "label": "B1"
+      },
+      {
+        "id": "b2",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 50,
+        "label": "B2"
+      },
+      {
+        "id": "b3",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 54,
+        "label": "B3"
+      },
+      {
+        "id": "gi0",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 70,
+        "label": "G0"
+      },
+      {
+        "id": "gi1",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 74,
+        "label": "G1"
+      },
+      {
+        "id": "gi2",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 78,
+        "label": "G2"
+      },
+      {
+        "id": "gi3",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 88,
+        "label": "G3"
+      },
+      {
+        "id": "pgen_x1",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 13
+      },
+      {
+        "id": "pgen_x2",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 21
+      },
+      {
+        "id": "pgen_x3",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 18,
+        "y": 17
+      },
+      {
+        "id": "pchk_x1",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 31
+      },
+      {
+        "id": "pchk_x2",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 39
+      },
+      {
+        "id": "pchk_x3",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 18,
+        "y": 35
+      },
+      {
+        "id": "pchk_x4",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 27,
+        "y": 40
+      },
+      {
+        "id": "b2g_x2",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 62
+      },
+      {
+        "id": "b2g_x1",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 56
+      },
+      {
+        "id": "b2g_x0",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 50
+      },
+      {
+        "id": "g2b_x2",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 82
+      },
+      {
+        "id": "g2b_x1",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 18,
+        "y": 79
+      },
+      {
+        "id": "g2b_x0",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 27,
+        "y": 76
+      },
+      {
+        "id": "p",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 13,
+        "label": "P"
+      },
+      {
+        "id": "err",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 32,
+        "label": "ERR"
+      },
+      {
+        "id": "g0",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 50,
+        "label": "→G0"
+      },
+      {
+        "id": "g1",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 54,
+        "label": "→G1"
+      },
+      {
+        "id": "g2",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 70,
+        "label": "→G2"
+      },
+      {
+        "id": "g3",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 74,
+        "label": "→G3"
+      },
+      {
+        "id": "bo0",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 78,
+        "label": "→B0"
+      },
+      {
+        "id": "bo1",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 88,
+        "label": "→B1"
+      },
+      {
+        "id": "bo2",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 92,
+        "label": "→B2"
+      },
+      {
+        "id": "bo3",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 64,
+        "y": 96,
+        "label": "→B3"
+      }
+    ],
+    "wires": [
+      {
+        "id": "w1",
+        "from": {
+          "partId": "pgen_x1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pgen_x3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w2",
+        "from": {
+          "partId": "pgen_x2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pgen_x3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w3",
+        "from": {
+          "partId": "pchk_x1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pchk_x3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w4",
+        "from": {
+          "partId": "pchk_x2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pchk_x3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w5",
+        "from": {
+          "partId": "pchk_x3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pchk_x4",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w6",
+        "from": {
+          "partId": "g2b_x2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g2b_x1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w7",
+        "from": {
+          "partId": "g2b_x1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g2b_x0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w8",
+        "from": {
+          "partId": "d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pgen_x1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w9",
+        "from": {
+          "partId": "d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pgen_x1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w10",
+        "from": {
+          "partId": "d2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pgen_x2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w11",
+        "from": {
+          "partId": "d3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pgen_x2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w12",
+        "from": {
+          "partId": "d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pchk_x1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w13",
+        "from": {
+          "partId": "d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pchk_x1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w14",
+        "from": {
+          "partId": "d2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pchk_x2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w15",
+        "from": {
+          "partId": "d3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pchk_x2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w16",
+        "from": {
+          "partId": "pin",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "pchk_x4",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w17",
+        "from": {
+          "partId": "b0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "b2g_x0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w18",
+        "from": {
+          "partId": "b1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "b2g_x1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w19",
+        "from": {
+          "partId": "b1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "b2g_x0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w20",
+        "from": {
+          "partId": "b2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "b2g_x2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w21",
+        "from": {
+          "partId": "b2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "b2g_x1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w22",
+        "from": {
+          "partId": "b3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "b2g_x2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w23",
+        "from": {
+          "partId": "gi0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g2b_x0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w24",
+        "from": {
+          "partId": "gi1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g2b_x1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w25",
+        "from": {
+          "partId": "gi2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g2b_x2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w26",
+        "from": {
+          "partId": "gi3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g2b_x2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w27",
+        "from": {
+          "partId": "pgen_x3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "p",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w28",
+        "from": {
+          "partId": "pchk_x4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "err",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w29",
+        "from": {
+          "partId": "b2g_x0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w30",
+        "from": {
+          "partId": "b2g_x1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w31",
+        "from": {
+          "partId": "b2g_x2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w32",
+        "from": {
+          "partId": "b3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "g3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w33",
+        "from": {
+          "partId": "g2b_x0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "bo0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w34",
+        "from": {
+          "partId": "g2b_x1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "bo1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w35",
+        "from": {
+          "partId": "g2b_x2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "bo2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w36",
+        "from": {
+          "partId": "gi3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "bo3",
+          "pin": "a"
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "g1",
+        "name": "짝수 패리티 생성",
+        "parts": [
+          "pgen_x1",
+          "pgen_x2",
+          "pgen_x3"
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "패리티 검사",
+        "parts": [
+          "pchk_x1",
+          "pchk_x2",
+          "pchk_x3",
+          "pchk_x4"
+        ]
+      },
+      {
+        "id": "g3",
+        "name": "2진 → 그레이",
+        "parts": [
+          "b2g_x2",
+          "b2g_x1",
+          "b2g_x0"
+        ]
+      },
+      {
+        "id": "g4",
+        "name": "그레이 → 2진",
+        "parts": [
+          "g2b_x2",
+          "g2b_x1",
+          "g2b_x0"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "id": "note1",
+        "x": 0,
+        "y": 0,
+        "text": "패리티: D0~D3의 1이 홀수면 P = 1. 받은 쪽에서 P까지 XOR해 1이면 오류\n그레이 코드: 이웃한 수끼리 한 비트만 다릅니다"
+      }
+    ]
+  },
+  "openChipId": null
+}

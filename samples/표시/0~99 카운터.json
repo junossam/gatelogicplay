@@ -1,0 +1,7380 @@
+{
+  "format": "logiclab",
+  "version": 6,
+  "title": "0~99 카운터 (BCD 표시)",
+  "description": "BCD 카운터 2개 + BCD→8세그먼트 2개",
+  "library": {},
+  "workspace": {
+    "parts": [
+      {
+        "id": "clk",
+        "kind": {
+          "type": "primitive",
+          "kind": "CLOCK"
+        },
+        "x": 0,
+        "y": 7,
+        "label": "CLK",
+        "props": {
+          "hz": 1
+        }
+      },
+      {
+        "id": "clr",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 11,
+        "label": "CLR"
+      },
+      {
+        "id": "vcc",
+        "kind": {
+          "type": "primitive",
+          "kind": "VCC"
+        },
+        "x": 0,
+        "y": 399
+      },
+      {
+        "id": "ones_nclr",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 9,
+        "y": 153
+      },
+      {
+        "id": "ones_t1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 336,
+        "y": 202
+      },
+      {
+        "id": "ones_t2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 84,
+        "y": 15,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "ones_t3",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 168,
+        "y": 13,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "ones_wrap",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 252,
+        "y": 16,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "ones_nwrap",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 261,
+        "y": 153
+      },
+      {
+        "id": "ones_x0",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 202
+      },
+      {
+        "id": "ones_d0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 270,
+        "y": 153,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "ones_f0_nclk",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 280,
+        "y": 61
+      },
+      {
+        "id": "ones_f0_master_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 288,
+        "y": 18
+      },
+      {
+        "id": "ones_f0_master_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 294,
+        "y": 18
+      },
+      {
+        "id": "ones_f0_master_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 294,
+        "y": 34
+      },
+      {
+        "id": "ones_f0_master_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 302,
+        "y": 23
+      },
+      {
+        "id": "ones_f0_master_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 302,
+        "y": 29
+      },
+      {
+        "id": "ones_f0_slave_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 312,
+        "y": 18
+      },
+      {
+        "id": "ones_f0_slave_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 318,
+        "y": 18
+      },
+      {
+        "id": "ones_f0_slave_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 318,
+        "y": 34
+      },
+      {
+        "id": "ones_f0_slave_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 326,
+        "y": 23
+      },
+      {
+        "id": "ones_f0_slave_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 326,
+        "y": 29
+      },
+      {
+        "id": "ones_x1",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 12
+      },
+      {
+        "id": "ones_d1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 18,
+        "y": 14,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "ones_f1_nclk",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 28,
+        "y": 59
+      },
+      {
+        "id": "ones_f1_master_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 36,
+        "y": 16
+      },
+      {
+        "id": "ones_f1_master_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 42,
+        "y": 16
+      },
+      {
+        "id": "ones_f1_master_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 42,
+        "y": 32
+      },
+      {
+        "id": "ones_f1_master_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 50,
+        "y": 21
+      },
+      {
+        "id": "ones_f1_master_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 50,
+        "y": 27
+      },
+      {
+        "id": "ones_f1_slave_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 60,
+        "y": 16
+      },
+      {
+        "id": "ones_f1_slave_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 66,
+        "y": 16
+      },
+      {
+        "id": "ones_f1_slave_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 66,
+        "y": 32
+      },
+      {
+        "id": "ones_f1_slave_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 74,
+        "y": 21
+      },
+      {
+        "id": "ones_f1_slave_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 74,
+        "y": 27
+      },
+      {
+        "id": "ones_x2",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 93,
+        "y": 16
+      },
+      {
+        "id": "ones_d2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 102,
+        "y": 16,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "ones_f2_nclk",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 112,
+        "y": 60
+      },
+      {
+        "id": "ones_f2_master_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 120,
+        "y": 17
+      },
+      {
+        "id": "ones_f2_master_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 126,
+        "y": 17
+      },
+      {
+        "id": "ones_f2_master_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 126,
+        "y": 33
+      },
+      {
+        "id": "ones_f2_master_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 134,
+        "y": 22
+      },
+      {
+        "id": "ones_f2_master_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 134,
+        "y": 28
+      },
+      {
+        "id": "ones_f2_slave_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 144,
+        "y": 17
+      },
+      {
+        "id": "ones_f2_slave_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 150,
+        "y": 17
+      },
+      {
+        "id": "ones_f2_slave_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 150,
+        "y": 33
+      },
+      {
+        "id": "ones_f2_slave_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 158,
+        "y": 22
+      },
+      {
+        "id": "ones_f2_slave_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 158,
+        "y": 28
+      },
+      {
+        "id": "ones_x3",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 177,
+        "y": 15
+      },
+      {
+        "id": "ones_d3",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 186,
+        "y": 15,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "ones_f3_nclk",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 196,
+        "y": 60
+      },
+      {
+        "id": "ones_f3_master_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 204,
+        "y": 17
+      },
+      {
+        "id": "ones_f3_master_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 210,
+        "y": 17
+      },
+      {
+        "id": "ones_f3_master_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 210,
+        "y": 33
+      },
+      {
+        "id": "ones_f3_master_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 218,
+        "y": 22
+      },
+      {
+        "id": "ones_f3_master_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 218,
+        "y": 28
+      },
+      {
+        "id": "ones_f3_slave_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 228,
+        "y": 17
+      },
+      {
+        "id": "ones_f3_slave_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 234,
+        "y": 17
+      },
+      {
+        "id": "ones_f3_slave_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 234,
+        "y": 33
+      },
+      {
+        "id": "ones_f3_slave_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 242,
+        "y": 22
+      },
+      {
+        "id": "ones_f3_slave_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 242,
+        "y": 28
+      },
+      {
+        "id": "ones_mq",
+        "kind": {
+          "type": "primitive",
+          "kind": "MERGE"
+        },
+        "x": 336,
+        "y": 12,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "tens_nclr",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 347,
+        "y": 152
+      },
+      {
+        "id": "tens_t1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 674,
+        "y": 201
+      },
+      {
+        "id": "tens_t2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 422,
+        "y": 14,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "tens_t3",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 506,
+        "y": 12,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "tens_wrap",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 590,
+        "y": 15,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "tens_nwrap",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 599,
+        "y": 152
+      },
+      {
+        "id": "tens_x0",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 347,
+        "y": 201
+      },
+      {
+        "id": "tens_d0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 608,
+        "y": 152,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "tens_f0_nclk",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 618,
+        "y": 60
+      },
+      {
+        "id": "tens_f0_master_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 626,
+        "y": 17
+      },
+      {
+        "id": "tens_f0_master_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 632,
+        "y": 17
+      },
+      {
+        "id": "tens_f0_master_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 632,
+        "y": 33
+      },
+      {
+        "id": "tens_f0_master_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 640,
+        "y": 22
+      },
+      {
+        "id": "tens_f0_master_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 640,
+        "y": 28
+      },
+      {
+        "id": "tens_f0_slave_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 650,
+        "y": 17
+      },
+      {
+        "id": "tens_f0_slave_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 656,
+        "y": 17
+      },
+      {
+        "id": "tens_f0_slave_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 656,
+        "y": 33
+      },
+      {
+        "id": "tens_f0_slave_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 664,
+        "y": 22
+      },
+      {
+        "id": "tens_f0_slave_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 664,
+        "y": 28
+      },
+      {
+        "id": "tens_x1",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 347,
+        "y": 11
+      },
+      {
+        "id": "tens_d1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 356,
+        "y": 13,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "tens_f1_nclk",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 366,
+        "y": 58
+      },
+      {
+        "id": "tens_f1_master_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 374,
+        "y": 15
+      },
+      {
+        "id": "tens_f1_master_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 380,
+        "y": 15
+      },
+      {
+        "id": "tens_f1_master_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 380,
+        "y": 31
+      },
+      {
+        "id": "tens_f1_master_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 388,
+        "y": 20
+      },
+      {
+        "id": "tens_f1_master_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 388,
+        "y": 26
+      },
+      {
+        "id": "tens_f1_slave_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 398,
+        "y": 15
+      },
+      {
+        "id": "tens_f1_slave_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 404,
+        "y": 15
+      },
+      {
+        "id": "tens_f1_slave_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 404,
+        "y": 31
+      },
+      {
+        "id": "tens_f1_slave_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 412,
+        "y": 20
+      },
+      {
+        "id": "tens_f1_slave_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 412,
+        "y": 26
+      },
+      {
+        "id": "tens_x2",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 431,
+        "y": 15
+      },
+      {
+        "id": "tens_d2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 440,
+        "y": 15,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "tens_f2_nclk",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 450,
+        "y": 59
+      },
+      {
+        "id": "tens_f2_master_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 458,
+        "y": 16
+      },
+      {
+        "id": "tens_f2_master_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 464,
+        "y": 16
+      },
+      {
+        "id": "tens_f2_master_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 464,
+        "y": 32
+      },
+      {
+        "id": "tens_f2_master_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 472,
+        "y": 21
+      },
+      {
+        "id": "tens_f2_master_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 472,
+        "y": 27
+      },
+      {
+        "id": "tens_f2_slave_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 482,
+        "y": 16
+      },
+      {
+        "id": "tens_f2_slave_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 488,
+        "y": 16
+      },
+      {
+        "id": "tens_f2_slave_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 488,
+        "y": 32
+      },
+      {
+        "id": "tens_f2_slave_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 496,
+        "y": 21
+      },
+      {
+        "id": "tens_f2_slave_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 496,
+        "y": 27
+      },
+      {
+        "id": "tens_x3",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 515,
+        "y": 14
+      },
+      {
+        "id": "tens_d3",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 524,
+        "y": 14,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "tens_f3_nclk",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 534,
+        "y": 59
+      },
+      {
+        "id": "tens_f3_master_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 542,
+        "y": 16
+      },
+      {
+        "id": "tens_f3_master_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 548,
+        "y": 16
+      },
+      {
+        "id": "tens_f3_master_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 548,
+        "y": 32
+      },
+      {
+        "id": "tens_f3_master_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 556,
+        "y": 21
+      },
+      {
+        "id": "tens_f3_master_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 556,
+        "y": 27
+      },
+      {
+        "id": "tens_f3_slave_nd",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 566,
+        "y": 16
+      },
+      {
+        "id": "tens_f3_slave_andr",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 572,
+        "y": 16
+      },
+      {
+        "id": "tens_f3_slave_ands",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 572,
+        "y": 32
+      },
+      {
+        "id": "tens_f3_slave_latch_nor1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 580,
+        "y": 21
+      },
+      {
+        "id": "tens_f3_slave_latch_nor2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 580,
+        "y": 27
+      },
+      {
+        "id": "tens_mq",
+        "kind": {
+          "type": "primitive",
+          "kind": "MERGE"
+        },
+        "x": 674,
+        "y": 11,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "dec10_sn",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 710,
+        "y": 10,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "dec10_inv0",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 717,
+        "y": 13
+      },
+      {
+        "id": "dec10_inv1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 717,
+        "y": 17
+      },
+      {
+        "id": "dec10_inv2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 717,
+        "y": 21
+      },
+      {
+        "id": "dec10_inv3",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 717,
+        "y": 25
+      },
+      {
+        "id": "dec10_m0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 140,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 150,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 120,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m3",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 130,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m4",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 100,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m5",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 110,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m6",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 60,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m7",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 70,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m8",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 80,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m9",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 90,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m10",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 40,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m11",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 50,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m12",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 20,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m13",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 30,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m14",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 726,
+        "y": 10,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_m15",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 717,
+        "y": 29,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_seg_a",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 735,
+        "y": 125,
+        "props": {
+          "inputs": 8
+        }
+      },
+      {
+        "id": "dec10_seg_b",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 735,
+        "y": 169,
+        "props": {
+          "inputs": 8
+        }
+      },
+      {
+        "id": "dec10_seg_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 735,
+        "y": 40,
+        "props": {
+          "inputs": 7
+        }
+      },
+      {
+        "id": "dec10_seg_d",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 735,
+        "y": 153,
+        "props": {
+          "inputs": 7
+        }
+      },
+      {
+        "id": "dec10_seg_e",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 735,
+        "y": 143,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec10_seg_f",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 735,
+        "y": 95,
+        "props": {
+          "inputs": 6
+        }
+      },
+      {
+        "id": "dec10_seg_g",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 735,
+        "y": 109,
+        "props": {
+          "inputs": 7
+        }
+      },
+      {
+        "id": "dec1_sn",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 347,
+        "y": 403,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "dec1_inv0",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 354,
+        "y": 406
+      },
+      {
+        "id": "dec1_inv1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 354,
+        "y": 410
+      },
+      {
+        "id": "dec1_inv2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 354,
+        "y": 414
+      },
+      {
+        "id": "dec1_inv3",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 354,
+        "y": 418
+      },
+      {
+        "id": "dec1_m0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 533,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 543,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 513,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m3",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 523,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m4",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 493,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m5",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 503,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m6",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 453,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m7",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 463,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m8",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 473,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m9",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 483,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m10",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 433,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m11",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 443,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m12",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 413,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m13",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 423,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m14",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 363,
+        "y": 403,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_m15",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 354,
+        "y": 422,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_seg_a",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 372,
+        "y": 518,
+        "props": {
+          "inputs": 8
+        }
+      },
+      {
+        "id": "dec1_seg_b",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 372,
+        "y": 562,
+        "props": {
+          "inputs": 8
+        }
+      },
+      {
+        "id": "dec1_seg_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOR"
+        },
+        "x": 372,
+        "y": 433,
+        "props": {
+          "inputs": 7
+        }
+      },
+      {
+        "id": "dec1_seg_d",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 372,
+        "y": 546,
+        "props": {
+          "inputs": 7
+        }
+      },
+      {
+        "id": "dec1_seg_e",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 372,
+        "y": 536,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "dec1_seg_f",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 372,
+        "y": 488,
+        "props": {
+          "inputs": 6
+        }
+      },
+      {
+        "id": "dec1_seg_g",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 372,
+        "y": 502,
+        "props": {
+          "inputs": 7
+        }
+      },
+      {
+        "id": "seg10",
+        "kind": {
+          "type": "primitive",
+          "kind": "SEG8"
+        },
+        "x": 745,
+        "y": 10
+      },
+      {
+        "id": "seg1",
+        "kind": {
+          "type": "primitive",
+          "kind": "SEG8"
+        },
+        "x": 745,
+        "y": 570
+      }
+    ],
+    "wires": [
+      {
+        "id": "w1",
+        "from": {
+          "partId": "ones_f0_master_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_master_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w2",
+        "from": {
+          "partId": "ones_f0_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_master_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w3",
+        "from": {
+          "partId": "ones_f0_master_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_master_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w4",
+        "from": {
+          "partId": "ones_f0_master_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_master_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w5",
+        "from": {
+          "partId": "ones_f0_master_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_master_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w6",
+        "from": {
+          "partId": "ones_f0_slave_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_slave_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w7",
+        "from": {
+          "partId": "ones_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_slave_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w8",
+        "from": {
+          "partId": "ones_f0_slave_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_slave_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w9",
+        "from": {
+          "partId": "ones_f0_slave_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_slave_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w10",
+        "from": {
+          "partId": "ones_f0_slave_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_slave_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w11",
+        "from": {
+          "partId": "ones_f0_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_master_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w12",
+        "from": {
+          "partId": "ones_f0_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_master_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w13",
+        "from": {
+          "partId": "ones_f0_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_slave_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w14",
+        "from": {
+          "partId": "ones_f0_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_slave_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w15",
+        "from": {
+          "partId": "ones_f1_master_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_master_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w16",
+        "from": {
+          "partId": "ones_f1_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_master_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w17",
+        "from": {
+          "partId": "ones_f1_master_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_master_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w18",
+        "from": {
+          "partId": "ones_f1_master_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_master_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w19",
+        "from": {
+          "partId": "ones_f1_master_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_master_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w20",
+        "from": {
+          "partId": "ones_f1_slave_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_slave_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w21",
+        "from": {
+          "partId": "ones_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_slave_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w22",
+        "from": {
+          "partId": "ones_f1_slave_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_slave_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w23",
+        "from": {
+          "partId": "ones_f1_slave_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_slave_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w24",
+        "from": {
+          "partId": "ones_f1_slave_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_slave_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w25",
+        "from": {
+          "partId": "ones_f1_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_master_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w26",
+        "from": {
+          "partId": "ones_f1_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_master_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w27",
+        "from": {
+          "partId": "ones_f1_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_slave_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w28",
+        "from": {
+          "partId": "ones_f1_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_slave_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w29",
+        "from": {
+          "partId": "ones_f2_master_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_master_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w30",
+        "from": {
+          "partId": "ones_f2_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_master_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w31",
+        "from": {
+          "partId": "ones_f2_master_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_master_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w32",
+        "from": {
+          "partId": "ones_f2_master_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_master_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w33",
+        "from": {
+          "partId": "ones_f2_master_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_master_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w34",
+        "from": {
+          "partId": "ones_f2_slave_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_slave_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w35",
+        "from": {
+          "partId": "ones_f2_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_slave_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w36",
+        "from": {
+          "partId": "ones_f2_slave_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_slave_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w37",
+        "from": {
+          "partId": "ones_f2_slave_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_slave_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w38",
+        "from": {
+          "partId": "ones_f2_slave_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_slave_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w39",
+        "from": {
+          "partId": "ones_f2_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_master_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w40",
+        "from": {
+          "partId": "ones_f2_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_master_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w41",
+        "from": {
+          "partId": "ones_f2_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_slave_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w42",
+        "from": {
+          "partId": "ones_f2_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_slave_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w43",
+        "from": {
+          "partId": "ones_f3_master_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_master_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w44",
+        "from": {
+          "partId": "ones_f3_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_master_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w45",
+        "from": {
+          "partId": "ones_f3_master_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_master_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w46",
+        "from": {
+          "partId": "ones_f3_master_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_master_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w47",
+        "from": {
+          "partId": "ones_f3_master_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_master_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w48",
+        "from": {
+          "partId": "ones_f3_slave_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_slave_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w49",
+        "from": {
+          "partId": "ones_f3_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_slave_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w50",
+        "from": {
+          "partId": "ones_f3_slave_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_slave_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w51",
+        "from": {
+          "partId": "ones_f3_slave_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_slave_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w52",
+        "from": {
+          "partId": "ones_f3_slave_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_slave_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w53",
+        "from": {
+          "partId": "ones_f3_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_master_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w54",
+        "from": {
+          "partId": "ones_f3_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_master_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w55",
+        "from": {
+          "partId": "ones_f3_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_slave_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w56",
+        "from": {
+          "partId": "ones_f3_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_slave_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w57",
+        "from": {
+          "partId": "ones_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_t1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w58",
+        "from": {
+          "partId": "ones_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_t2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w59",
+        "from": {
+          "partId": "ones_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_t2",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w60",
+        "from": {
+          "partId": "ones_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_t3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w61",
+        "from": {
+          "partId": "ones_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_t3",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w62",
+        "from": {
+          "partId": "ones_f2_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_t3",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w63",
+        "from": {
+          "partId": "ones_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_wrap",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w64",
+        "from": {
+          "partId": "ones_f3_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_wrap",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w65",
+        "from": {
+          "partId": "ones_wrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_nwrap",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w66",
+        "from": {
+          "partId": "ones_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_x0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w67",
+        "from": {
+          "partId": "ones_x0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w68",
+        "from": {
+          "partId": "ones_nclr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w69",
+        "from": {
+          "partId": "ones_nwrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d0",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w70",
+        "from": {
+          "partId": "ones_d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_master_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w71",
+        "from": {
+          "partId": "ones_d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_master_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w72",
+        "from": {
+          "partId": "ones_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_x1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w73",
+        "from": {
+          "partId": "ones_t1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_x1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w74",
+        "from": {
+          "partId": "ones_x1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w75",
+        "from": {
+          "partId": "ones_nclr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w76",
+        "from": {
+          "partId": "ones_nwrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d1",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w77",
+        "from": {
+          "partId": "ones_d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_master_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w78",
+        "from": {
+          "partId": "ones_d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_master_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w79",
+        "from": {
+          "partId": "ones_f2_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_x2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w80",
+        "from": {
+          "partId": "ones_t2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_x2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w81",
+        "from": {
+          "partId": "ones_x2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w82",
+        "from": {
+          "partId": "ones_nclr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w83",
+        "from": {
+          "partId": "ones_nwrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d2",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w84",
+        "from": {
+          "partId": "ones_d2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_master_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w85",
+        "from": {
+          "partId": "ones_d2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_master_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w86",
+        "from": {
+          "partId": "ones_f3_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_x3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w87",
+        "from": {
+          "partId": "ones_t3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_x3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w88",
+        "from": {
+          "partId": "ones_x3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w89",
+        "from": {
+          "partId": "ones_nclr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w90",
+        "from": {
+          "partId": "ones_nwrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_d3",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w91",
+        "from": {
+          "partId": "ones_d3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_master_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w92",
+        "from": {
+          "partId": "ones_d3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_master_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w93",
+        "from": {
+          "partId": "ones_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_mq",
+          "pin": "a0"
+        }
+      },
+      {
+        "id": "w94",
+        "from": {
+          "partId": "ones_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_mq",
+          "pin": "a1"
+        }
+      },
+      {
+        "id": "w95",
+        "from": {
+          "partId": "ones_f2_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_mq",
+          "pin": "a2"
+        }
+      },
+      {
+        "id": "w96",
+        "from": {
+          "partId": "ones_f3_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_mq",
+          "pin": "a3"
+        }
+      },
+      {
+        "id": "w97",
+        "from": {
+          "partId": "tens_f0_master_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_master_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w98",
+        "from": {
+          "partId": "tens_f0_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_master_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w99",
+        "from": {
+          "partId": "tens_f0_master_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_master_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w100",
+        "from": {
+          "partId": "tens_f0_master_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_master_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w101",
+        "from": {
+          "partId": "tens_f0_master_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_master_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w102",
+        "from": {
+          "partId": "tens_f0_slave_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_slave_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w103",
+        "from": {
+          "partId": "tens_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_slave_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w104",
+        "from": {
+          "partId": "tens_f0_slave_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_slave_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w105",
+        "from": {
+          "partId": "tens_f0_slave_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_slave_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w106",
+        "from": {
+          "partId": "tens_f0_slave_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_slave_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w107",
+        "from": {
+          "partId": "tens_f0_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_master_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w108",
+        "from": {
+          "partId": "tens_f0_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_master_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w109",
+        "from": {
+          "partId": "tens_f0_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_slave_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w110",
+        "from": {
+          "partId": "tens_f0_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_slave_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w111",
+        "from": {
+          "partId": "tens_f1_master_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_master_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w112",
+        "from": {
+          "partId": "tens_f1_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_master_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w113",
+        "from": {
+          "partId": "tens_f1_master_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_master_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w114",
+        "from": {
+          "partId": "tens_f1_master_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_master_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w115",
+        "from": {
+          "partId": "tens_f1_master_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_master_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w116",
+        "from": {
+          "partId": "tens_f1_slave_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_slave_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w117",
+        "from": {
+          "partId": "tens_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_slave_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w118",
+        "from": {
+          "partId": "tens_f1_slave_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_slave_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w119",
+        "from": {
+          "partId": "tens_f1_slave_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_slave_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w120",
+        "from": {
+          "partId": "tens_f1_slave_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_slave_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w121",
+        "from": {
+          "partId": "tens_f1_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_master_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w122",
+        "from": {
+          "partId": "tens_f1_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_master_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w123",
+        "from": {
+          "partId": "tens_f1_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_slave_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w124",
+        "from": {
+          "partId": "tens_f1_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_slave_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w125",
+        "from": {
+          "partId": "tens_f2_master_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_master_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w126",
+        "from": {
+          "partId": "tens_f2_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_master_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w127",
+        "from": {
+          "partId": "tens_f2_master_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_master_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w128",
+        "from": {
+          "partId": "tens_f2_master_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_master_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w129",
+        "from": {
+          "partId": "tens_f2_master_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_master_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w130",
+        "from": {
+          "partId": "tens_f2_slave_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_slave_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w131",
+        "from": {
+          "partId": "tens_f2_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_slave_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w132",
+        "from": {
+          "partId": "tens_f2_slave_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_slave_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w133",
+        "from": {
+          "partId": "tens_f2_slave_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_slave_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w134",
+        "from": {
+          "partId": "tens_f2_slave_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_slave_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w135",
+        "from": {
+          "partId": "tens_f2_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_master_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w136",
+        "from": {
+          "partId": "tens_f2_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_master_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w137",
+        "from": {
+          "partId": "tens_f2_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_slave_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w138",
+        "from": {
+          "partId": "tens_f2_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_slave_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w139",
+        "from": {
+          "partId": "tens_f3_master_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_master_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w140",
+        "from": {
+          "partId": "tens_f3_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_master_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w141",
+        "from": {
+          "partId": "tens_f3_master_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_master_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w142",
+        "from": {
+          "partId": "tens_f3_master_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_master_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w143",
+        "from": {
+          "partId": "tens_f3_master_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_master_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w144",
+        "from": {
+          "partId": "tens_f3_slave_latch_nor2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_slave_latch_nor1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w145",
+        "from": {
+          "partId": "tens_f3_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_slave_latch_nor2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w146",
+        "from": {
+          "partId": "tens_f3_slave_nd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_slave_andr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w147",
+        "from": {
+          "partId": "tens_f3_slave_andr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_slave_latch_nor1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w148",
+        "from": {
+          "partId": "tens_f3_slave_ands",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_slave_latch_nor2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w149",
+        "from": {
+          "partId": "tens_f3_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_master_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w150",
+        "from": {
+          "partId": "tens_f3_nclk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_master_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w151",
+        "from": {
+          "partId": "tens_f3_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_slave_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w152",
+        "from": {
+          "partId": "tens_f3_master_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_slave_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w153",
+        "from": {
+          "partId": "tens_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_t1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w154",
+        "from": {
+          "partId": "tens_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_t2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w155",
+        "from": {
+          "partId": "tens_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_t2",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w156",
+        "from": {
+          "partId": "tens_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_t3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w157",
+        "from": {
+          "partId": "tens_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_t3",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w158",
+        "from": {
+          "partId": "tens_f2_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_t3",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w159",
+        "from": {
+          "partId": "tens_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_wrap",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w160",
+        "from": {
+          "partId": "tens_f3_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_wrap",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w161",
+        "from": {
+          "partId": "tens_wrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_nwrap",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w162",
+        "from": {
+          "partId": "tens_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_x0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w163",
+        "from": {
+          "partId": "tens_x0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w164",
+        "from": {
+          "partId": "tens_nclr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w165",
+        "from": {
+          "partId": "tens_nwrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d0",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w166",
+        "from": {
+          "partId": "tens_d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_master_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w167",
+        "from": {
+          "partId": "tens_d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_master_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w168",
+        "from": {
+          "partId": "tens_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_x1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w169",
+        "from": {
+          "partId": "tens_t1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_x1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w170",
+        "from": {
+          "partId": "tens_x1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w171",
+        "from": {
+          "partId": "tens_nclr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w172",
+        "from": {
+          "partId": "tens_nwrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d1",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w173",
+        "from": {
+          "partId": "tens_d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_master_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w174",
+        "from": {
+          "partId": "tens_d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_master_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w175",
+        "from": {
+          "partId": "tens_f2_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_x2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w176",
+        "from": {
+          "partId": "tens_t2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_x2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w177",
+        "from": {
+          "partId": "tens_x2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w178",
+        "from": {
+          "partId": "tens_nclr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w179",
+        "from": {
+          "partId": "tens_nwrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d2",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w180",
+        "from": {
+          "partId": "tens_d2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_master_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w181",
+        "from": {
+          "partId": "tens_d2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_master_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w182",
+        "from": {
+          "partId": "tens_f3_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_x3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w183",
+        "from": {
+          "partId": "tens_t3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_x3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w184",
+        "from": {
+          "partId": "tens_x3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w185",
+        "from": {
+          "partId": "tens_nclr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w186",
+        "from": {
+          "partId": "tens_nwrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_d3",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w187",
+        "from": {
+          "partId": "tens_d3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_master_nd",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w188",
+        "from": {
+          "partId": "tens_d3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_master_ands",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w189",
+        "from": {
+          "partId": "tens_f0_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_mq",
+          "pin": "a0"
+        }
+      },
+      {
+        "id": "w190",
+        "from": {
+          "partId": "tens_f1_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_mq",
+          "pin": "a1"
+        }
+      },
+      {
+        "id": "w191",
+        "from": {
+          "partId": "tens_f2_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_mq",
+          "pin": "a2"
+        }
+      },
+      {
+        "id": "w192",
+        "from": {
+          "partId": "tens_f3_slave_latch_nor1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_mq",
+          "pin": "a3"
+        }
+      },
+      {
+        "id": "w193",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec10_inv0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w194",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec10_inv1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w195",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec10_inv2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w196",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec10_inv3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w197",
+        "from": {
+          "partId": "dec10_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w198",
+        "from": {
+          "partId": "dec10_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w199",
+        "from": {
+          "partId": "dec10_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m0",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w200",
+        "from": {
+          "partId": "dec10_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m0",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w201",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec10_m1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w202",
+        "from": {
+          "partId": "dec10_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w203",
+        "from": {
+          "partId": "dec10_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m1",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w204",
+        "from": {
+          "partId": "dec10_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m1",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w205",
+        "from": {
+          "partId": "dec10_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w206",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec10_m2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w207",
+        "from": {
+          "partId": "dec10_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m2",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w208",
+        "from": {
+          "partId": "dec10_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m2",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w209",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec10_m3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w210",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec10_m3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w211",
+        "from": {
+          "partId": "dec10_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m3",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w212",
+        "from": {
+          "partId": "dec10_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m3",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w213",
+        "from": {
+          "partId": "dec10_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m4",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w214",
+        "from": {
+          "partId": "dec10_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m4",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w215",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec10_m4",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w216",
+        "from": {
+          "partId": "dec10_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m4",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w217",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec10_m5",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w218",
+        "from": {
+          "partId": "dec10_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m5",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w219",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec10_m5",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w220",
+        "from": {
+          "partId": "dec10_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m5",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w221",
+        "from": {
+          "partId": "dec10_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m6",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w222",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec10_m6",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w223",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec10_m6",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w224",
+        "from": {
+          "partId": "dec10_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m6",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w225",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec10_m7",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w226",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec10_m7",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w227",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec10_m7",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w228",
+        "from": {
+          "partId": "dec10_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m7",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w229",
+        "from": {
+          "partId": "dec10_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m8",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w230",
+        "from": {
+          "partId": "dec10_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m8",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w231",
+        "from": {
+          "partId": "dec10_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m8",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w232",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec10_m8",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w233",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec10_m9",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w234",
+        "from": {
+          "partId": "dec10_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m9",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w235",
+        "from": {
+          "partId": "dec10_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m9",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w236",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec10_m9",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w237",
+        "from": {
+          "partId": "dec10_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m10",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w238",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec10_m10",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w239",
+        "from": {
+          "partId": "dec10_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m10",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w240",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec10_m10",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w241",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec10_m11",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w242",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec10_m11",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w243",
+        "from": {
+          "partId": "dec10_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m11",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w244",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec10_m11",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w245",
+        "from": {
+          "partId": "dec10_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m12",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w246",
+        "from": {
+          "partId": "dec10_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m12",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w247",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec10_m12",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w248",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec10_m12",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w249",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec10_m13",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w250",
+        "from": {
+          "partId": "dec10_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m13",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w251",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec10_m13",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w252",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec10_m13",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w253",
+        "from": {
+          "partId": "dec10_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_m14",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w254",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec10_m14",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w255",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec10_m14",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w256",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec10_m14",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w257",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec10_m15",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w258",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec10_m15",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w259",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec10_m15",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w260",
+        "from": {
+          "partId": "dec10_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec10_m15",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w261",
+        "from": {
+          "partId": "dec10_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_a",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w262",
+        "from": {
+          "partId": "dec10_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_a",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w263",
+        "from": {
+          "partId": "dec10_m3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_a",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w264",
+        "from": {
+          "partId": "dec10_m5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_a",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w265",
+        "from": {
+          "partId": "dec10_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_a",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w266",
+        "from": {
+          "partId": "dec10_m7",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_a",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w267",
+        "from": {
+          "partId": "dec10_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_a",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w268",
+        "from": {
+          "partId": "dec10_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_a",
+          "pin": "h"
+        }
+      },
+      {
+        "id": "w269",
+        "from": {
+          "partId": "dec10_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_b",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w270",
+        "from": {
+          "partId": "dec10_m1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_b",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w271",
+        "from": {
+          "partId": "dec10_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_b",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w272",
+        "from": {
+          "partId": "dec10_m3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_b",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w273",
+        "from": {
+          "partId": "dec10_m4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_b",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w274",
+        "from": {
+          "partId": "dec10_m7",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_b",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w275",
+        "from": {
+          "partId": "dec10_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_b",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w276",
+        "from": {
+          "partId": "dec10_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_b",
+          "pin": "h"
+        }
+      },
+      {
+        "id": "w277",
+        "from": {
+          "partId": "dec10_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w278",
+        "from": {
+          "partId": "dec10_m10",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w279",
+        "from": {
+          "partId": "dec10_m11",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_c",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w280",
+        "from": {
+          "partId": "dec10_m12",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_c",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w281",
+        "from": {
+          "partId": "dec10_m13",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_c",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w282",
+        "from": {
+          "partId": "dec10_m14",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_c",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w283",
+        "from": {
+          "partId": "dec10_m15",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_c",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w284",
+        "from": {
+          "partId": "dec10_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_d",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w285",
+        "from": {
+          "partId": "dec10_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_d",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w286",
+        "from": {
+          "partId": "dec10_m3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_d",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w287",
+        "from": {
+          "partId": "dec10_m5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_d",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w288",
+        "from": {
+          "partId": "dec10_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_d",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w289",
+        "from": {
+          "partId": "dec10_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_d",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w290",
+        "from": {
+          "partId": "dec10_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_d",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w291",
+        "from": {
+          "partId": "dec10_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_e",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w292",
+        "from": {
+          "partId": "dec10_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_e",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w293",
+        "from": {
+          "partId": "dec10_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_e",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w294",
+        "from": {
+          "partId": "dec10_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_e",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w295",
+        "from": {
+          "partId": "dec10_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_f",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w296",
+        "from": {
+          "partId": "dec10_m4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_f",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w297",
+        "from": {
+          "partId": "dec10_m5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_f",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w298",
+        "from": {
+          "partId": "dec10_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_f",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w299",
+        "from": {
+          "partId": "dec10_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_f",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w300",
+        "from": {
+          "partId": "dec10_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_f",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w301",
+        "from": {
+          "partId": "dec10_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_g",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w302",
+        "from": {
+          "partId": "dec10_m3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_g",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w303",
+        "from": {
+          "partId": "dec10_m4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_g",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w304",
+        "from": {
+          "partId": "dec10_m5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_g",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w305",
+        "from": {
+          "partId": "dec10_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_g",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w306",
+        "from": {
+          "partId": "dec10_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_g",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w307",
+        "from": {
+          "partId": "dec10_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_seg_g",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w308",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec1_inv0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w309",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec1_inv1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w310",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec1_inv2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w311",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec1_inv3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w312",
+        "from": {
+          "partId": "dec1_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w313",
+        "from": {
+          "partId": "dec1_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w314",
+        "from": {
+          "partId": "dec1_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m0",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w315",
+        "from": {
+          "partId": "dec1_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m0",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w316",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec1_m1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w317",
+        "from": {
+          "partId": "dec1_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w318",
+        "from": {
+          "partId": "dec1_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m1",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w319",
+        "from": {
+          "partId": "dec1_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m1",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w320",
+        "from": {
+          "partId": "dec1_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w321",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec1_m2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w322",
+        "from": {
+          "partId": "dec1_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m2",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w323",
+        "from": {
+          "partId": "dec1_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m2",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w324",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec1_m3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w325",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec1_m3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w326",
+        "from": {
+          "partId": "dec1_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m3",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w327",
+        "from": {
+          "partId": "dec1_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m3",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w328",
+        "from": {
+          "partId": "dec1_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m4",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w329",
+        "from": {
+          "partId": "dec1_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m4",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w330",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec1_m4",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w331",
+        "from": {
+          "partId": "dec1_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m4",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w332",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec1_m5",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w333",
+        "from": {
+          "partId": "dec1_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m5",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w334",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec1_m5",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w335",
+        "from": {
+          "partId": "dec1_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m5",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w336",
+        "from": {
+          "partId": "dec1_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m6",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w337",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec1_m6",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w338",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec1_m6",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w339",
+        "from": {
+          "partId": "dec1_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m6",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w340",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec1_m7",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w341",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec1_m7",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w342",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec1_m7",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w343",
+        "from": {
+          "partId": "dec1_inv3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m7",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w344",
+        "from": {
+          "partId": "dec1_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m8",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w345",
+        "from": {
+          "partId": "dec1_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m8",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w346",
+        "from": {
+          "partId": "dec1_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m8",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w347",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec1_m8",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w348",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec1_m9",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w349",
+        "from": {
+          "partId": "dec1_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m9",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w350",
+        "from": {
+          "partId": "dec1_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m9",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w351",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec1_m9",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w352",
+        "from": {
+          "partId": "dec1_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m10",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w353",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec1_m10",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w354",
+        "from": {
+          "partId": "dec1_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m10",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w355",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec1_m10",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w356",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec1_m11",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w357",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec1_m11",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w358",
+        "from": {
+          "partId": "dec1_inv2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m11",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w359",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec1_m11",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w360",
+        "from": {
+          "partId": "dec1_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m12",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w361",
+        "from": {
+          "partId": "dec1_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m12",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w362",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec1_m12",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w363",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec1_m12",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w364",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec1_m13",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w365",
+        "from": {
+          "partId": "dec1_inv1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m13",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w366",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec1_m13",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w367",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec1_m13",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w368",
+        "from": {
+          "partId": "dec1_inv0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_m14",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w369",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec1_m14",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w370",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec1_m14",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w371",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec1_m14",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w372",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "dec1_m15",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w373",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "dec1_m15",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w374",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "dec1_m15",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w375",
+        "from": {
+          "partId": "dec1_sn",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "dec1_m15",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w376",
+        "from": {
+          "partId": "dec1_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_a",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w377",
+        "from": {
+          "partId": "dec1_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_a",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w378",
+        "from": {
+          "partId": "dec1_m3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_a",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w379",
+        "from": {
+          "partId": "dec1_m5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_a",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w380",
+        "from": {
+          "partId": "dec1_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_a",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w381",
+        "from": {
+          "partId": "dec1_m7",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_a",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w382",
+        "from": {
+          "partId": "dec1_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_a",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w383",
+        "from": {
+          "partId": "dec1_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_a",
+          "pin": "h"
+        }
+      },
+      {
+        "id": "w384",
+        "from": {
+          "partId": "dec1_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_b",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w385",
+        "from": {
+          "partId": "dec1_m1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_b",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w386",
+        "from": {
+          "partId": "dec1_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_b",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w387",
+        "from": {
+          "partId": "dec1_m3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_b",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w388",
+        "from": {
+          "partId": "dec1_m4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_b",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w389",
+        "from": {
+          "partId": "dec1_m7",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_b",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w390",
+        "from": {
+          "partId": "dec1_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_b",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w391",
+        "from": {
+          "partId": "dec1_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_b",
+          "pin": "h"
+        }
+      },
+      {
+        "id": "w392",
+        "from": {
+          "partId": "dec1_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w393",
+        "from": {
+          "partId": "dec1_m10",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w394",
+        "from": {
+          "partId": "dec1_m11",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_c",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w395",
+        "from": {
+          "partId": "dec1_m12",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_c",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w396",
+        "from": {
+          "partId": "dec1_m13",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_c",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w397",
+        "from": {
+          "partId": "dec1_m14",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_c",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w398",
+        "from": {
+          "partId": "dec1_m15",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_c",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w399",
+        "from": {
+          "partId": "dec1_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_d",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w400",
+        "from": {
+          "partId": "dec1_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_d",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w401",
+        "from": {
+          "partId": "dec1_m3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_d",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w402",
+        "from": {
+          "partId": "dec1_m5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_d",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w403",
+        "from": {
+          "partId": "dec1_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_d",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w404",
+        "from": {
+          "partId": "dec1_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_d",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w405",
+        "from": {
+          "partId": "dec1_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_d",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w406",
+        "from": {
+          "partId": "dec1_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_e",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w407",
+        "from": {
+          "partId": "dec1_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_e",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w408",
+        "from": {
+          "partId": "dec1_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_e",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w409",
+        "from": {
+          "partId": "dec1_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_e",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w410",
+        "from": {
+          "partId": "dec1_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_f",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w411",
+        "from": {
+          "partId": "dec1_m4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_f",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w412",
+        "from": {
+          "partId": "dec1_m5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_f",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w413",
+        "from": {
+          "partId": "dec1_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_f",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w414",
+        "from": {
+          "partId": "dec1_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_f",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w415",
+        "from": {
+          "partId": "dec1_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_f",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w416",
+        "from": {
+          "partId": "dec1_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_g",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w417",
+        "from": {
+          "partId": "dec1_m3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_g",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w418",
+        "from": {
+          "partId": "dec1_m4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_g",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w419",
+        "from": {
+          "partId": "dec1_m5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_g",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w420",
+        "from": {
+          "partId": "dec1_m6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_g",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w421",
+        "from": {
+          "partId": "dec1_m8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_g",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w422",
+        "from": {
+          "partId": "dec1_m9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_seg_g",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w423",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_nclk",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w424",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_slave_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w425",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f0_slave_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w426",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_nclk",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w427",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_slave_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w428",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f1_slave_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w429",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_nclk",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w430",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_slave_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w431",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f2_slave_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w432",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_nclk",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w433",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_slave_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w434",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_f3_slave_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w435",
+        "from": {
+          "partId": "clr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_nclr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w436",
+        "from": {
+          "partId": "vcc",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_t1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w437",
+        "from": {
+          "partId": "vcc",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_t2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w438",
+        "from": {
+          "partId": "vcc",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_t3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w439",
+        "from": {
+          "partId": "vcc",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_wrap",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w440",
+        "from": {
+          "partId": "vcc",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ones_x0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w441",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_nclk",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w442",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_slave_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w443",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f0_slave_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w444",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_nclk",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w445",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_slave_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w446",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f1_slave_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w447",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_nclk",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w448",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_slave_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w449",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f2_slave_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w450",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_nclk",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w451",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_slave_andr",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w452",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_f3_slave_ands",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w453",
+        "from": {
+          "partId": "clr",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_nclr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w454",
+        "from": {
+          "partId": "ones_wrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_t1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w455",
+        "from": {
+          "partId": "ones_wrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_t2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w456",
+        "from": {
+          "partId": "ones_wrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_t3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w457",
+        "from": {
+          "partId": "ones_wrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_wrap",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w458",
+        "from": {
+          "partId": "ones_wrap",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "tens_x0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w459",
+        "from": {
+          "partId": "tens_mq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec10_sn",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w460",
+        "from": {
+          "partId": "ones_mq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "dec1_sn",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w461",
+        "from": {
+          "partId": "dec10_seg_a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg10",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w462",
+        "from": {
+          "partId": "dec1_seg_a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w463",
+        "from": {
+          "partId": "dec10_seg_b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg10",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w464",
+        "from": {
+          "partId": "dec1_seg_b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w465",
+        "from": {
+          "partId": "dec10_seg_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg10",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w466",
+        "from": {
+          "partId": "dec1_seg_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg1",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w467",
+        "from": {
+          "partId": "dec10_seg_d",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg10",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w468",
+        "from": {
+          "partId": "dec1_seg_d",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg1",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w469",
+        "from": {
+          "partId": "dec10_seg_e",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg10",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w470",
+        "from": {
+          "partId": "dec1_seg_e",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg1",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w471",
+        "from": {
+          "partId": "dec10_seg_f",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg10",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w472",
+        "from": {
+          "partId": "dec1_seg_f",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg1",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w473",
+        "from": {
+          "partId": "dec10_seg_g",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg10",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w474",
+        "from": {
+          "partId": "dec1_seg_g",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "seg1",
+          "pin": "g"
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "g1",
+        "name": "D 플립플롭",
+        "parts": [
+          "ones_f0_nclk",
+          "ones_f0_master_nd",
+          "ones_f0_master_andr",
+          "ones_f0_master_ands",
+          "ones_f0_master_latch_nor1",
+          "ones_f0_master_latch_nor2",
+          "ones_f0_slave_nd",
+          "ones_f0_slave_andr",
+          "ones_f0_slave_ands",
+          "ones_f0_slave_latch_nor1",
+          "ones_f0_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "D 플립플롭",
+        "parts": [
+          "ones_f1_nclk",
+          "ones_f1_master_nd",
+          "ones_f1_master_andr",
+          "ones_f1_master_ands",
+          "ones_f1_master_latch_nor1",
+          "ones_f1_master_latch_nor2",
+          "ones_f1_slave_nd",
+          "ones_f1_slave_andr",
+          "ones_f1_slave_ands",
+          "ones_f1_slave_latch_nor1",
+          "ones_f1_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g3",
+        "name": "D 플립플롭",
+        "parts": [
+          "ones_f2_nclk",
+          "ones_f2_master_nd",
+          "ones_f2_master_andr",
+          "ones_f2_master_ands",
+          "ones_f2_master_latch_nor1",
+          "ones_f2_master_latch_nor2",
+          "ones_f2_slave_nd",
+          "ones_f2_slave_andr",
+          "ones_f2_slave_ands",
+          "ones_f2_slave_latch_nor1",
+          "ones_f2_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g4",
+        "name": "D 플립플롭",
+        "parts": [
+          "ones_f3_nclk",
+          "ones_f3_master_nd",
+          "ones_f3_master_andr",
+          "ones_f3_master_ands",
+          "ones_f3_master_latch_nor1",
+          "ones_f3_master_latch_nor2",
+          "ones_f3_slave_nd",
+          "ones_f3_slave_andr",
+          "ones_f3_slave_ands",
+          "ones_f3_slave_latch_nor1",
+          "ones_f3_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g5",
+        "name": "BCD 카운터 (0~9)",
+        "parts": [
+          "ones_nclr",
+          "ones_t1",
+          "ones_t2",
+          "ones_t3",
+          "ones_wrap",
+          "ones_nwrap",
+          "ones_x0",
+          "ones_d0",
+          "ones_f0_nclk",
+          "ones_f0_master_nd",
+          "ones_f0_master_andr",
+          "ones_f0_master_ands",
+          "ones_f0_master_latch_nor1",
+          "ones_f0_master_latch_nor2",
+          "ones_f0_slave_nd",
+          "ones_f0_slave_andr",
+          "ones_f0_slave_ands",
+          "ones_f0_slave_latch_nor1",
+          "ones_f0_slave_latch_nor2",
+          "ones_x1",
+          "ones_d1",
+          "ones_f1_nclk",
+          "ones_f1_master_nd",
+          "ones_f1_master_andr",
+          "ones_f1_master_ands",
+          "ones_f1_master_latch_nor1",
+          "ones_f1_master_latch_nor2",
+          "ones_f1_slave_nd",
+          "ones_f1_slave_andr",
+          "ones_f1_slave_ands",
+          "ones_f1_slave_latch_nor1",
+          "ones_f1_slave_latch_nor2",
+          "ones_x2",
+          "ones_d2",
+          "ones_f2_nclk",
+          "ones_f2_master_nd",
+          "ones_f2_master_andr",
+          "ones_f2_master_ands",
+          "ones_f2_master_latch_nor1",
+          "ones_f2_master_latch_nor2",
+          "ones_f2_slave_nd",
+          "ones_f2_slave_andr",
+          "ones_f2_slave_ands",
+          "ones_f2_slave_latch_nor1",
+          "ones_f2_slave_latch_nor2",
+          "ones_x3",
+          "ones_d3",
+          "ones_f3_nclk",
+          "ones_f3_master_nd",
+          "ones_f3_master_andr",
+          "ones_f3_master_ands",
+          "ones_f3_master_latch_nor1",
+          "ones_f3_master_latch_nor2",
+          "ones_f3_slave_nd",
+          "ones_f3_slave_andr",
+          "ones_f3_slave_ands",
+          "ones_f3_slave_latch_nor1",
+          "ones_f3_slave_latch_nor2",
+          "ones_mq"
+        ]
+      },
+      {
+        "id": "g6",
+        "name": "D 플립플롭",
+        "parts": [
+          "tens_f0_nclk",
+          "tens_f0_master_nd",
+          "tens_f0_master_andr",
+          "tens_f0_master_ands",
+          "tens_f0_master_latch_nor1",
+          "tens_f0_master_latch_nor2",
+          "tens_f0_slave_nd",
+          "tens_f0_slave_andr",
+          "tens_f0_slave_ands",
+          "tens_f0_slave_latch_nor1",
+          "tens_f0_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g7",
+        "name": "D 플립플롭",
+        "parts": [
+          "tens_f1_nclk",
+          "tens_f1_master_nd",
+          "tens_f1_master_andr",
+          "tens_f1_master_ands",
+          "tens_f1_master_latch_nor1",
+          "tens_f1_master_latch_nor2",
+          "tens_f1_slave_nd",
+          "tens_f1_slave_andr",
+          "tens_f1_slave_ands",
+          "tens_f1_slave_latch_nor1",
+          "tens_f1_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g8",
+        "name": "D 플립플롭",
+        "parts": [
+          "tens_f2_nclk",
+          "tens_f2_master_nd",
+          "tens_f2_master_andr",
+          "tens_f2_master_ands",
+          "tens_f2_master_latch_nor1",
+          "tens_f2_master_latch_nor2",
+          "tens_f2_slave_nd",
+          "tens_f2_slave_andr",
+          "tens_f2_slave_ands",
+          "tens_f2_slave_latch_nor1",
+          "tens_f2_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g9",
+        "name": "D 플립플롭",
+        "parts": [
+          "tens_f3_nclk",
+          "tens_f3_master_nd",
+          "tens_f3_master_andr",
+          "tens_f3_master_ands",
+          "tens_f3_master_latch_nor1",
+          "tens_f3_master_latch_nor2",
+          "tens_f3_slave_nd",
+          "tens_f3_slave_andr",
+          "tens_f3_slave_ands",
+          "tens_f3_slave_latch_nor1",
+          "tens_f3_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g10",
+        "name": "BCD 카운터 (0~9)",
+        "parts": [
+          "tens_nclr",
+          "tens_t1",
+          "tens_t2",
+          "tens_t3",
+          "tens_wrap",
+          "tens_nwrap",
+          "tens_x0",
+          "tens_d0",
+          "tens_f0_nclk",
+          "tens_f0_master_nd",
+          "tens_f0_master_andr",
+          "tens_f0_master_ands",
+          "tens_f0_master_latch_nor1",
+          "tens_f0_master_latch_nor2",
+          "tens_f0_slave_nd",
+          "tens_f0_slave_andr",
+          "tens_f0_slave_ands",
+          "tens_f0_slave_latch_nor1",
+          "tens_f0_slave_latch_nor2",
+          "tens_x1",
+          "tens_d1",
+          "tens_f1_nclk",
+          "tens_f1_master_nd",
+          "tens_f1_master_andr",
+          "tens_f1_master_ands",
+          "tens_f1_master_latch_nor1",
+          "tens_f1_master_latch_nor2",
+          "tens_f1_slave_nd",
+          "tens_f1_slave_andr",
+          "tens_f1_slave_ands",
+          "tens_f1_slave_latch_nor1",
+          "tens_f1_slave_latch_nor2",
+          "tens_x2",
+          "tens_d2",
+          "tens_f2_nclk",
+          "tens_f2_master_nd",
+          "tens_f2_master_andr",
+          "tens_f2_master_ands",
+          "tens_f2_master_latch_nor1",
+          "tens_f2_master_latch_nor2",
+          "tens_f2_slave_nd",
+          "tens_f2_slave_andr",
+          "tens_f2_slave_ands",
+          "tens_f2_slave_latch_nor1",
+          "tens_f2_slave_latch_nor2",
+          "tens_x3",
+          "tens_d3",
+          "tens_f3_nclk",
+          "tens_f3_master_nd",
+          "tens_f3_master_andr",
+          "tens_f3_master_ands",
+          "tens_f3_master_latch_nor1",
+          "tens_f3_master_latch_nor2",
+          "tens_f3_slave_nd",
+          "tens_f3_slave_andr",
+          "tens_f3_slave_ands",
+          "tens_f3_slave_latch_nor1",
+          "tens_f3_slave_latch_nor2",
+          "tens_mq"
+        ]
+      },
+      {
+        "id": "g11",
+        "name": "BCD → 8세그먼트",
+        "parts": [
+          "dec10_sn",
+          "dec10_inv0",
+          "dec10_inv1",
+          "dec10_inv2",
+          "dec10_inv3",
+          "dec10_m0",
+          "dec10_m1",
+          "dec10_m2",
+          "dec10_m3",
+          "dec10_m4",
+          "dec10_m5",
+          "dec10_m6",
+          "dec10_m7",
+          "dec10_m8",
+          "dec10_m9",
+          "dec10_m10",
+          "dec10_m11",
+          "dec10_m12",
+          "dec10_m13",
+          "dec10_m14",
+          "dec10_m15",
+          "dec10_seg_a",
+          "dec10_seg_b",
+          "dec10_seg_c",
+          "dec10_seg_d",
+          "dec10_seg_e",
+          "dec10_seg_f",
+          "dec10_seg_g"
+        ]
+      },
+      {
+        "id": "g12",
+        "name": "BCD → 8세그먼트",
+        "parts": [
+          "dec1_sn",
+          "dec1_inv0",
+          "dec1_inv1",
+          "dec1_inv2",
+          "dec1_inv3",
+          "dec1_m0",
+          "dec1_m1",
+          "dec1_m2",
+          "dec1_m3",
+          "dec1_m4",
+          "dec1_m5",
+          "dec1_m6",
+          "dec1_m7",
+          "dec1_m8",
+          "dec1_m9",
+          "dec1_m10",
+          "dec1_m11",
+          "dec1_m12",
+          "dec1_m13",
+          "dec1_m14",
+          "dec1_m15",
+          "dec1_seg_a",
+          "dec1_seg_b",
+          "dec1_seg_c",
+          "dec1_seg_d",
+          "dec1_seg_e",
+          "dec1_seg_f",
+          "dec1_seg_g"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "id": "note1",
+        "x": 0,
+        "y": 0,
+        "text": "먼저 CLR을 잠깐 켰다 끄세요.\n클럭마다 1의 자리가 늘고, 9 다음에는 10의 자리가 늘어납니다."
+      }
+    ]
+  },
+  "openChipId": null
+}

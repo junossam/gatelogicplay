@@ -19,6 +19,20 @@ export class CircuitBuilder {
     return this;
   }
 
+  /** 마지막에 넣은 게이트의 입력 수 (2~8) */
+  inputs(n: number): this {
+    const last = this.parts[this.parts.length - 1]!;
+    last.props = { ...last.props, inputs: n };
+    return this;
+  }
+
+  /** 마지막에 넣은 클럭의 주파수 */
+  hz(n: number): this {
+    const last = this.parts[this.parts.length - 1]!;
+    last.props = { ...last.props, hz: n };
+    return this;
+  }
+
   chip(chipId: string, id: string, x = 0, y = 0): this {
     this.parts.push({ id, kind: { type: 'chip', chipId }, x, y });
     return this;

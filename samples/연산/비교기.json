@@ -1,0 +1,1204 @@
+{
+  "format": "logiclab",
+  "version": 6,
+  "title": "4비트 비교기",
+  "description": "1비트 비교기 4개로 A>B, A=B, A<B",
+  "library": {},
+  "workspace": {
+    "parts": [
+      {
+        "id": "a",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 7,
+        "label": "A",
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "b",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 11,
+        "label": "B",
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "cmp_sa",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 10,
+        "y": 10,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "cmp_sb",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 10,
+        "y": 20,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "cmp_c0_na",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 18,
+        "y": 19
+      },
+      {
+        "id": "cmp_c0_nb",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 18,
+        "y": 29
+      },
+      {
+        "id": "cmp_c0_gt",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 27,
+        "y": 26
+      },
+      {
+        "id": "cmp_c0_eq",
+        "kind": {
+          "type": "primitive",
+          "kind": "XNOR"
+        },
+        "x": 18,
+        "y": 23
+      },
+      {
+        "id": "cmp_c0_lt",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 27,
+        "y": 20
+      },
+      {
+        "id": "cmp_c1_na",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 18,
+        "y": 37
+      },
+      {
+        "id": "cmp_c1_nb",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 18,
+        "y": 47
+      },
+      {
+        "id": "cmp_c1_gt",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 27,
+        "y": 44
+      },
+      {
+        "id": "cmp_c1_eq",
+        "kind": {
+          "type": "primitive",
+          "kind": "XNOR"
+        },
+        "x": 18,
+        "y": 41
+      },
+      {
+        "id": "cmp_c1_lt",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 27,
+        "y": 38
+      },
+      {
+        "id": "cmp_c2_na",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 18,
+        "y": 55
+      },
+      {
+        "id": "cmp_c2_nb",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 18,
+        "y": 65
+      },
+      {
+        "id": "cmp_c2_gt",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 27,
+        "y": 62
+      },
+      {
+        "id": "cmp_c2_eq",
+        "kind": {
+          "type": "primitive",
+          "kind": "XNOR"
+        },
+        "x": 18,
+        "y": 59
+      },
+      {
+        "id": "cmp_c2_lt",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 27,
+        "y": 56
+      },
+      {
+        "id": "cmp_c3_na",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 18,
+        "y": 73
+      },
+      {
+        "id": "cmp_c3_nb",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 18,
+        "y": 83
+      },
+      {
+        "id": "cmp_c3_gt",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 27,
+        "y": 80
+      },
+      {
+        "id": "cmp_c3_eq",
+        "kind": {
+          "type": "primitive",
+          "kind": "XNOR"
+        },
+        "x": 18,
+        "y": 77
+      },
+      {
+        "id": "cmp_c3_lt",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 27,
+        "y": 74
+      },
+      {
+        "id": "cmp_eq",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 64,
+        "y": 37,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "cmp_gt2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 64,
+        "y": 113
+      },
+      {
+        "id": "cmp_gt1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 64,
+        "y": 97,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "cmp_gt0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 64,
+        "y": 57,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "cmp_gt",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 73,
+        "y": 91,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "cmp_lt2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 64,
+        "y": 119
+      },
+      {
+        "id": "cmp_lt1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 64,
+        "y": 105,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "cmp_lt0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 64,
+        "y": 87,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "cmp_lt",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 73,
+        "y": 101,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "gt",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 83,
+        "y": 9,
+        "label": "A>B"
+      },
+      {
+        "id": "eq",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 83,
+        "y": 124,
+        "label": "A=B"
+      },
+      {
+        "id": "lt",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 83,
+        "y": 128,
+        "label": "A<B"
+      }
+    ],
+    "wires": [
+      {
+        "id": "w1",
+        "from": {
+          "partId": "cmp_c0_nb",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_c0_gt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w2",
+        "from": {
+          "partId": "cmp_c0_na",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_c0_lt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w3",
+        "from": {
+          "partId": "cmp_c1_nb",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_c1_gt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w4",
+        "from": {
+          "partId": "cmp_c1_na",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_c1_lt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w5",
+        "from": {
+          "partId": "cmp_c2_nb",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_c2_gt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w6",
+        "from": {
+          "partId": "cmp_c2_na",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_c2_lt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w7",
+        "from": {
+          "partId": "cmp_c3_nb",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_c3_gt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w8",
+        "from": {
+          "partId": "cmp_c3_na",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_c3_lt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w9",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "cmp_c0_na",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w10",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "cmp_c0_gt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w11",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "cmp_c0_eq",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w12",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "cmp_c0_nb",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w13",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "cmp_c0_eq",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w14",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "cmp_c0_lt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w15",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "cmp_c1_na",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w16",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "cmp_c1_gt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w17",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "cmp_c1_eq",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w18",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "cmp_c1_nb",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w19",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "cmp_c1_eq",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w20",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "cmp_c1_lt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w21",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "cmp_c2_na",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w22",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "cmp_c2_gt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w23",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "cmp_c2_eq",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w24",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "cmp_c2_nb",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w25",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "cmp_c2_eq",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w26",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "cmp_c2_lt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w27",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "cmp_c3_na",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w28",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "cmp_c3_gt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w29",
+        "from": {
+          "partId": "cmp_sa",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "cmp_c3_eq",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w30",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "cmp_c3_nb",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w31",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "cmp_c3_eq",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w32",
+        "from": {
+          "partId": "cmp_sb",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "cmp_c3_lt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w33",
+        "from": {
+          "partId": "cmp_c3_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_eq",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w34",
+        "from": {
+          "partId": "cmp_c2_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_eq",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w35",
+        "from": {
+          "partId": "cmp_c1_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_eq",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w36",
+        "from": {
+          "partId": "cmp_c0_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_eq",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w37",
+        "from": {
+          "partId": "cmp_c3_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w38",
+        "from": {
+          "partId": "cmp_c2_gt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w39",
+        "from": {
+          "partId": "cmp_c3_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w40",
+        "from": {
+          "partId": "cmp_c2_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w41",
+        "from": {
+          "partId": "cmp_c1_gt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt1",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w42",
+        "from": {
+          "partId": "cmp_c3_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w43",
+        "from": {
+          "partId": "cmp_c2_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w44",
+        "from": {
+          "partId": "cmp_c1_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt0",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w45",
+        "from": {
+          "partId": "cmp_c0_gt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt0",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w46",
+        "from": {
+          "partId": "cmp_c3_gt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w47",
+        "from": {
+          "partId": "cmp_gt2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w48",
+        "from": {
+          "partId": "cmp_gt1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w49",
+        "from": {
+          "partId": "cmp_gt0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_gt",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w50",
+        "from": {
+          "partId": "cmp_c3_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w51",
+        "from": {
+          "partId": "cmp_c2_lt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w52",
+        "from": {
+          "partId": "cmp_c3_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w53",
+        "from": {
+          "partId": "cmp_c2_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w54",
+        "from": {
+          "partId": "cmp_c1_lt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt1",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w55",
+        "from": {
+          "partId": "cmp_c3_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w56",
+        "from": {
+          "partId": "cmp_c2_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w57",
+        "from": {
+          "partId": "cmp_c1_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt0",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w58",
+        "from": {
+          "partId": "cmp_c0_lt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt0",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w59",
+        "from": {
+          "partId": "cmp_c3_lt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w60",
+        "from": {
+          "partId": "cmp_lt2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w61",
+        "from": {
+          "partId": "cmp_lt1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w62",
+        "from": {
+          "partId": "cmp_lt0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_lt",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w63",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_sa",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w64",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "cmp_sb",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w65",
+        "from": {
+          "partId": "cmp_gt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "gt",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w66",
+        "from": {
+          "partId": "cmp_eq",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "eq",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w67",
+        "from": {
+          "partId": "cmp_lt",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "lt",
+          "pin": "a"
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "g1",
+        "name": "1비트 비교기",
+        "parts": [
+          "cmp_c0_na",
+          "cmp_c0_nb",
+          "cmp_c0_gt",
+          "cmp_c0_eq",
+          "cmp_c0_lt"
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "1비트 비교기",
+        "parts": [
+          "cmp_c1_na",
+          "cmp_c1_nb",
+          "cmp_c1_gt",
+          "cmp_c1_eq",
+          "cmp_c1_lt"
+        ]
+      },
+      {
+        "id": "g3",
+        "name": "1비트 비교기",
+        "parts": [
+          "cmp_c2_na",
+          "cmp_c2_nb",
+          "cmp_c2_gt",
+          "cmp_c2_eq",
+          "cmp_c2_lt"
+        ]
+      },
+      {
+        "id": "g4",
+        "name": "1비트 비교기",
+        "parts": [
+          "cmp_c3_na",
+          "cmp_c3_nb",
+          "cmp_c3_gt",
+          "cmp_c3_eq",
+          "cmp_c3_lt"
+        ]
+      },
+      {
+        "id": "g5",
+        "name": "4비트 비교기",
+        "parts": [
+          "cmp_sa",
+          "cmp_sb",
+          "cmp_c0_na",
+          "cmp_c0_nb",
+          "cmp_c0_gt",
+          "cmp_c0_eq",
+          "cmp_c0_lt",
+          "cmp_c1_na",
+          "cmp_c1_nb",
+          "cmp_c1_gt",
+          "cmp_c1_eq",
+          "cmp_c1_lt",
+          "cmp_c2_na",
+          "cmp_c2_nb",
+          "cmp_c2_gt",
+          "cmp_c2_eq",
+          "cmp_c2_lt",
+          "cmp_c3_na",
+          "cmp_c3_nb",
+          "cmp_c3_gt",
+          "cmp_c3_eq",
+          "cmp_c3_lt",
+          "cmp_eq",
+          "cmp_gt2",
+          "cmp_gt1",
+          "cmp_gt0",
+          "cmp_gt",
+          "cmp_lt2",
+          "cmp_lt1",
+          "cmp_lt0",
+          "cmp_lt"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "id": "note1",
+        "x": 0,
+        "y": 0,
+        "text": "4비트 스위치 A, B를 눌러 값을 바꿔 보세요.\n윗자리부터 같으면 아래 자리를 봅니다."
+      }
+    ]
+  },
+  "openChipId": null
+}

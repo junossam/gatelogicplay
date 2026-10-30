@@ -1,0 +1,322 @@
+{
+  "format": "logiclab",
+  "version": 6,
+  "title": "반감산기·전감산기",
+  "description": "반감산기 2개 + OR = 전감산기",
+  "library": {},
+  "workspace": {
+    "parts": [
+      {
+        "id": "a",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 5,
+        "label": "A"
+      },
+      {
+        "id": "b",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 9,
+        "label": "B"
+      },
+      {
+        "id": "bi",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 23,
+        "label": "Bi"
+      },
+      {
+        "id": "fs_h1_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 9,
+        "y": 15
+      },
+      {
+        "id": "fs_h1_na",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 9,
+        "y": 11
+      },
+      {
+        "id": "fs_h1_bo",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 18,
+        "y": 12
+      },
+      {
+        "id": "fs_h2_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 29,
+        "y": 18
+      },
+      {
+        "id": "fs_h2_na",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 29,
+        "y": 14
+      },
+      {
+        "id": "fs_h2_bo",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 38,
+        "y": 15
+      },
+      {
+        "id": "fs_o",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 48,
+        "y": 10
+      },
+      {
+        "id": "d",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 58,
+        "y": 9,
+        "label": "D"
+      },
+      {
+        "id": "bo",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 58,
+        "y": 23,
+        "label": "Bo"
+      }
+    ],
+    "wires": [
+      {
+        "id": "w1",
+        "from": {
+          "partId": "fs_h1_na",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h1_bo",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w2",
+        "from": {
+          "partId": "fs_h2_na",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h2_bo",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w3",
+        "from": {
+          "partId": "fs_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h2_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w4",
+        "from": {
+          "partId": "fs_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h2_na",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w5",
+        "from": {
+          "partId": "fs_h1_bo",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_o",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w6",
+        "from": {
+          "partId": "fs_h2_bo",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_o",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w7",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h1_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w8",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h1_na",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w9",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h1_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w10",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h1_bo",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w11",
+        "from": {
+          "partId": "bi",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h2_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w12",
+        "from": {
+          "partId": "bi",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "fs_h2_bo",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w13",
+        "from": {
+          "partId": "fs_h2_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "d",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w14",
+        "from": {
+          "partId": "fs_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "bo",
+          "pin": "a"
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "g1",
+        "name": "반감산기",
+        "parts": [
+          "fs_h1_x",
+          "fs_h1_na",
+          "fs_h1_bo"
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "반감산기",
+        "parts": [
+          "fs_h2_x",
+          "fs_h2_na",
+          "fs_h2_bo"
+        ]
+      },
+      {
+        "id": "g3",
+        "name": "전감산기",
+        "parts": [
+          "fs_h1_x",
+          "fs_h1_na",
+          "fs_h1_bo",
+          "fs_h2_x",
+          "fs_h2_na",
+          "fs_h2_bo",
+          "fs_o"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "id": "note1",
+        "x": 0,
+        "y": 0,
+        "text": "D = A − B − Bi 의 차, Bo = 빌림"
+      }
+    ]
+  },
+  "openChipId": null
+}

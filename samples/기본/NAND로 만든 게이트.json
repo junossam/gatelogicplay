@@ -1,0 +1,472 @@
+{
+  "format": "logiclab",
+  "version": 6,
+  "title": "NAND로 만든 게이트",
+  "description": "NAND만으로 NOT·AND·OR·XOR",
+  "library": {},
+  "workspace": {
+    "parts": [
+      {
+        "id": "a",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 7,
+        "label": "A"
+      },
+      {
+        "id": "b",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 17,
+        "label": "B"
+      },
+      {
+        "id": "not_n1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 9,
+        "y": 10
+      },
+      {
+        "id": "and_n1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 9,
+        "y": 20
+      },
+      {
+        "id": "and_n2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 18,
+        "y": 20
+      },
+      {
+        "id": "or_na",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 9,
+        "y": 30
+      },
+      {
+        "id": "or_nb",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 9,
+        "y": 36
+      },
+      {
+        "id": "or_n3",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 18,
+        "y": 33
+      },
+      {
+        "id": "xor_n1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 9,
+        "y": 47
+      },
+      {
+        "id": "xor_n2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 18,
+        "y": 46
+      },
+      {
+        "id": "xor_n3",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 18,
+        "y": 52
+      },
+      {
+        "id": "xor_n4",
+        "kind": {
+          "type": "primitive",
+          "kind": "NAND"
+        },
+        "x": 27,
+        "y": 49
+      },
+      {
+        "id": "y_not",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 55,
+        "y": 7,
+        "label": "NOT A"
+      },
+      {
+        "id": "y_and",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 55,
+        "y": 18,
+        "label": "A AND B"
+      },
+      {
+        "id": "y_or",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 55,
+        "y": 28,
+        "label": "A OR B"
+      },
+      {
+        "id": "y_xor",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 55,
+        "y": 44,
+        "label": "A XOR B"
+      }
+    ],
+    "wires": [
+      {
+        "id": "w1",
+        "from": {
+          "partId": "and_n1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and_n2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w2",
+        "from": {
+          "partId": "and_n1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and_n2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w3",
+        "from": {
+          "partId": "or_na",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or_n3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w4",
+        "from": {
+          "partId": "or_nb",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or_n3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w5",
+        "from": {
+          "partId": "xor_n1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "xor_n2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w6",
+        "from": {
+          "partId": "xor_n1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "xor_n3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w7",
+        "from": {
+          "partId": "xor_n2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "xor_n4",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w8",
+        "from": {
+          "partId": "xor_n3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "xor_n4",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w9",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "not_n1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w10",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "not_n1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w11",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and_n1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w12",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and_n1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w13",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or_na",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w14",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or_na",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w15",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or_nb",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w16",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or_nb",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w17",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "xor_n1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w18",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "xor_n2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w19",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "xor_n1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w20",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "xor_n3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w21",
+        "from": {
+          "partId": "not_n1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y_not",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w22",
+        "from": {
+          "partId": "and_n2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y_and",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w23",
+        "from": {
+          "partId": "or_n3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y_or",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w24",
+        "from": {
+          "partId": "xor_n4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y_xor",
+          "pin": "a"
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "g1",
+        "name": "NOT (NAND)",
+        "parts": [
+          "not_n1"
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "AND (NAND)",
+        "parts": [
+          "and_n1",
+          "and_n2"
+        ]
+      },
+      {
+        "id": "g3",
+        "name": "OR (NAND)",
+        "parts": [
+          "or_na",
+          "or_nb",
+          "or_n3"
+        ]
+      },
+      {
+        "id": "g4",
+        "name": "XOR (NAND)",
+        "parts": [
+          "xor_n1",
+          "xor_n2",
+          "xor_n3",
+          "xor_n4"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "id": "note1",
+        "x": 0,
+        "y": 0,
+        "text": "NAND 하나로 모든 게이트를 만들 수 있습니다.\nA, B를 눌러 네 결과를 비교해 보세요."
+      }
+    ]
+  },
+  "openChipId": null
+}

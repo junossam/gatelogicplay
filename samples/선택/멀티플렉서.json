@@ -1,0 +1,818 @@
+{
+  "format": "logiclab",
+  "version": 6,
+  "title": "멀티플렉서·디멀티플렉서",
+  "description": "4:1 MUX(2:1 MUX 3개) · 1:4 DEMUX",
+  "library": {},
+  "workspace": {
+    "parts": [
+      {
+        "id": "d0",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 7,
+        "label": "D0"
+      },
+      {
+        "id": "d1",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 11,
+        "label": "D1"
+      },
+      {
+        "id": "d2",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 15,
+        "label": "D2"
+      },
+      {
+        "id": "d3",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 19,
+        "label": "D3"
+      },
+      {
+        "id": "s0",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 23,
+        "label": "S0"
+      },
+      {
+        "id": "s1",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 41,
+        "label": "S1"
+      },
+      {
+        "id": "dd",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 45,
+        "label": "D"
+      },
+      {
+        "id": "mux_m01_ns",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 9,
+        "y": 21
+      },
+      {
+        "id": "mux_m01_a0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 18,
+        "y": 15
+      },
+      {
+        "id": "mux_m01_a1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 9,
+        "y": 15
+      },
+      {
+        "id": "mux_m01_o",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 27,
+        "y": 15
+      },
+      {
+        "id": "mux_m23_ns",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 9,
+        "y": 35
+      },
+      {
+        "id": "mux_m23_a0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 18,
+        "y": 29
+      },
+      {
+        "id": "mux_m23_a1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 9,
+        "y": 29
+      },
+      {
+        "id": "mux_m23_o",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 27,
+        "y": 29
+      },
+      {
+        "id": "mux_mf_ns",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 56,
+        "y": 34
+      },
+      {
+        "id": "mux_mf_a0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 65,
+        "y": 28
+      },
+      {
+        "id": "mux_mf_a1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 56,
+        "y": 28
+      },
+      {
+        "id": "mux_mf_o",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 74,
+        "y": 28
+      },
+      {
+        "id": "demux_n0",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 9,
+        "y": 45
+      },
+      {
+        "id": "demux_n1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 9,
+        "y": 57
+      },
+      {
+        "id": "demux_g0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 18,
+        "y": 51,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "demux_g1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 18,
+        "y": 59,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "demux_g2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 18,
+        "y": 43,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "demux_g3",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 9,
+        "y": 49,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "y",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 93,
+        "y": 17,
+        "label": "Y"
+      },
+      {
+        "id": "y0",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 93,
+        "y": 43,
+        "label": "Y0"
+      },
+      {
+        "id": "y1",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 93,
+        "y": 47,
+        "label": "Y1"
+      },
+      {
+        "id": "y2",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 93,
+        "y": 69,
+        "label": "Y2"
+      },
+      {
+        "id": "y3",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 93,
+        "y": 73,
+        "label": "Y3"
+      }
+    ],
+    "wires": [
+      {
+        "id": "w1",
+        "from": {
+          "partId": "mux_m01_ns",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m01_a0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w2",
+        "from": {
+          "partId": "mux_m01_a0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m01_o",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w3",
+        "from": {
+          "partId": "mux_m01_a1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m01_o",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w4",
+        "from": {
+          "partId": "mux_m23_ns",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m23_a0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w5",
+        "from": {
+          "partId": "mux_m23_a0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m23_o",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w6",
+        "from": {
+          "partId": "mux_m23_a1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m23_o",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w7",
+        "from": {
+          "partId": "mux_mf_ns",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_mf_a0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w8",
+        "from": {
+          "partId": "mux_mf_a0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_mf_o",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w9",
+        "from": {
+          "partId": "mux_mf_a1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_mf_o",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w10",
+        "from": {
+          "partId": "mux_m01_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_mf_a0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w11",
+        "from": {
+          "partId": "mux_m23_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_mf_a1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w12",
+        "from": {
+          "partId": "demux_n1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w13",
+        "from": {
+          "partId": "demux_n0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g0",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w14",
+        "from": {
+          "partId": "demux_n1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w15",
+        "from": {
+          "partId": "demux_n0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g2",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w16",
+        "from": {
+          "partId": "d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m01_a0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w17",
+        "from": {
+          "partId": "d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m01_a1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w18",
+        "from": {
+          "partId": "d2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m23_a0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w19",
+        "from": {
+          "partId": "d3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m23_a1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w20",
+        "from": {
+          "partId": "s0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m01_ns",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w21",
+        "from": {
+          "partId": "s0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m01_a1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w22",
+        "from": {
+          "partId": "s0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m23_ns",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w23",
+        "from": {
+          "partId": "s0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_m23_a1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w24",
+        "from": {
+          "partId": "s1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_mf_ns",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w25",
+        "from": {
+          "partId": "s1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "mux_mf_a1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w26",
+        "from": {
+          "partId": "dd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w27",
+        "from": {
+          "partId": "dd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w28",
+        "from": {
+          "partId": "dd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w29",
+        "from": {
+          "partId": "dd",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w30",
+        "from": {
+          "partId": "s0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_n0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w31",
+        "from": {
+          "partId": "s0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g1",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w32",
+        "from": {
+          "partId": "s0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g3",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w33",
+        "from": {
+          "partId": "s1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_n1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w34",
+        "from": {
+          "partId": "s1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w35",
+        "from": {
+          "partId": "s1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "demux_g3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w36",
+        "from": {
+          "partId": "mux_mf_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w37",
+        "from": {
+          "partId": "demux_g0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w38",
+        "from": {
+          "partId": "demux_g1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w39",
+        "from": {
+          "partId": "demux_g2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w40",
+        "from": {
+          "partId": "demux_g3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y3",
+          "pin": "a"
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "g1",
+        "name": "2:1 MUX",
+        "parts": [
+          "mux_m01_ns",
+          "mux_m01_a0",
+          "mux_m01_a1",
+          "mux_m01_o"
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "2:1 MUX",
+        "parts": [
+          "mux_m23_ns",
+          "mux_m23_a0",
+          "mux_m23_a1",
+          "mux_m23_o"
+        ]
+      },
+      {
+        "id": "g3",
+        "name": "2:1 MUX",
+        "parts": [
+          "mux_mf_ns",
+          "mux_mf_a0",
+          "mux_mf_a1",
+          "mux_mf_o"
+        ]
+      },
+      {
+        "id": "g4",
+        "name": "4:1 MUX",
+        "parts": [
+          "mux_m01_ns",
+          "mux_m01_a0",
+          "mux_m01_a1",
+          "mux_m01_o",
+          "mux_m23_ns",
+          "mux_m23_a0",
+          "mux_m23_a1",
+          "mux_m23_o",
+          "mux_mf_ns",
+          "mux_mf_a0",
+          "mux_mf_a1",
+          "mux_mf_o"
+        ]
+      },
+      {
+        "id": "g5",
+        "name": "1:4 DEMUX",
+        "parts": [
+          "demux_n0",
+          "demux_n1",
+          "demux_g0",
+          "demux_g1",
+          "demux_g2",
+          "demux_g3"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "id": "note1",
+        "x": 0,
+        "y": 0,
+        "text": "S1 S0로 고릅니다.\nMUX: D0~D3 중 하나가 Y로 / DEMUX: D가 Y0~Y3 중 하나로"
+      }
+    ]
+  },
+  "openChipId": null
+}

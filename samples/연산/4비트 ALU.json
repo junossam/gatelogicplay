@@ -1,0 +1,1683 @@
+{
+  "format": "logiclab",
+  "version": 6,
+  "title": "4비트 ALU",
+  "description": "OP 00 AND · 01 OR · 10 덧셈 · 11 뺄셈",
+  "library": {},
+  "workspace": {
+    "parts": [
+      {
+        "id": "a",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 7,
+        "label": "A",
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "b",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 11,
+        "label": "B",
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "op",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 127,
+        "label": "OP",
+        "props": {
+          "bits": 2
+        }
+      },
+      {
+        "id": "alu_sop",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 10,
+        "y": 102,
+        "props": {
+          "bits": 2
+        }
+      },
+      {
+        "id": "alu_and4",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 10,
+        "y": 12,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_or4",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 10,
+        "y": 18,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_as_sa",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 20,
+        "y": 18,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_as_sb",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 20,
+        "y": 28,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_as_x0",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 27,
+        "y": 28
+      },
+      {
+        "id": "alu_as_fa0_h1_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 37,
+        "y": 27
+      },
+      {
+        "id": "alu_as_fa0_h1_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 37,
+        "y": 33
+      },
+      {
+        "id": "alu_as_fa0_h2_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 48,
+        "y": 30
+      },
+      {
+        "id": "alu_as_fa0_h2_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 48,
+        "y": 36
+      },
+      {
+        "id": "alu_as_fa0_o",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 58,
+        "y": 26
+      },
+      {
+        "id": "alu_as_x1",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 27,
+        "y": 70
+      },
+      {
+        "id": "alu_as_fa1_h1_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 69,
+        "y": 29
+      },
+      {
+        "id": "alu_as_fa1_h1_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 69,
+        "y": 35
+      },
+      {
+        "id": "alu_as_fa1_h2_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 80,
+        "y": 32
+      },
+      {
+        "id": "alu_as_fa1_h2_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 80,
+        "y": 38
+      },
+      {
+        "id": "alu_as_fa1_o",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 90,
+        "y": 28
+      },
+      {
+        "id": "alu_as_x2",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 27,
+        "y": 88
+      },
+      {
+        "id": "alu_as_fa2_h1_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 101,
+        "y": 32
+      },
+      {
+        "id": "alu_as_fa2_h1_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 101,
+        "y": 38
+      },
+      {
+        "id": "alu_as_fa2_h2_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 112,
+        "y": 35
+      },
+      {
+        "id": "alu_as_fa2_h2_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 112,
+        "y": 41
+      },
+      {
+        "id": "alu_as_fa2_o",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 122,
+        "y": 31
+      },
+      {
+        "id": "alu_as_x3",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 27,
+        "y": 94
+      },
+      {
+        "id": "alu_as_fa3_h1_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 133,
+        "y": 59
+      },
+      {
+        "id": "alu_as_fa3_h1_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 133,
+        "y": 65
+      },
+      {
+        "id": "alu_as_fa3_h2_x",
+        "kind": {
+          "type": "primitive",
+          "kind": "XOR"
+        },
+        "x": 144,
+        "y": 62
+      },
+      {
+        "id": "alu_as_fa3_h2_c",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 144,
+        "y": 68
+      },
+      {
+        "id": "alu_as_fa3_o",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 154,
+        "y": 58
+      },
+      {
+        "id": "alu_as_ms",
+        "kind": {
+          "type": "primitive",
+          "kind": "MERGE"
+        },
+        "x": 164,
+        "y": 26,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_nop0",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 19,
+        "y": 103
+      },
+      {
+        "id": "alu_nop1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 19,
+        "y": 107
+      },
+      {
+        "id": "alu_d0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 172,
+        "y": 110
+      },
+      {
+        "id": "alu_d1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 172,
+        "y": 116
+      },
+      {
+        "id": "alu_m0",
+        "kind": {
+          "type": "primitive",
+          "kind": "MERGE"
+        },
+        "x": 181,
+        "y": 108,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_m1",
+        "kind": {
+          "type": "primitive",
+          "kind": "MERGE"
+        },
+        "x": 181,
+        "y": 118,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_m2",
+        "kind": {
+          "type": "primitive",
+          "kind": "MERGE"
+        },
+        "x": 19,
+        "y": 111,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_t0",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 188,
+        "y": 100,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_t1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 188,
+        "y": 108,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_t2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 172,
+        "y": 104,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "alu_res",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 197,
+        "y": 103,
+        "props": {
+          "bits": 4,
+          "inputs": 3
+        }
+      },
+      {
+        "id": "alu_cy",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 172,
+        "y": 20
+      },
+      {
+        "id": "y",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 207,
+        "y": 11,
+        "label": "Y",
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "c",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 207,
+        "y": 127,
+        "label": "C"
+      }
+    ],
+    "wires": [
+      {
+        "id": "w1",
+        "from": {
+          "partId": "alu_as_fa0_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa0_h2_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w2",
+        "from": {
+          "partId": "alu_as_fa0_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa0_h2_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w3",
+        "from": {
+          "partId": "alu_as_fa0_h1_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa0_o",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w4",
+        "from": {
+          "partId": "alu_as_fa0_h2_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa0_o",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w5",
+        "from": {
+          "partId": "alu_as_fa1_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa1_h2_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w6",
+        "from": {
+          "partId": "alu_as_fa1_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa1_h2_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w7",
+        "from": {
+          "partId": "alu_as_fa1_h1_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa1_o",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w8",
+        "from": {
+          "partId": "alu_as_fa1_h2_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa1_o",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w9",
+        "from": {
+          "partId": "alu_as_fa2_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa2_h2_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w10",
+        "from": {
+          "partId": "alu_as_fa2_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa2_h2_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w11",
+        "from": {
+          "partId": "alu_as_fa2_h1_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa2_o",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w12",
+        "from": {
+          "partId": "alu_as_fa2_h2_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa2_o",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w13",
+        "from": {
+          "partId": "alu_as_fa3_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa3_h2_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w14",
+        "from": {
+          "partId": "alu_as_fa3_h1_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa3_h2_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w15",
+        "from": {
+          "partId": "alu_as_fa3_h1_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa3_o",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w16",
+        "from": {
+          "partId": "alu_as_fa3_h2_c",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa3_o",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w17",
+        "from": {
+          "partId": "alu_as_sb",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_as_x0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w18",
+        "from": {
+          "partId": "alu_as_sa",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_as_fa0_h1_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w19",
+        "from": {
+          "partId": "alu_as_sa",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_as_fa0_h1_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w20",
+        "from": {
+          "partId": "alu_as_x0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa0_h1_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w21",
+        "from": {
+          "partId": "alu_as_x0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa0_h1_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w22",
+        "from": {
+          "partId": "alu_as_sb",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "alu_as_x1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w23",
+        "from": {
+          "partId": "alu_as_sa",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "alu_as_fa1_h1_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w24",
+        "from": {
+          "partId": "alu_as_sa",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "alu_as_fa1_h1_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w25",
+        "from": {
+          "partId": "alu_as_x1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa1_h1_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w26",
+        "from": {
+          "partId": "alu_as_x1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa1_h1_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w27",
+        "from": {
+          "partId": "alu_as_fa0_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa1_h2_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w28",
+        "from": {
+          "partId": "alu_as_fa0_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa1_h2_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w29",
+        "from": {
+          "partId": "alu_as_sb",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "alu_as_x2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w30",
+        "from": {
+          "partId": "alu_as_sa",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "alu_as_fa2_h1_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w31",
+        "from": {
+          "partId": "alu_as_sa",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "alu_as_fa2_h1_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w32",
+        "from": {
+          "partId": "alu_as_x2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa2_h1_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w33",
+        "from": {
+          "partId": "alu_as_x2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa2_h1_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w34",
+        "from": {
+          "partId": "alu_as_fa1_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa2_h2_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w35",
+        "from": {
+          "partId": "alu_as_fa1_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa2_h2_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w36",
+        "from": {
+          "partId": "alu_as_sb",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "alu_as_x3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w37",
+        "from": {
+          "partId": "alu_as_sa",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "alu_as_fa3_h1_x",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w38",
+        "from": {
+          "partId": "alu_as_sa",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "alu_as_fa3_h1_c",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w39",
+        "from": {
+          "partId": "alu_as_x3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa3_h1_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w40",
+        "from": {
+          "partId": "alu_as_x3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa3_h1_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w41",
+        "from": {
+          "partId": "alu_as_fa2_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa3_h2_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w42",
+        "from": {
+          "partId": "alu_as_fa2_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_fa3_h2_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w43",
+        "from": {
+          "partId": "alu_as_fa0_h2_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_ms",
+          "pin": "a0"
+        }
+      },
+      {
+        "id": "w44",
+        "from": {
+          "partId": "alu_as_fa1_h2_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_ms",
+          "pin": "a1"
+        }
+      },
+      {
+        "id": "w45",
+        "from": {
+          "partId": "alu_as_fa2_h2_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_ms",
+          "pin": "a2"
+        }
+      },
+      {
+        "id": "w46",
+        "from": {
+          "partId": "alu_as_fa3_h2_x",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_ms",
+          "pin": "a3"
+        }
+      },
+      {
+        "id": "w47",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_as_x0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w48",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_as_fa0_h2_x",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w49",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_as_fa0_h2_c",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w50",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_as_x1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w51",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_as_x2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w52",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_as_x3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w53",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_nop0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w54",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "alu_nop1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w55",
+        "from": {
+          "partId": "alu_nop1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_d0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w56",
+        "from": {
+          "partId": "alu_nop0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_d0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w57",
+        "from": {
+          "partId": "alu_nop1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_d1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w58",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "alu_d1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w59",
+        "from": {
+          "partId": "alu_d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_m0",
+          "pin": "a0"
+        }
+      },
+      {
+        "id": "w60",
+        "from": {
+          "partId": "alu_d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_m0",
+          "pin": "a1"
+        }
+      },
+      {
+        "id": "w61",
+        "from": {
+          "partId": "alu_d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_m0",
+          "pin": "a2"
+        }
+      },
+      {
+        "id": "w62",
+        "from": {
+          "partId": "alu_d0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_m0",
+          "pin": "a3"
+        }
+      },
+      {
+        "id": "w63",
+        "from": {
+          "partId": "alu_d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_m1",
+          "pin": "a0"
+        }
+      },
+      {
+        "id": "w64",
+        "from": {
+          "partId": "alu_d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_m1",
+          "pin": "a1"
+        }
+      },
+      {
+        "id": "w65",
+        "from": {
+          "partId": "alu_d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_m1",
+          "pin": "a2"
+        }
+      },
+      {
+        "id": "w66",
+        "from": {
+          "partId": "alu_d1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_m1",
+          "pin": "a3"
+        }
+      },
+      {
+        "id": "w67",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "alu_m2",
+          "pin": "a0"
+        }
+      },
+      {
+        "id": "w68",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "alu_m2",
+          "pin": "a1"
+        }
+      },
+      {
+        "id": "w69",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "alu_m2",
+          "pin": "a2"
+        }
+      },
+      {
+        "id": "w70",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "alu_m2",
+          "pin": "a3"
+        }
+      },
+      {
+        "id": "w71",
+        "from": {
+          "partId": "alu_and4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_t0",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w72",
+        "from": {
+          "partId": "alu_m0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_t0",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w73",
+        "from": {
+          "partId": "alu_or4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_t1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w74",
+        "from": {
+          "partId": "alu_m1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_t1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w75",
+        "from": {
+          "partId": "alu_as_ms",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_t2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w76",
+        "from": {
+          "partId": "alu_m2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_t2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w77",
+        "from": {
+          "partId": "alu_t0",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_res",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w78",
+        "from": {
+          "partId": "alu_t1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_res",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w79",
+        "from": {
+          "partId": "alu_t2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_res",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w80",
+        "from": {
+          "partId": "alu_as_fa3_o",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_cy",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w81",
+        "from": {
+          "partId": "alu_sop",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "alu_cy",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w82",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_and4",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w83",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_or4",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w84",
+        "from": {
+          "partId": "a",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_sa",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w85",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_and4",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w86",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_or4",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w87",
+        "from": {
+          "partId": "b",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_as_sb",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w88",
+        "from": {
+          "partId": "op",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "alu_sop",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w89",
+        "from": {
+          "partId": "alu_res",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "y",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w90",
+        "from": {
+          "partId": "alu_cy",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "c",
+          "pin": "a"
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "g1",
+        "name": "반가산기",
+        "parts": [
+          "alu_as_fa0_h1_x",
+          "alu_as_fa0_h1_c"
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "반가산기",
+        "parts": [
+          "alu_as_fa0_h2_x",
+          "alu_as_fa0_h2_c"
+        ]
+      },
+      {
+        "id": "g3",
+        "name": "전가산기",
+        "parts": [
+          "alu_as_fa0_h1_x",
+          "alu_as_fa0_h1_c",
+          "alu_as_fa0_h2_x",
+          "alu_as_fa0_h2_c",
+          "alu_as_fa0_o"
+        ]
+      },
+      {
+        "id": "g4",
+        "name": "반가산기",
+        "parts": [
+          "alu_as_fa1_h1_x",
+          "alu_as_fa1_h1_c"
+        ]
+      },
+      {
+        "id": "g5",
+        "name": "반가산기",
+        "parts": [
+          "alu_as_fa1_h2_x",
+          "alu_as_fa1_h2_c"
+        ]
+      },
+      {
+        "id": "g6",
+        "name": "전가산기",
+        "parts": [
+          "alu_as_fa1_h1_x",
+          "alu_as_fa1_h1_c",
+          "alu_as_fa1_h2_x",
+          "alu_as_fa1_h2_c",
+          "alu_as_fa1_o"
+        ]
+      },
+      {
+        "id": "g7",
+        "name": "반가산기",
+        "parts": [
+          "alu_as_fa2_h1_x",
+          "alu_as_fa2_h1_c"
+        ]
+      },
+      {
+        "id": "g8",
+        "name": "반가산기",
+        "parts": [
+          "alu_as_fa2_h2_x",
+          "alu_as_fa2_h2_c"
+        ]
+      },
+      {
+        "id": "g9",
+        "name": "전가산기",
+        "parts": [
+          "alu_as_fa2_h1_x",
+          "alu_as_fa2_h1_c",
+          "alu_as_fa2_h2_x",
+          "alu_as_fa2_h2_c",
+          "alu_as_fa2_o"
+        ]
+      },
+      {
+        "id": "g10",
+        "name": "반가산기",
+        "parts": [
+          "alu_as_fa3_h1_x",
+          "alu_as_fa3_h1_c"
+        ]
+      },
+      {
+        "id": "g11",
+        "name": "반가산기",
+        "parts": [
+          "alu_as_fa3_h2_x",
+          "alu_as_fa3_h2_c"
+        ]
+      },
+      {
+        "id": "g12",
+        "name": "전가산기",
+        "parts": [
+          "alu_as_fa3_h1_x",
+          "alu_as_fa3_h1_c",
+          "alu_as_fa3_h2_x",
+          "alu_as_fa3_h2_c",
+          "alu_as_fa3_o"
+        ]
+      },
+      {
+        "id": "g13",
+        "name": "4비트 가감산기",
+        "parts": [
+          "alu_as_sa",
+          "alu_as_sb",
+          "alu_as_x0",
+          "alu_as_fa0_h1_x",
+          "alu_as_fa0_h1_c",
+          "alu_as_fa0_h2_x",
+          "alu_as_fa0_h2_c",
+          "alu_as_fa0_o",
+          "alu_as_x1",
+          "alu_as_fa1_h1_x",
+          "alu_as_fa1_h1_c",
+          "alu_as_fa1_h2_x",
+          "alu_as_fa1_h2_c",
+          "alu_as_fa1_o",
+          "alu_as_x2",
+          "alu_as_fa2_h1_x",
+          "alu_as_fa2_h1_c",
+          "alu_as_fa2_h2_x",
+          "alu_as_fa2_h2_c",
+          "alu_as_fa2_o",
+          "alu_as_x3",
+          "alu_as_fa3_h1_x",
+          "alu_as_fa3_h1_c",
+          "alu_as_fa3_h2_x",
+          "alu_as_fa3_h2_c",
+          "alu_as_fa3_o",
+          "alu_as_ms"
+        ]
+      },
+      {
+        "id": "g14",
+        "name": "4비트 ALU",
+        "parts": [
+          "alu_sop",
+          "alu_and4",
+          "alu_or4",
+          "alu_as_sa",
+          "alu_as_sb",
+          "alu_as_x0",
+          "alu_as_fa0_h1_x",
+          "alu_as_fa0_h1_c",
+          "alu_as_fa0_h2_x",
+          "alu_as_fa0_h2_c",
+          "alu_as_fa0_o",
+          "alu_as_x1",
+          "alu_as_fa1_h1_x",
+          "alu_as_fa1_h1_c",
+          "alu_as_fa1_h2_x",
+          "alu_as_fa1_h2_c",
+          "alu_as_fa1_o",
+          "alu_as_x2",
+          "alu_as_fa2_h1_x",
+          "alu_as_fa2_h1_c",
+          "alu_as_fa2_h2_x",
+          "alu_as_fa2_h2_c",
+          "alu_as_fa2_o",
+          "alu_as_x3",
+          "alu_as_fa3_h1_x",
+          "alu_as_fa3_h1_c",
+          "alu_as_fa3_h2_x",
+          "alu_as_fa3_h2_c",
+          "alu_as_fa3_o",
+          "alu_as_ms",
+          "alu_nop0",
+          "alu_nop1",
+          "alu_d0",
+          "alu_d1",
+          "alu_m0",
+          "alu_m1",
+          "alu_m2",
+          "alu_t0",
+          "alu_t1",
+          "alu_t2",
+          "alu_res",
+          "alu_cy"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "id": "note1",
+        "x": 0,
+        "y": 0,
+        "text": "OP(2비트): 0 = AND, 1 = OR, 2 = 덧셈, 3 = 뺄셈\n뺄셈은 B를 뒤집고 1을 더합니다 (2의 보수). C: 덧셈 자리올림 / 뺄셈이면 빌림 없음"
+      }
+    ]
+  },
+  "openChipId": null
+}
