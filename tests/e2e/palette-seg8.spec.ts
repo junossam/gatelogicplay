@@ -36,7 +36,7 @@ test('내 칩 ⚙ 설정 메뉴: 편집·분류 바꾸기·삭제, Esc와 바깥
   const gear = page.getByRole('button', { name: 'SR 래치 설정', exact: true });
   await gear.click();
   const menu = page.getByRole('menu', { name: 'SR 래치 설정' });
-  await expect(menu.getByRole('menuitem')).toHaveText(['✎편집', '🗀분류 바꾸기', '🗑삭제']);
+  await expect(menu.getByRole('menuitem')).toHaveText(['✎편집', '🗀분류 바꾸기', '⤓내보내기', '🗑삭제']);
   await expect(menu.getByRole('menuitem', { name: '편집' })).toBeFocused();
   await page.keyboard.press('ArrowDown');
   await expect(menu.getByRole('menuitem', { name: '분류 바꾸기' })).toBeFocused();

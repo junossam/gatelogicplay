@@ -5,7 +5,7 @@ import { MAX_SPEED, MIN_SPEED, simActions, useSim } from '../../store/simStore';
 import { useUi } from '../../store/uiStore';
 import { challengeById } from '../../model/challenges';
 import { exitChallenge } from '../challenges/actions';
-import { confirmLeaveChip, exportCurrent, importBundleFile } from '../Palette/Palette';
+import { confirmLeaveChip, exportAllChips, exportCurrent, importBundleFile } from '../Palette/Palette';
 import { MenuBar, type MenuDef } from './MenuBar';
 
 const STATUS_TEXT = { saved: '저장됨', saving: '저장 중…', error: '저장 실패' } as const;
@@ -126,13 +126,14 @@ export function Header() {
   };
   const closeDoc = () => (challengeId ? exitChallenge() : confirmLeaveChip(() => editorStore.getState().closeChip()));
 
-  // 자주 쓰지 않는 기능은 메뉴로, 실행 조작·실행 취소·가져오기/내보내기·칩으로 저장만 버튼으로 둔다
+  // 자주 쓰지 않는 기능은 메뉴로, 실행 조작·실행 취소·가져오기/내보내기·칩으로 저장·공유만 버튼으로 둔다
   const menus: MenuDef[] = [
     {
       label: '파일',
       items: [
         { label: '가져오기', run: () => fileRef.current?.click() },
         { label: '내보내기', run: exportCurrent },
+        { label: '내 칩 모두 내보내기', disabled: Object.keys(library).length === 0, run: exportAllChips },
         null,
         { label: '예제', disabled: !!challengeId, run: () => ui().setSamplesOpen(true) },
         { label: '공유 링크', disabled: !!challengeId, run: () => ui().setShareOpen(true) },
@@ -251,6 +252,11 @@ export function Header() {
         {!challengeId && (
           <button type="button" className="text-button primary" onClick={() => ui().setSaveOpen(true)} title="칩으로 저장 (Ctrl+S)">
             칩으로 저장
+          </button>
+        )}
+        {!challengeId && (
+          <button type="button" className="text-button" onClick={() => ui().setShareOpen(true)} title="회로와 칩을 담은 공유 링크 만들기">
+            공유
           </button>
         )}
         <input

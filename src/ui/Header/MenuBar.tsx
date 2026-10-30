@@ -113,6 +113,7 @@ export function MenuBar({ menus }: { menus: MenuDef[] }) {
                     type="button"
                     role="menuitem"
                     className="menubar-item"
+                    aria-keyshortcuts={item.shortcut}
                     disabled={item.disabled}
                     onClick={() => {
                       setOpen(null);
@@ -120,7 +121,11 @@ export function MenuBar({ menus }: { menus: MenuDef[] }) {
                     }}
                   >
                     <span>{item.label}</span>
-                    {item.shortcut && <kbd className="menubar-kbd">{item.shortcut}</kbd>}
+                    {item.shortcut && (
+                      <kbd className="menubar-kbd" aria-hidden="true">
+                        {item.shortcut}
+                      </kbd>
+                    )}
                   </button>
                 ),
               )}

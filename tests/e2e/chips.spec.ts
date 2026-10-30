@@ -182,7 +182,7 @@ test('쓰는 곳이 있는 칩은 삭제를 막고 목록을 보여준다', asyn
 test('내보내기는 의존하는 칩을 모두 담고, 가져오기는 잘못된 파일을 거부하고 충돌 시 선택지를 준다', async ({ page }) => {
   await seedRegister(page);
 
-  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: '내보내기' }).click()]);
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: '내보내기', exact: true }).click()]);
   const text = await (await download.createReadStream()).toArray().then((chunks) => Buffer.concat(chunks).toString('utf8'));
   const exported = JSON.parse(text);
   expect(exported.format).toBe('logiclab');

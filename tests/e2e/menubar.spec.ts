@@ -9,15 +9,15 @@ test('상단 메뉴바: 파일·편집·시뮬레이션·도구 메뉴와 핵심
   await expect(bar.getByRole('menuitem')).toHaveText(['파일', '편집', '시뮬레이션', '도구']);
   // 헤더 버튼: 실행 조작, 실행 취소/다시 실행, 가져오기/내보내기, 칩으로 저장
   const header = page.locator('.header');
-  for (const name of ['가져오기', '내보내기', '칩으로 저장', '실행 취소', '다시 실행', '한 틱 진행', '초기화']) {
+  for (const name of ['가져오기', '내보내기', '칩으로 저장', '공유', '실행 취소', '다시 실행', '한 틱 진행', '초기화']) {
     await expect(header.getByRole('button', { name, exact: true })).toBeVisible();
   }
-  for (const name of ['챌린지', '진리표', '공유', '예제', '설정']) await expect(header.getByRole('button', { name, exact: true })).toHaveCount(0);
+  for (const name of ['챌린지', '진리표', '예제', '설정']) await expect(header.getByRole('button', { name, exact: true })).toHaveCount(0);
 
   // 마우스로 열고, 다른 메뉴 이름에 올리면 그 메뉴로 바뀐다
   await bar.getByRole('menuitem', { name: '파일' }).click();
   const file = page.getByRole('menu', { name: '파일' });
-  await expect(file.getByRole('menuitem')).toHaveText(['가져오기', '내보내기', '예제', '공유 링크', '작업 공간 비우기', '모두 초기화 (내 칩까지)']);
+  await expect(file.getByRole('menuitem')).toHaveText(['가져오기', '내보내기', '내 칩 모두 내보내기', '예제', '공유 링크', '작업 공간 비우기', '모두 초기화 (내 칩까지)']);
   await bar.getByRole('menuitem', { name: '도구' }).hover();
   await expect(page.getByRole('menu', { name: '도구' })).toBeVisible();
   await expect(file).toHaveCount(0);
@@ -32,7 +32,7 @@ test('상단 메뉴바: 파일·편집·시뮬레이션·도구 메뉴와 핵심
   await page.keyboard.press('Enter');
   await expect(page.getByRole('menu', { name: '파일' }).getByRole('menuitem', { name: '가져오기' })).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(page.getByRole('menu', { name: '파일' }).getByRole('menuitem', { name: '내보내기' })).toBeFocused();
+  await expect(page.getByRole('menu', { name: '파일' }).getByRole('menuitem', { name: '내보내기', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowRight');
   // 선택한 것이 없으면 선택 삭제는 비활성
   await expect(page.getByRole('menu', { name: '편집' }).getByRole('menuitem', { name: '선택 삭제' })).toBeDisabled();

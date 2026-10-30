@@ -108,7 +108,7 @@ test('파일 메뉴: 작업 공간 비우기(실행 취소 가능)와 모두 초
   await page.getByRole('button', { name: '실행 취소' }).click();
   await expect(page.locator('[data-testid^="part-"]')).toHaveCount(6);
 
-  await menuAction(page, '파일', '모두 초기화');
+  await menuAction(page, '파일', '모두 초기화 (내 칩까지)');
   const all = page.getByRole('dialog', { name: '모두 초기화' });
   await expect(all).toContainText('되돌릴 수 없으니');
   await all.getByRole('button', { name: '모두 지우기' }).click();

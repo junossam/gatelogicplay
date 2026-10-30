@@ -1713,3 +1713,17 @@ button {
 .board-svg.tool-select:not(.armed):not(.panning) {
   cursor: crosshair;
 }
+
+/* 내 칩: 칩 파일 가져오기·모두 내보내기 */
+.chip-file-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.chip-file-actions .text-button {
+  min-height: 44px;
+  padding: 0 6px;
+  font-size: 12px;
+}

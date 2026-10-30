@@ -263,6 +263,7 @@ function ChipItem({ def }: { def: ChipDef }) {
         actions={[
           { label: '편집', icon: '✎', disabled: isOpen || inChallenge, run: () => confirmLeaveChip(() => editorStore.getState().openChip(def.id)) },
           { label: '분류 바꾸기', icon: '🗀', run: () => useUi.getState().setCategoryEdit({ chipId: def.id }) },
+          { label: '내보내기', icon: '⤓', run: () => exportChips([def.id], `${def.name}.gatelogicplay.json`) },
           { label: '삭제', icon: '🗑', danger: true, run: remove },
         ]}
       />
@@ -384,6 +385,18 @@ export function currentBundle(purpose: 'export' | 'share'): { filename: string; 
   return { filename: 'workspace.gatelogicplay.json', json: serializeBundle(purpose === 'export' ? { ...st.library, ...used } : used, ws, null) };
 }
 
+/** 고른 칩과 그 칩이 쓰는 칩만 담은 파일 (작업 공간은 비움). 가져오면 내 칩에만 추가된다. */
+export function exportChips(ids: string[], filename: string) {
+  const lib = editorStore.getState().library;
+  download(filename, serializeBundle(withDependencies(ids, lib), { parts: [], wires: [] }, null));
+}
+
+/** 내 칩 전부 내보내기 */
+export function exportAllChips() {
+  const ids = Object.keys(editorStore.getState().library);
+  if (ids.length) exportChips(ids, '내 칩 모음.gatelogicplay.json');
+}
+
 export function exportCurrent() {
   const { filename, json } = currentBundle('export');
   download(filename, json);
@@ -445,6 +458,7 @@ function CanvasTools() {
 export function Palette() {
   const [query, setQuery] = useState('');
   const library = useEditor((s) => s.library);
+  const chipFileRef = useRef<HTMLInputElement>(null);
   const gates = GATES.filter((i) => matches(i.name, query));
   const clockEnabled = useSettings((s) => s.clockEnabled);
   const io = [...IO, ...(clockEnabled ? [CLOCK] : [])].filter((i) => matches(i.name, query, `${i.kind} ${i.desc ?? ''}`));
@@ -500,6 +514,26 @@ export function Palette() {
       )}
       <section>
         <h2 className="panel-title">내 칩</h2>
+        <div className="chip-file-actions">
+          <button type="button" className="text-button small-button" onClick={() => chipFileRef.current?.click()} title="내보낸 칩 파일(JSON)을 내 칩에 추가">
+            칩 가져오기
+          </button>
+          <button type="button" className="text-button small-button" disabled={Object.keys(library).length === 0} onClick={exportAllChips} title="내 칩 전부를 JSON 파일로 저장">
+            모두 내보내기
+          </button>
+          <input
+            ref={chipFileRef}
+            type="file"
+            accept=".json,application/json"
+            hidden
+            data-testid="import-chip-file"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void importBundleFile(f);
+              e.target.value = '';
+            }}
+          />
+        </div>
         {chips.length === 0 ? (
           <p className="muted small">{Object.keys(library).length ? '검색 결과가 없습니다.' : '아직 저장한 칩이 없습니다.'}</p>
         ) : (
