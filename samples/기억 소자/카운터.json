@@ -3447,6 +3447,44 @@
     "groups": [
       {
         "id": "g1",
+        "name": "SR 래치",
+        "parts": [
+          "rip_f0_master_latch_nor1",
+          "rip_f0_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "D 래치",
+        "parts": [
+          "rip_f0_master_nd",
+          "rip_f0_master_andr",
+          "rip_f0_master_ands",
+          "rip_f0_master_latch_nor1",
+          "rip_f0_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g3",
+        "name": "SR 래치",
+        "parts": [
+          "rip_f0_slave_latch_nor1",
+          "rip_f0_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g4",
+        "name": "D 래치",
+        "parts": [
+          "rip_f0_slave_nd",
+          "rip_f0_slave_andr",
+          "rip_f0_slave_ands",
+          "rip_f0_slave_latch_nor1",
+          "rip_f0_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g5",
         "name": "D 플립플롭",
         "parts": [
           "rip_f0_nclk",
@@ -3463,7 +3501,45 @@
         ]
       },
       {
-        "id": "g2",
+        "id": "g6",
+        "name": "SR 래치",
+        "parts": [
+          "rip_f1_master_latch_nor1",
+          "rip_f1_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g7",
+        "name": "D 래치",
+        "parts": [
+          "rip_f1_master_nd",
+          "rip_f1_master_andr",
+          "rip_f1_master_ands",
+          "rip_f1_master_latch_nor1",
+          "rip_f1_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g8",
+        "name": "SR 래치",
+        "parts": [
+          "rip_f1_slave_latch_nor1",
+          "rip_f1_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g9",
+        "name": "D 래치",
+        "parts": [
+          "rip_f1_slave_nd",
+          "rip_f1_slave_andr",
+          "rip_f1_slave_ands",
+          "rip_f1_slave_latch_nor1",
+          "rip_f1_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g10",
         "name": "D 플립플롭",
         "parts": [
           "rip_f1_nclk",
@@ -3480,7 +3556,45 @@
         ]
       },
       {
-        "id": "g3",
+        "id": "g11",
+        "name": "SR 래치",
+        "parts": [
+          "rip_f2_master_latch_nor1",
+          "rip_f2_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g12",
+        "name": "D 래치",
+        "parts": [
+          "rip_f2_master_nd",
+          "rip_f2_master_andr",
+          "rip_f2_master_ands",
+          "rip_f2_master_latch_nor1",
+          "rip_f2_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g13",
+        "name": "SR 래치",
+        "parts": [
+          "rip_f2_slave_latch_nor1",
+          "rip_f2_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g14",
+        "name": "D 래치",
+        "parts": [
+          "rip_f2_slave_nd",
+          "rip_f2_slave_andr",
+          "rip_f2_slave_ands",
+          "rip_f2_slave_latch_nor1",
+          "rip_f2_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g15",
         "name": "D 플립플롭",
         "parts": [
           "rip_f2_nclk",
@@ -3497,7 +3611,45 @@
         ]
       },
       {
-        "id": "g4",
+        "id": "g16",
+        "name": "SR 래치",
+        "parts": [
+          "rip_f3_master_latch_nor1",
+          "rip_f3_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g17",
+        "name": "D 래치",
+        "parts": [
+          "rip_f3_master_nd",
+          "rip_f3_master_andr",
+          "rip_f3_master_ands",
+          "rip_f3_master_latch_nor1",
+          "rip_f3_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g18",
+        "name": "SR 래치",
+        "parts": [
+          "rip_f3_slave_latch_nor1",
+          "rip_f3_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g19",
+        "name": "D 래치",
+        "parts": [
+          "rip_f3_slave_nd",
+          "rip_f3_slave_andr",
+          "rip_f3_slave_ands",
+          "rip_f3_slave_latch_nor1",
+          "rip_f3_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g20",
         "name": "D 플립플롭",
         "parts": [
           "rip_f3_nclk",
@@ -3514,7 +3666,7 @@
         ]
       },
       {
-        "id": "g5",
+        "id": "g21",
         "name": "4비트 비동기 카운터",
         "parts": [
           "rip_nclr",
@@ -3579,7 +3731,45 @@
         ]
       },
       {
-        "id": "g6",
+        "id": "g22",
+        "name": "SR 래치",
+        "parts": [
+          "syn_f0_master_latch_nor1",
+          "syn_f0_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g23",
+        "name": "D 래치",
+        "parts": [
+          "syn_f0_master_nd",
+          "syn_f0_master_andr",
+          "syn_f0_master_ands",
+          "syn_f0_master_latch_nor1",
+          "syn_f0_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g24",
+        "name": "SR 래치",
+        "parts": [
+          "syn_f0_slave_latch_nor1",
+          "syn_f0_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g25",
+        "name": "D 래치",
+        "parts": [
+          "syn_f0_slave_nd",
+          "syn_f0_slave_andr",
+          "syn_f0_slave_ands",
+          "syn_f0_slave_latch_nor1",
+          "syn_f0_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g26",
         "name": "D 플립플롭",
         "parts": [
           "syn_f0_nclk",
@@ -3596,7 +3786,45 @@
         ]
       },
       {
-        "id": "g7",
+        "id": "g27",
+        "name": "SR 래치",
+        "parts": [
+          "syn_f1_master_latch_nor1",
+          "syn_f1_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g28",
+        "name": "D 래치",
+        "parts": [
+          "syn_f1_master_nd",
+          "syn_f1_master_andr",
+          "syn_f1_master_ands",
+          "syn_f1_master_latch_nor1",
+          "syn_f1_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g29",
+        "name": "SR 래치",
+        "parts": [
+          "syn_f1_slave_latch_nor1",
+          "syn_f1_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g30",
+        "name": "D 래치",
+        "parts": [
+          "syn_f1_slave_nd",
+          "syn_f1_slave_andr",
+          "syn_f1_slave_ands",
+          "syn_f1_slave_latch_nor1",
+          "syn_f1_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g31",
         "name": "D 플립플롭",
         "parts": [
           "syn_f1_nclk",
@@ -3613,7 +3841,45 @@
         ]
       },
       {
-        "id": "g8",
+        "id": "g32",
+        "name": "SR 래치",
+        "parts": [
+          "syn_f2_master_latch_nor1",
+          "syn_f2_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g33",
+        "name": "D 래치",
+        "parts": [
+          "syn_f2_master_nd",
+          "syn_f2_master_andr",
+          "syn_f2_master_ands",
+          "syn_f2_master_latch_nor1",
+          "syn_f2_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g34",
+        "name": "SR 래치",
+        "parts": [
+          "syn_f2_slave_latch_nor1",
+          "syn_f2_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g35",
+        "name": "D 래치",
+        "parts": [
+          "syn_f2_slave_nd",
+          "syn_f2_slave_andr",
+          "syn_f2_slave_ands",
+          "syn_f2_slave_latch_nor1",
+          "syn_f2_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g36",
         "name": "D 플립플롭",
         "parts": [
           "syn_f2_nclk",
@@ -3630,7 +3896,45 @@
         ]
       },
       {
-        "id": "g9",
+        "id": "g37",
+        "name": "SR 래치",
+        "parts": [
+          "syn_f3_master_latch_nor1",
+          "syn_f3_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g38",
+        "name": "D 래치",
+        "parts": [
+          "syn_f3_master_nd",
+          "syn_f3_master_andr",
+          "syn_f3_master_ands",
+          "syn_f3_master_latch_nor1",
+          "syn_f3_master_latch_nor2"
+        ]
+      },
+      {
+        "id": "g39",
+        "name": "SR 래치",
+        "parts": [
+          "syn_f3_slave_latch_nor1",
+          "syn_f3_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g40",
+        "name": "D 래치",
+        "parts": [
+          "syn_f3_slave_nd",
+          "syn_f3_slave_andr",
+          "syn_f3_slave_ands",
+          "syn_f3_slave_latch_nor1",
+          "syn_f3_slave_latch_nor2"
+        ]
+      },
+      {
+        "id": "g41",
         "name": "D 플립플롭",
         "parts": [
           "syn_f3_nclk",
@@ -3647,7 +3951,7 @@
         ]
       },
       {
-        "id": "g10",
+        "id": "g42",
         "name": "4비트 동기 카운터",
         "parts": [
           "syn_nclr",

@@ -477,7 +477,7 @@ export interface TeachingSample {
   circuit: Circuit;
 }
 
-/** 블록을 끝까지 펼친다. 부품 id의 `/`는 `_`로, 플립플롭 안쪽(래치) 그룹은 너무 많아 뺀다. */
+/** 블록을 끝까지 펼친다. 부품 id의 `/`는 `_`로. 플립플롭 안쪽 래치까지 블록마다 그룹을 붙인다. */
 function flatten(c: Circuit, lib: Library, note: string): Circuit {
   // 메모(왼쪽 위) 아래부터 회로를 놓는다: 메모 한 줄이 대략 격자 한 칸
   autoLayout(c, lib, note.split('\n').length * 2 + 3);
@@ -487,9 +487,7 @@ function flatten(c: Circuit, lib: Library, note: string): Circuit {
   return {
     parts: out.parts.map((p) => ({ ...p, id: fix(p.id) })),
     wires: out.wires.map((w, i) => ({ id: `w${i + 1}`, from: { partId: fix(w.from.partId), pin: w.from.pin }, to: { partId: fix(w.to.partId), pin: w.to.pin } })),
-    groups: (out.groups ?? [])
-      .filter((g) => !/^(D 래치|SR 래치) /.test(g.name))
-      .map((g, i) => ({ id: `g${i + 1}`, name: g.name.replace(/ \([^)]*\)$/, ''), parts: g.parts.map(fix) })),
+    groups: (out.groups ?? []).map((g, i) => ({ id: `g${i + 1}`, name: g.name.replace(/ \([^)]*\)$/, ''), parts: g.parts.map(fix) })),
     notes,
   };
 }
