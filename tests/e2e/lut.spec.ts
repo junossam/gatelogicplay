@@ -90,9 +90,10 @@ test('진리표 부품 최대 크기: 입력 8개(256행) · 출력 16개', asyn
 test('진리표 부품: 핀 이름 바꾸기, 진리표 내려받기(CSV) · 올리기', async ({ page }, info) => {
   const b = new CircuitBuilder().add('LUT', 'lut', 4, 2);
   await seed(page, b.build());
-  await page.getByTestId('part-lut').locator('.part-hit').click({ position: { x: 30, y: 10 } });
-  await page.getByRole('button', { name: '진리표 편집' }).click();
+  // 부품을 두 번 누르면 바로 편집 창
+  await page.getByTestId('part-lut').locator('.part-hit').dblclick({ position: { x: 30, y: 10 } });
   const dialog = page.getByRole('dialog', { name: '진리표 편집' });
+  await expect(dialog).toBeVisible();
 
   // 핀 이름: 입력 A→X, 출력 Y0→합
   await dialog.getByLabel('입력 A 이름').fill('X');

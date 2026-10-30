@@ -303,7 +303,11 @@ export function Board() {
       return;
     }
     const id = el?.closest('[data-part-id]')?.getAttribute('data-part-id');
-    if (id) editorStore.getState().enterInstance(id);
+    if (!id) return;
+    // 진리표 부품은 표 편집 창(읽기 전용으로 보는 중이면 보기), 칩은 안으로 들어가기
+    const part = viewCircuit.current.parts.find((p) => p.id === id);
+    if (part?.kind.type === 'primitive' && part.kind.kind === 'LUT') useUi.getState().setLutEdit(id);
+    else editorStore.getState().enterInstance(id);
   };
 
   const onWireDown = useCallback((e: PointerEvent, wireId: string) => {
