@@ -1924,3 +1924,90 @@ button {
   background: var(--sig-on);
   outline: none;
 }
+
+/* 진리표 부품 */
+.lut-title {
+  fill: var(--text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.lut-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.field-label.inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lut-scroll {
+  max-height: 55vh;
+  overflow: auto;
+}
+
+.lut-table {
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+}
+
+.lut-table th,
+.lut-table td {
+  min-width: 44px;
+  padding: 0;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.lut-table th.in {
+  color: var(--chip-2);
+}
+
+.lut-table th.out {
+  color: var(--sig-on);
+}
+
+.lut-table td.in {
+  color: var(--text-2);
+}
+
+.lut-table td.in.one {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.lut-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-panel);
+  height: 32px;
+}
+
+.lut-cell {
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: 0;
+  font: inherit;
+  color: var(--sig-off);
+  cursor: pointer;
+}
+
+.lut-cell.one {
+  color: var(--bg);
+  background: var(--sig-on);
+  font-weight: 700;
+}
+
+.lut-cell:hover:not(:disabled) {
+  outline: 1px solid var(--border-2);
+}
+
+.lut-cell:disabled {
+  cursor: default;
+}

@@ -326,3 +326,57 @@ describe('상수 VCC·GND', () => {
     expect([0, 1, 2, 3].map((k) => e.readPin(k ? `y.a[${k}]` : 'y.a'))).toEqual([1, 1, 1, 1]);
   });
 });
+
+describe('진리표 부품 (LUT)', () => {
+  /** 입력 n개 스위치 → LUT → 출력 m개 LED */
+  function lutCircuit(n: number, m: number, table: number[]) {
+    const b = new CircuitBuilder().add('LUT', 'lut', 6, 0);
+    b.parts[b.parts.length - 1]!.props = { inputs: n, outputs: m, table };
+    for (let k = 0; k < n; k++) b.add('SWITCH', `s${k}`, 0, k * 3, String.fromCharCode(65 + k)).wire(`s${k}.y`, `lut.${'abcdef'[k]}`);
+    for (let j = 0; j < m; j++) b.add('LED', `y${j}`, 14, j * 3, `Y${j}`).wire(`lut.y${j}`, `y${j}.a`);
+    return new Engine(compile(b.build()));
+  }
+
+  it('표대로 출력하고 1틱 지연이다 (A가 가장 높은 자리, Y0이 비트 0)', () => {
+    // 반가산기: AB=00→0, 01→S, 10→S, 11→C  (Y0=S, Y1=C)
+    const e = lutCircuit(2, 2, [0, 1, 1, 2]);
+    const rows: [number, number, number, number][] = [];
+    for (let v = 0; v < 4; v++) {
+      e.setInput('s0', ((v >> 1) & 1) as 0 | 1);
+      e.setInput('s1', (v & 1) as 0 | 1);
+      e.tick(1); // 입력 반영
+      const before = [e.readPin('y0.a'), e.readPin('y1.a')];
+      e.tick(1); // 1틱 뒤 출력
+      rows.push([v, e.readPin('y0.a'), e.readPin('y1.a'), before[0]! + before[1]! * 2]);
+    }
+    expect(rows.map(([v, s, c]) => [v, s, c])).toEqual([
+      [0, 0, 0],
+      [1, 1, 0],
+      [2, 1, 0],
+      [3, 0, 1],
+    ]);
+  });
+
+  it('입력 1~6개, 출력 1~8개: 6입력 다수결과 비트 세기', () => {
+    const table = Array.from({ length: 64 }, (_, i) => {
+      const ones = [0, 1, 2, 3, 4, 5].reduce((s, k) => s + ((i >> k) & 1), 0);
+      return (ones >= 4 ? 1 : 0) | (ones << 1); // Y0 = 다수결, Y1~Y3 = 1의 개수
+    });
+    const e = lutCircuit(6, 4, table);
+    for (const v of [0, 7, 15, 31, 42, 63]) {
+      for (let k = 0; k < 6; k++) e.setInput(`s${k}`, ((v >> (5 - k)) & 1) as 0 | 1);
+      e.tick(3);
+      const ones = [0, 1, 2, 3, 4, 5].reduce((s, k) => s + ((v >> k) & 1), 0);
+      expect(e.readPin('y0.a'), `v=${v}`).toBe(ones >= 4 ? 1 : 0);
+      expect(e.readPin('y1.a') + 2 * e.readPin('y2.a') + 4 * e.readPin('y3.a'), `v=${v}`).toBe(ones);
+    }
+  });
+
+  it('연결 안 된 입력은 0, 표에 없는 행은 0', () => {
+    const b = new CircuitBuilder().add('LUT', 'lut', 0, 0).add('LED', 'y', 8, 0, 'Y').wire('lut.y0', 'y.a');
+    b.parts[0]!.props = { inputs: 2, outputs: 1, table: [1] };
+    const e = new Engine(compile(b.build()));
+    e.tick(2);
+    expect(e.readPin('y.a')).toBe(1); // 행 0 (입력 모두 0)
+  });
+});

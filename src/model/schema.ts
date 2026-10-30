@@ -3,9 +3,9 @@ import type { Circuit } from '../sim/types';
 
 export const FORMAT = 'logiclab';
 /** 2: 다중 비트 버스 (SPLIT/MERGE, props.bits), 3: 게이트 입력 수(props.inputs)와 칩 분류(category) */
-export const VERSION = 6;
+export const VERSION = 7;
 
-const primitiveKind = z.enum(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK', 'SPLIT', 'MERGE', 'SEG8', 'VCC', 'GND']);
+const primitiveKind = z.enum(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK', 'SPLIT', 'MERGE', 'SEG8', 'VCC', 'GND', 'LUT']);
 
 const partKind = z.discriminatedUnion('type', [
   z.object({ type: z.literal('primitive'), kind: primitiveKind }),
@@ -25,7 +25,9 @@ export const partSchema = z.object({
     .object({
       hz: z.number().positive().optional(),
       bits: z.number().int().min(1).max(16).optional(),
-      inputs: z.number().int().min(2).max(8).optional(),
+      inputs: z.number().int().min(1).max(8).optional(),
+      outputs: z.number().int().min(1).max(8).optional(),
+      table: z.array(z.number().int().min(0).max(255)).max(64).optional(),
     })
     .optional(),
 });

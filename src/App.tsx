@@ -9,6 +9,7 @@ import { SaveChipDialog } from './ui/dialogs/SaveChipDialog';
 import { SettingsDialog } from './ui/dialogs/SettingsDialog';
 import { BuiltinChipsDialog } from './ui/dialogs/BuiltinChipsDialog';
 import { GroupDialog } from './ui/dialogs/GroupDialog';
+import { LutDialog } from './ui/dialogs/LutDialog';
 import { SamplesDialog } from './ui/dialogs/SamplesDialog';
 import { ShareDialog } from './ui/dialogs/ShareDialog';
 import { CategoryDialog } from './ui/dialogs/CategoryDialog';
@@ -30,6 +31,7 @@ export function App() {
   const samplesOpen = useUi((s) => s.samplesOpen);
   const builtinChipsOpen = useUi((s) => s.builtinChipsOpen);
   const groupEdit = useUi((s) => s.groupEdit);
+  const lutEdit = useUi((s) => s.lutEdit);
   const categoryEdit = useUi((s) => s.categoryEdit);
   const challengeId = useEditor((s) => s.openChallengeId);
   const leftWidth = useUi((s) => s.leftWidth);
@@ -58,6 +60,7 @@ export function App() {
       {samplesOpen && <SamplesDialog />}
       {builtinChipsOpen && <BuiltinChipsDialog />}
       {groupEdit && <GroupDialog />}
+      {lutEdit && <LutDialog />}
       {categoryEdit && <CategoryDialog />}
       {message && <MessageDialog />}
     </div>

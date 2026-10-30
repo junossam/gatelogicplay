@@ -1,4 +1,4 @@
-import { gateInputs, MULTI_INPUT_KINDS, partBits, partInputs, primitiveBits, primitivePins } from '../../sim/pins';
+import { gateInputs, lutOutputs, MULTI_INPUT_KINDS, partBits, partInputs, partOutputs, primitiveBits, primitivePins } from '../../sim/pins';
 import type { PinDir } from '../../sim/primitives';
 import type { ChipDef, Library, Part, PrimitiveKind, Rotation } from '../../sim/types';
 
@@ -23,6 +23,7 @@ const SIZES: Record<PrimitiveKind, { w: number; h: number }> = {
   SEG8: { w: 5, h: 9 },
   VCC: { w: 3, h: 2 },
   GND: { w: 3, h: 2 },
+  LUT: { w: 5, h: 4 },
 };
 
 /** 칩 블록 핀 간격 (격자 칸) */
@@ -30,8 +31,10 @@ export const CHIP_PIN_PITCH = 2;
 export const CHIP_WIDTH = 6;
 
 /** 부품 크기: 나누기·묶기는 비트마다 2칸, 여러 비트 스위치·LED는 숫자가 들어가게 넓게, 입력이 3개 이상인 게이트는 입력마다 2칸 */
-export function kindSize(kind: PrimitiveKind, bits = 1, inputs = 2): { w: number; h: number } {
+export function kindSize(kind: PrimitiveKind, bits = 1, inputs = 2, outputs = 1): { w: number; h: number } {
   const n = primitiveBits(kind, bits);
+  // 진리표 부품: 입력·출력 중 많은 쪽 핀마다 2칸
+  if (kind === 'LUT') return { w: 5, h: Math.max(4, 2 * Math.max(gateInputs(kind, inputs), lutOutputs(outputs))) };
   if (MULTI_INPUT_KINDS.has(kind)) return { w: 4, h: Math.max(4, 2 * gateInputs(kind, inputs)) };
   if (kind === 'SPLIT' || kind === 'MERGE') return { w: 2, h: 2 * n };
   if ((kind === 'SWITCH' || kind === 'LED') && n > 1) return { w: 4, h: 2 };
@@ -52,9 +55,9 @@ export interface PinGeom {
 }
 
 /** 입력 핀은 왼쪽 변, 출력 핀은 오른쪽 변에 격자점마다 고르게 배치한다. 칸이 꽉 차면 2칸 간격. */
-export function kindPins(kind: PrimitiveKind, bits = 1, inputs = 2): PinGeom[] {
-  const { w, h } = kindSize(kind, bits, inputs);
-  const pins = primitivePins(kind, bits, inputs);
+export function kindPins(kind: PrimitiveKind, bits = 1, inputs = 2, outputs = 1): PinGeom[] {
+  const { w, h } = kindSize(kind, bits, inputs, outputs);
+  const pins = primitivePins(kind, bits, inputs, outputs);
   const place = (dir: PinDir, x: number) => {
     const list = pins.filter((p) => p.dir === dir);
     if (list.length * 2 === h) return list.map((p, i) => ({ name: p.name, dir, dx: x * GRID, dy: (2 * i + 1) * GRID }));
@@ -82,14 +85,14 @@ export interface Rect {
 
 /** 회전 전 크기 (격자 칸) */
 export function baseSize(part: Part, library: Library = {}): { w: number; h: number } {
-  if (part.kind.type === 'primitive') return kindSize(part.kind.kind, partBits(part), partInputs(part));
+  if (part.kind.type === 'primitive') return kindSize(part.kind.kind, partBits(part), partInputs(part), partOutputs(part));
   const def = library[part.kind.chipId];
   return def ? chipSize(def) : { w: CHIP_WIDTH, h: CHIP_PIN_PITCH };
 }
 
 /** 회전 전 핀 */
 export function basePins(part: Part, library: Library = {}): PinGeom[] {
-  if (part.kind.type === 'primitive') return kindPins(part.kind.kind, partBits(part), partInputs(part));
+  if (part.kind.type === 'primitive') return kindPins(part.kind.kind, partBits(part), partInputs(part), partOutputs(part));
   const def = library[part.kind.chipId];
   return def ? chipPins(def) : [];
 }

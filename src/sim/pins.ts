@@ -7,6 +7,9 @@ export const BUS_DEFAULT_BITS = 4;
 /** 입력 수를 고를 수 있는 게이트 (2~8개) */
 export const MULTI_INPUT_KINDS = new Set<PrimitiveKind>(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR']);
 export const MAX_INPUTS = 8;
+/** 진리표 부품의 입력·출력 수 범위 */
+export const MAX_LUT_INPUTS = 6;
+export const MAX_LUT_OUTPUTS = 8;
 
 export interface PinSpec {
   name: string;
@@ -19,7 +22,7 @@ const clampBits = (n: number | undefined, min = 1) => Math.min(MAX_BITS, Math.ma
 
 /** 기본 부품의 비트 수. 푸시 버튼·클럭은 항상 1, 나누기·묶기는 2 이상(기본 4). */
 export function primitiveBits(kind: PrimitiveKind, bits: number | undefined): number {
-  if (kind === 'PUSH' || kind === 'CLOCK' || kind === 'SEG8') return 1;
+  if (kind === 'PUSH' || kind === 'CLOCK' || kind === 'SEG8' || kind === 'LUT') return 1;
   if (kind === 'SPLIT' || kind === 'MERGE') return clampBits(bits ?? BUS_DEFAULT_BITS, 2);
   return clampBits(bits);
 }
@@ -30,7 +33,25 @@ export function partBits(part: Part): number {
 
 /** 게이트 입력 수 (AND·OR·XOR·NAND·NOR·XNOR는 2~8, 없으면 2) */
 export function gateInputs(kind: PrimitiveKind, inputs: number | undefined): number {
+  if (kind === 'LUT') return Math.min(MAX_LUT_INPUTS, Math.max(1, Math.round(inputs ?? 2)));
   return MULTI_INPUT_KINDS.has(kind) ? Math.min(MAX_INPUTS, Math.max(2, Math.round(inputs ?? 2))) : 2;
+}
+
+/** 진리표 부품의 출력 수 (1~8, 없으면 1). 다른 부품은 의미 없음. */
+export function lutOutputs(outputs: number | undefined): number {
+  return Math.min(MAX_LUT_OUTPUTS, Math.max(1, Math.round(outputs ?? 1)));
+}
+
+export function partOutputs(part: Part): number {
+  return part.kind.type === 'primitive' && part.kind.kind === 'LUT' ? lutOutputs(part.props?.outputs) : 1;
+}
+
+/** 진리표 부품의 표: 2^입력 수 행, 각 행은 출력 비트 묶음 (빠진 행은 0) */
+export function lutTable(part: Part): number[] {
+  const n = partInputs(part);
+  const mask = (1 << partOutputs(part)) - 1;
+  const t = part.props?.table ?? [];
+  return Array.from({ length: 1 << n }, (_, i) => (t[i] ?? 0) & mask);
 }
 
 export function partInputs(part: Part): number {
@@ -41,8 +62,16 @@ export function partInputs(part: Part): number {
 export const inputPinName = (k: number) => String.fromCharCode(97 + k);
 
 /** 비트 수(와 게이트 입력 수)를 반영한 기본 부품의 핀 */
-export function primitivePins(kind: PrimitiveKind, bits: number, inputs = 2): PinSpec[] {
+export function primitivePins(kind: PrimitiveKind, bits: number, inputs = 2, outputs = 1): PinSpec[] {
   const n = primitiveBits(kind, bits);
+  if (kind === 'LUT') {
+    const ni = gateInputs(kind, inputs);
+    const no = lutOutputs(outputs);
+    return [
+      ...Array.from({ length: ni }, (_, k) => ({ name: inputPinName(k), dir: 'in' as const, width: 1 })),
+      ...Array.from({ length: no }, (_, k) => ({ name: `y${k}`, dir: 'out' as const, width: 1 })),
+    ];
+  }
   if (MULTI_INPUT_KINDS.has(kind)) {
     const m = gateInputs(kind, inputs);
     return [...Array.from({ length: m }, (_, k) => ({ name: inputPinName(k), dir: 'in' as const, width: n })), { name: 'y', dir: 'out', width: n }];
@@ -54,7 +83,7 @@ export function primitivePins(kind: PrimitiveKind, bits: number, inputs = 2): Pi
 
 /** 부품의 핀 (칩이면 내부 스위치·LED의 비트 수가 핀 비트 수) */
 export function partPinSpecs(part: Part, library: Library = {}): PinSpec[] {
-  if (part.kind.type === 'primitive') return primitivePins(part.kind.kind, partBits(part), partInputs(part));
+  if (part.kind.type === 'primitive') return primitivePins(part.kind.kind, partBits(part), partInputs(part), partOutputs(part));
   const def = library[part.kind.chipId];
   if (!def) return [];
   const inner = new Map(def.circuit.parts.map((p) => [p.id, p]));

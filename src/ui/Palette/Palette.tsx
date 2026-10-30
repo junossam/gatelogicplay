@@ -23,6 +23,7 @@ const GATES: Item[] = [
   { kind: 'XOR', name: 'XOR' },
   { kind: 'XNOR', name: 'XNOR' },
   { kind: 'NOT', name: 'NOT' },
+  { kind: 'LUT', name: '진리표', desc: '설정한 진리표대로 출력 (입력 1~6, 출력 1~8)' },
 ];
 
 /** 입력 (클럭은 설정에서 켜면 푸시 버튼 뒤에) */

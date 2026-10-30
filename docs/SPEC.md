@@ -198,6 +198,7 @@ interface TickResult { tick: number; changed: string[]; oscillating: string[] }
 | CLOCK | (시간) | 반주기마다 반전 |
 | LED | a | (표시만) |
 | SEG8 (추가) | a, b, c, d, e, f, g, dp | (표시만) — 8세그먼트 표시기 |
+| LUT (추가) | a~f (1~6개) → y0~y7 (1~8개) | 진리표: 입력을 A부터 높은 자리로 읽은 행 번호의 값. 출력 Yj = 행 값의 j번 비트. 출력마다 1틱 지연 |
 | VCC (추가) | (없음) | y = 1 (첫 틱부터. 초기 Net 0 규칙에 따라 틱 0에는 0) |
 | GND (추가) | (없음) | y = 0 |
 
@@ -472,6 +473,7 @@ function boundary(circuit: Circuit, S: Set<string>) {
 - **저장 형식 version 2**: `PrimitiveKind`에 `SPLIT`, `MERGE` 추가, `props.bits` 추가. version 1 파일은 그대로 읽을 수 있도록 `migrate.ts`에 1 → 2 단계를 둡니다(구조 변화 없음).
 - **저장 형식 version 3 (추가)**: 게이트 입력 수 `props.inputs`(2~8)와 칩 분류 `ChipDef.category`를 추가했습니다. 둘 다 없으면 기존과 같으므로 2 → 3 단계는 버전만 올립니다.
 - **저장 형식 version 4 (추가)**: `PrimitiveKind`에 `SEG8`(8세그먼트 표시기)을 추가했습니다. 3 → 4 단계는 버전만 올립니다.
+- **저장 형식 version 7 (추가)**: `PrimitiveKind`에 진리표 부품 `LUT`, `props.outputs`(1~8)와 `props.table`(행마다 출력 비트 묶음, 최대 64행)을 추가하고 `props.inputs` 최솟값을 1로 낮췄습니다. 6 → 7 단계는 버전만 올립니다. 진리표 부품은 기본 게이트 칸에 있고, 인스펙터의 `진리표 편집` 창에서 입력·출력 수와 표를 바꿔 `적용`하면 한 번에 반영합니다(실행 취소 한 번). 챌린지에서는 쓸 수 없습니다.
 - **저장 형식 version 6 (추가)**: `Circuit`에 선택 필드 `groups`(`{id, name, parts[]}`)와 `notes`(`{id, x, y, text}`)를 추가했습니다. 둘 다 시뮬레이션에는 쓰지 않습니다. 5 → 6 단계는 버전만 올립니다.
 - **저장 형식 version 5 (추가)**: `PrimitiveKind`에 상수 `VCC`, `GND`를 추가했습니다(비트 수 선택 가능, 챌린지에서는 쓸 수 없음). 4 → 5 단계는 버전만 올립니다.
 - **연결 실패 안내 (추가)**: 전선을 핀에 놓았는데 비트 수가 다르거나 출력끼리·입력끼리라서 잇지 못하면, 상태 표시줄에 이유를 4초 동안 보여 줍니다.

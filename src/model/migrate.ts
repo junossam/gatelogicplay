@@ -15,6 +15,8 @@ const steps: Record<number, (doc: Record<string, unknown>) => Record<string, unk
   4: (doc) => ({ ...doc, version: 5 }),
   // 5 → 6: 부품 그룹(groups)과 메모(notes) 추가. 없으면 기존과 같으므로 버전만 올린다.
   5: (doc) => ({ ...doc, version: 6 }),
+  // 6 → 7: 진리표 부품(LUT, props.outputs·props.table) 추가. 버전만 올린다.
+  6: (doc) => ({ ...doc, version: 7 }),
 };
 
 export class MigrationError extends Error {}

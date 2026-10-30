@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 6,
+  "version": 7,
   "title": "레지스터",
   "description": "4비트 레지스터 · 4비트 시프트 레지스터 (D 플립플롭)",
   "library": {},

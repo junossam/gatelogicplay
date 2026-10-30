@@ -71,6 +71,8 @@ interface UiState extends Layout {
   shareOpen: boolean;
   samplesOpen: boolean;
   builtinChipsOpen: boolean;
+  /** 진리표 편집 창을 연 부품 id */
+  lutEdit: string | null;
   /** 그룹 대화상자: 선택을 새 그룹으로, 또는 그룹 이름 바꾸기 */
   groupEdit: { create: true } | { id: string } | null;
   /** 지금 글을 고치고 있는 메모 */
@@ -90,6 +92,7 @@ interface UiState extends Layout {
   setShareOpen(open: boolean): void;
   setSamplesOpen(open: boolean): void;
   setBuiltinChipsOpen(open: boolean): void;
+  setLutEdit(partId: string | null): void;
   setGroupEdit(edit: { create: true } | { id: string } | null): void;
   setEditingNote(id: string | null): void;
   setCategoryEdit(edit: { chipId: string } | { rename: string } | null): void;
@@ -121,6 +124,7 @@ export const useUi = create<UiState>((set, get) => ({
   shareOpen: false,
   samplesOpen: false,
   builtinChipsOpen: false,
+  lutEdit: null,
   groupEdit: null,
   editingNote: null,
   canvasCenter: () => ({ x: 10, y: 10 }),
@@ -135,6 +139,7 @@ export const useUi = create<UiState>((set, get) => ({
   setShareOpen: (shareOpen) => set({ shareOpen }),
   setSamplesOpen: (samplesOpen) => set({ samplesOpen }),
   setBuiltinChipsOpen: (builtinChipsOpen) => set({ builtinChipsOpen }),
+  setLutEdit: (lutEdit) => set({ lutEdit }),
   setGroupEdit: (groupEdit) => set({ groupEdit }),
   setEditingNote: (editingNote) => set({ editingNote }),
   setCategoryEdit: (categoryEdit) => set({ categoryEdit }),

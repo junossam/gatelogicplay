@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 6,
+  "version": 7,
   "title": "NAND로 만든 게이트",
   "description": "NAND만으로 NOT·AND·OR·XOR",
   "library": {},

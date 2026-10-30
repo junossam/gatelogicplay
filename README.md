@@ -75,6 +75,7 @@ pnpm dev
 
 ### 부품
 - 상수: VCC(항상 1), GND(항상 0) — 입력·출력 칸에 있고 비트 수를 고를 수 있습니다.
+- **진리표 부품**: 기본 게이트 칸의 **진리표**. 인스펙터의 **진리표 편집**에서 입력 수(1~6), 출력 수(1~8)와 행마다 출력 값을 정하면 그 표대로 동작합니다(1틱 지연, 입력은 A가 가장 높은 자리).
 - 게이트: AND, OR, XOR, NAND, NOR, XNOR, NOT — 모두 1틱 지연. NOT 외에는 인스펙터에서 **입력 수(2~8개)**를 고를 수 있습니다(XOR는 1이 홀수 개일 때 1).
 - 입력: 스위치(누르면 켜짐 유지), 푸시 버튼(누르는 동안만), 클럭(설정에서 켜고 끔, 주파수는 인스펙터에서)
 - 출력: LED, 8세그먼트 표시기(세그먼트 a~g와 점 dp를 핀 하나씩으로 받음)
@@ -131,7 +132,7 @@ pnpm dev
 2. 소스의 [`samples/`](samples) 폴더에 넣습니다. **하위 폴더 이름이 분류**, **파일 이름이 제목**이 됩니다. 파일 이름 앞에 `01-`처럼 번호를 붙이면 그 순서로 정렬되고, 번호는 제목에서 빠집니다.
 3. 원하면 JSON 맨 위에 제목과 설명을 넣습니다. 이 필드는 가져올 때 무시되므로 파일은 그대로 정상 동작합니다.
    ```json
-   { "format": "logiclab", "version": 6, "title": "4비트 가산기", "description": "칩 중첩 예제", "library": {}, "workspace": {} }
+   { "format": "logiclab", "version": 7, "title": "4비트 가산기", "description": "칩 중첩 예제", "library": {}, "workspace": {} }
    ```
 4. `pnpm dev`로 확인합니다. 개발 서버는 새로고침만 하면 바로 반영합니다. 그다음 `pnpm build`로 빌드해 배포합니다. 빌드할 때 모든 예제를 검증해 목록 `samples/index.json`을 만들고, 잘못된 파일이 있으면 빌드가 멈춥니다.
 
@@ -164,7 +165,7 @@ pnpm dev
 ```json
 {
   "format": "logiclab",
-  "version": 6,
+  "version": 7,
   "library": { "<칩 id>": { "id": "...", "name": "SR 래치", "inputs": [], "outputs": [], "circuit": {} } },
   "workspace": { "parts": [], "wires": [] },
   "openChipId": null

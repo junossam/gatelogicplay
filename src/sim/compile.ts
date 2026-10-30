@@ -1,4 +1,4 @@
-import { bitKey, partBits, partPinSpecs, pinSpec } from './pins';
+import { bitKey, partBits, partPinSpecs, pinSpec, lutTable } from './pins';
 import { GATE_KINDS, INPUT_KINDS } from './primitives';
 import type { ChipDef, Circuit, Library, Part, PrimitiveKind, Wire } from './types';
 
@@ -12,6 +12,8 @@ export interface NetNode {
   ins: number[];
   out: number;
   hz?: number;
+  /** 진리표 부품: 입력 조합 번호(A가 가장 높은 자리) → 이 출력 비트 */
+  lut?: Uint8Array;
 }
 
 export interface Netlist {
@@ -153,6 +155,9 @@ export function compile(circuit: Circuit, library: Library = {}): Netlist {
       } else if (kind === 'MERGE') {
         // 묶기: y의 k번 비트 = ak
         nets = Array.from({ length: width }, (_, k) => driverOfInput(scope, partId, `a${k}`, 1)[0]!);
+      } else if (kind === 'LUT') {
+        // 출력 핀이 여러 개라 핀마다 Net을 따로 둔다
+        nets = [netOf(pinKey(scope.prefix + part.id, pin))];
       } else nets = Array.from({ length: width }, (_, k) => netOf(bitKey(scope.prefix + part.id, k)));
     }
     resolving.delete(key);
@@ -182,6 +187,15 @@ export function compile(circuit: Circuit, library: Library = {}): Netlist {
         const ins = specs.filter((p) => p.dir === 'in').map((p) => pinNets(path, p.name, bits));
         const outs = pinNets(path, 'y', bits);
         for (let k = 0; k < bits; k++) nodes.push({ path: bitKey(path, k), kind, ins: ins.map((v) => v[k]!), out: outs[k]! });
+      } else if (kind === 'LUT') {
+        const ins = specs.filter((p) => p.dir === 'in').map((p) => pinNets(path, p.name, 1)[0]!);
+        const table = lutTable(part);
+        specs
+          .filter((p) => p.dir === 'out')
+          .forEach((p, j) => {
+            const lut = Uint8Array.from(table, (row) => (row >> j) & 1);
+            nodes.push({ path: pinKey(path, p.name), kind, ins, out: pinNets(path, p.name, 1)[0]!, lut });
+          });
       } else if (kind === 'VCC') {
         // 비트마다 상수 1 노드. GND는 노드 없이 Net이 0으로 남는다.
         const outs = pinNets(path, 'y', bits);

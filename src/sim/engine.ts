@@ -23,9 +23,10 @@ const OSC_WINDOW = 32;
 const OSC_CHANGES = 16;
 
 // VCC는 입력 없이 1을 내는 노드 — 다른 게이트처럼 첫 틱이 지나면 1이 된다 (초기 Net은 모두 0)
-const KIND_CODE = { AND: 1, OR: 2, XOR: 3, NAND: 4, NOR: 5, XNOR: 6, NOT: 7, VCC: 8 } as const;
+const KIND_CODE = { AND: 1, OR: 2, XOR: 3, NAND: 4, NOR: 5, XNOR: 6, NOT: 7, VCC: 8, LUT: 9 } as const;
 type GateCode = (typeof KIND_CODE)[keyof typeof KIND_CODE];
-const CODE_KIND = ['', 'AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'VCC'] as const;
+const CODE_KIND = ['', 'AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'VCC', 'LUT'] as const;
+const LUT_CODE = KIND_CODE.LUT;
 
 function popcount(x: number): number {
   x = x - ((x >>> 1) & 0x55555555);
@@ -53,6 +54,9 @@ export class Engine {
   private gateIns = new Int32Array(0);
   private gateOut = new Int32Array(0);
   private gateStamp = new Int32Array(0);
+  // 진리표 부품: 게이트별 표 시작 위치 (lutBits[lutStart[g] + 입력 조합 번호])
+  private lutStart = new Int32Array(0);
+  private lutBits = new Uint8Array(0);
   // Net → 그 Net을 읽는 게이트 (CSR)
   private fanStart = new Int32Array(1);
   private fan = new Int32Array(0);
@@ -104,6 +108,16 @@ export class Engine {
       g.ins.forEach((n, k) => (this.gateIns[this.gateInStart[i]! + k] = n));
       this.gateOut[i] = g.out;
       for (const n of new Set(g.ins)) if (n >= 0) fanCount[n + 1]!++;
+    });
+    this.lutStart = new Int32Array(nG).fill(-1);
+    const lutSize = gates.reduce((s, g) => s + (g.lut?.length ?? 0), 0);
+    this.lutBits = new Uint8Array(lutSize);
+    let lutAt = 0;
+    gates.forEach((g, i) => {
+      if (!g.lut) return;
+      this.lutStart[i] = lutAt;
+      this.lutBits.set(g.lut, lutAt);
+      lutAt += g.lut.length;
     });
     for (let i = 0; i < nNets; i++) fanCount[i + 1]! += fanCount[i]!;
     this.fanStart = fanCount;
@@ -284,14 +298,25 @@ export class Engine {
       if (this.gateStamp[g] === t) return;
       this.gateStamp[g] = t;
       const code = this.gateCode[g] as GateCode;
-      let ones = 0;
       const s0 = this.gateInStart[g]!;
       const s1 = this.gateInStart[g + 1]!;
-      for (let k = s0; k < s1; k++) {
-        const n = this.gateIns[k]!;
-        if (n >= 0) ones += values[n]!;
+      let v: Bit;
+      if (code === LUT_CODE) {
+        // 진리표: 입력을 A부터 높은 자리로 읽은 번호의 행
+        let idx = 0;
+        for (let k = s0; k < s1; k++) {
+          const n = this.gateIns[k]!;
+          idx = (idx << 1) | (n >= 0 ? values[n]! : 0);
+        }
+        v = this.lutBits[this.lutStart[g]! + idx] as Bit;
+      } else {
+        let ones = 0;
+        for (let k = s0; k < s1; k++) {
+          const n = this.gateIns[k]!;
+          if (n >= 0) ones += values[n]!;
+        }
+        v = evalGateCount(CODE_KIND[code], ones, s1 - s0);
       }
-      const v = evalGateCount(CODE_KIND[code], ones, s1 - s0);
       const out = this.gateOut[g]!;
       if (out >= 0 && values[out] !== v) {
         this.schedNet[sched] = out;

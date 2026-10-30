@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 6,
+  "version": 7,
   "title": "반감산기·전감산기",
   "description": "반감산기 2개 + OR = 전감산기",
   "library": {},

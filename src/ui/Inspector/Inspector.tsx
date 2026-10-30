@@ -9,7 +9,7 @@ import { ExpandControl } from '../Canvas/ExpandControl';
 import { PanelHead } from '../Layout';
 import { useUi } from '../../store/uiStore';
 import type { Group, Note } from '../../sim/types';
-import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs } from '../../sim/pins';
+import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs, partOutputs } from '../../sim/pins';
 import { engine, inputNumber, readPinNumber, simActions, useSim } from '../../store/simStore';
 import { partPins } from '../Canvas/geometry';
 import { TruthTableView, useTruthTable } from '../TruthTable/TruthTableView';
@@ -29,6 +29,7 @@ export const KIND_NAMES: Record<string, string> = {
   SPLIT: '나누기 (버스 → 비트)',
   MERGE: '묶기 (비트 → 버스)',
   SEG8: '8세그먼트 표시기',
+  LUT: '진리표 부품',
   VCC: 'VCC (항상 1)',
   GND: 'GND (항상 0)',
 };
@@ -128,6 +129,14 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
               />
             )}
             <span className="muted small">Hz</span>
+          </dd>
+        </>
+      )}
+      {kind === 'LUT' && (
+        <>
+          <dt>진리표</dt>
+          <dd>
+            입력 {partInputs(part)}개 · 출력 {partOutputs(part)}개
           </dd>
         </>
       )}
@@ -231,6 +240,11 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
           </div>
         );
       })}
+      {kind === 'LUT' && (
+        <button type="button" className="text-button wide-button" onClick={() => useUi.getState().setLutEdit(part.id)}>
+          {readOnly ? '진리표 보기' : '진리표 편집'}
+        </button>
+      )}
     </dl>
   );
 }

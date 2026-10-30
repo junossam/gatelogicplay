@@ -39,6 +39,12 @@ export const PRIMITIVE_PINS: Record<PrimitiveKind, readonly PinDef[]> = {
   SEG8: SEGMENTS.map((name) => ({ name, dir: 'in' as const })),
   // 상수: VCC는 항상 1, GND는 항상 0
   VCC: [{ name: 'y', dir: 'out' }],
+  // 진리표 부품: 실제 핀 수는 props에 따라 (sim/pins.ts). 기본은 입력 2개, 출력 1개
+  LUT: [
+    { name: 'a', dir: 'in' },
+    { name: 'b', dir: 'in' },
+    { name: 'y0', dir: 'out' },
+  ],
   GND: [{ name: 'y', dir: 'out' }],
 };
 

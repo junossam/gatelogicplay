@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 6,
+  "version": 7,
   "title": "패리티·그레이 코드",
   "description": "짝수 패리티 생성·검사 · 2진↔그레이 변환",
   "library": {},

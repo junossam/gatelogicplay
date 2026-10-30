@@ -284,6 +284,8 @@ export function createEditorStore(initial: Circuit = EMPTY) {
           if (label) part.label = label;
           if (kind === 'CLOCK') part.props = { hz: 1 };
           if (kind === 'SPLIT' || kind === 'MERGE') part.props = { bits: BUS_DEFAULT_BITS };
+          // 진리표 부품은 2입력 AND 표로 시작
+          if (kind === 'LUT') part.props = { inputs: 2, outputs: 1, table: [0, 0, 0, 1] };
           commit((s) => {
             s.circuit.parts.push(part);
             s.selection = { parts: [id], wires: [], notes: [] };

@@ -1,6 +1,6 @@
 import { SEGMENTS } from '../../sim/primitives';
 import type { PrimitiveKind } from '../../sim/types';
-import { kindSize, GRID } from '../Canvas/geometry';
+import { kindPins, kindSize, GRID } from '../Canvas/geometry';
 
 /**
  * 부품 기호. 캔버스와 팔레트가 같은 도형을 쓴다.
@@ -139,19 +139,53 @@ function GateShape({ kind, inputs }: { kind: keyof typeof GATE_BODIES; inputs: n
   );
 }
 
+/** 진리표 부품: 상자에 "진리표"와 핀 이름 (입력 A~, 출력 Y0~) */
+function LutShape({ inputs, outputs }: { inputs: number; outputs: number }) {
+  const { w, h } = kindSize('LUT', 1, inputs, outputs);
+  const W = w * GRID;
+  const H = h * GRID;
+  const stroke = 'var(--text-2)';
+  const pins = kindPins('LUT', 1, inputs, outputs);
+  return (
+    <g>
+      {pins.map((p) => (
+        <line key={p.name} x1={p.dir === 'in' ? 0 : W - 14} y1={p.dy} x2={p.dir === 'in' ? 14 : W} y2={p.dy} stroke={stroke} strokeWidth={2} />
+      ))}
+      <rect x={14} y={4} width={W - 28} height={H - 8} rx={4} fill="var(--bg-chip)" stroke={stroke} strokeWidth={2} />
+      {/* 표 모양 아이콘 */}
+      <g stroke={stroke} strokeWidth={1} opacity={0.6}>
+        <rect x={W / 2 - 9} y={H / 2 - 12} width={18} height={14} fill="none" />
+        <line x1={W / 2 - 9} y1={H / 2 - 7} x2={W / 2 + 9} y2={H / 2 - 7} />
+        <line x1={W / 2 + 2} y1={H / 2 - 12} x2={W / 2 + 2} y2={H / 2 + 2} />
+      </g>
+      <text x={W / 2} y={H / 2 + 14} textAnchor="middle" className="lut-title">
+        진리표
+      </text>
+      {pins.map((p) => (
+        <text key={p.name} x={p.dir === 'in' ? 18 : W - 18} y={p.dy + 4} textAnchor={p.dir === 'in' ? 'start' : 'end'} className="seg-pin-name">
+          {p.name.toUpperCase()}
+        </text>
+      ))}
+    </g>
+  );
+}
+
 export function PartShape({
   kind,
   on = false,
   bits = 1,
   value = 0,
   inputs = 2,
+  outputs = 1,
 }: {
   kind: PrimitiveKind;
   on?: boolean;
   bits?: number;
   value?: number;
   inputs?: number;
+  outputs?: number;
 }) {
+  if (kind === 'LUT') return <LutShape inputs={inputs} outputs={outputs} />;
   if (kind === 'SPLIT' || kind === 'MERGE' || ((kind === 'SWITCH' || kind === 'LED') && bits > 1)) return <BusShape kind={kind} bits={bits} value={value} />;
   const stroke = 'var(--text-2)';
   const body = { fill: 'var(--bg-chip)', stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };
