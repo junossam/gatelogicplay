@@ -9,7 +9,7 @@ import { ExpandControl } from '../Canvas/ExpandControl';
 import { PanelHead } from '../Layout';
 import { useUi } from '../../store/uiStore';
 import type { Group, Note } from '../../sim/types';
-import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs, partOutputs } from '../../sim/pins';
+import { MAX_BITS, MAX_INPUTS, MULTI_INPUT_KINDS, partBits, partInputs, partPinSpecs, partOutputs, pinLabel } from '../../sim/pins';
 import { engine, inputNumber, readPinNumber, simActions, useSim } from '../../store/simStore';
 import { partPins } from '../Canvas/geometry';
 import { TruthTableView, useTruthTable } from '../TruthTable/TruthTableView';
@@ -49,7 +49,8 @@ function MultiBit({ v, width }: { v: number; width: number }) {
 function delayText(part: Part): string {
   if (part.kind.type === 'chip') return '내부 게이트마다 1틱';
   const k = part.kind.kind;
-  if (GATE_KINDS.has(k)) return '1틱';
+  if (GATE_KINDS.has(k) || k === 'LUT') return '1틱';
+  if (k === 'VCC' || k === 'GND') return '없음 (상수, VCC는 첫 틱 뒤 1)';
   if (INPUT_KINDS.has(k) || k === 'CLOCK') return '없음 (틱 시작에 반영)';
   if (k === 'SPLIT' || k === 'MERGE') return '없음 (배선)';
   return '없음 (표시만)';
@@ -217,7 +218,7 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
         return (
           <div key={`${pin.dir}${pin.name}`} className="pin-row">
             <dt className="mono">
-              {pin.dir === 'in' ? '입력' : '출력'} {pin.name}
+              {pin.dir === 'in' ? '입력' : '출력'} {pinLabel(part, pin.name)}
             </dt>
             <dd>
               {(widths.get(`${pin.dir}${pin.name}`) ?? 1) > 1 ? (

@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 7,
+  "version": 8,
   "title": "카운터 (비동기·동기)",
   "description": "4비트 비동기(리플) 카운터와 동기 카운터 비교",
   "library": {},

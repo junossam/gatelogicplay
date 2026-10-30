@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 7,
+  "version": 8,
   "title": "4비트 비교기",
   "description": "1비트 비교기 4개로 A>B, A=B, A<B",
   "library": {},

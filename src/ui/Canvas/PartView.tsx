@@ -1,10 +1,10 @@
 import { memo, type PointerEvent } from 'react';
 import type { ChipDef, Part, PinRef } from '../../sim/types';
-import { partBits, partInputs, partOutputs, partPinSpecs } from '../../sim/pins';
+import { partBits, partInputs, partOutputs, partPinSpecs, pinLabel } from '../../sim/pins';
 import { SEGMENTS } from '../../sim/primitives';
 import { engine, inputNumber, readPinNumber, useSim } from '../../store/simStore';
 import { PartShape } from '../Palette/PartIcons';
-import { baseSize, chipPins, GRID, partPins, partRect, rotationTransform } from './geometry';
+import { baseSize, chipPins, GRID, partPins, partRect, rotationTransform, lutWidth } from './geometry';
 
 /** 핀의 보이는 원보다 넓게 잡는 히트 영역 반지름 (SPEC 12장) */
 const PIN_HIT_R = 14;
@@ -106,7 +106,7 @@ export const PartView = memo(function PartView({ part, chip, selected, connected
       />
       <g transform={rotationTransform(W, H, part.rotation)}>
         <g pointerEvents="none">
-          {kind && <PartShape kind={kind} on={value === 1 && kind !== 'SEG8'} bits={bits} value={value} inputs={partInputs(part)} outputs={partOutputs(part)} />}
+          {kind && <PartShape kind={kind} on={value === 1 && kind !== 'SEG8'} bits={bits} value={value} inputs={partInputs(part)} outputs={partOutputs(part)} width={lutWidth(part)} pinLabel={(pin) => pinLabel(part, pin)} />}
           {kind && bits > 1 && kind !== 'SWITCH' && kind !== 'LED' && kind !== 'SPLIT' && kind !== 'MERGE' && (
             <text x={W - 4} y={H - 2} textAnchor="end" className="bits-badge">
               ×{bits}

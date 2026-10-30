@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 7,
+  "version": 8,
   "title": "4비트 ALU",
   "description": "OP 00 AND · 01 OR · 10 덧셈 · 11 뺄셈",
   "library": {},

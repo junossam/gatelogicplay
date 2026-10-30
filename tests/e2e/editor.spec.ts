@@ -56,7 +56,7 @@ test('1단계 완료 기준: 스위치 → AND → LED를 연결하고 새로고
   await expect(page.getByTestId('statusbar')).toContainText('게이트 1 · 전선 2');
 
   const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('logiclab:v1:workspace')!));
-  expect(saved).toMatchObject({ format: 'logiclab', version: 7 });
+  expect(saved).toMatchObject({ format: 'logiclab', version: 8 });
   expect(saved.workspace.wires).toEqual([
     { id: 'w1', from: { partId: 'switch1', pin: 'y' }, to: { partId: 'and1', pin: 'a' } },
     { id: 'w2', from: { partId: 'and1', pin: 'y' }, to: { partId: 'led1', pin: 'a' } },

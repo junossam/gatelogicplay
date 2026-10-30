@@ -1,5 +1,5 @@
 import { boundary, pinDisplayName } from '../../sim/boundary';
-import { partBits, partPinSpecs, pinSpec } from '../../sim/pins';
+import { partBits, partPinSpecs, pinSpec, pinLabel } from '../../sim/pins';
 import { orderedIO } from '../../sim/truthTable';
 import type { Circuit, Library } from '../../sim/types';
 
@@ -49,11 +49,11 @@ function partChannels(circuit: Circuit, partId: string, nets: NetLookup, library
   );
   return pins.map((pin) => {
     const netIds = bitsOfPin(nets, part.id, pin.name, pin.width);
-    if (pin.dir === 'out') return { key: `out:${pin.name}`, kind: 'out', name: pin.name, netIds };
+    if (pin.dir === 'out') return { key: `out:${pin.name}`, kind: 'out', name: pinLabel(part, pin.name), netIds };
     const wire = circuit.wires.find((w) => w.to.partId === part.id && w.to.pin === pin.name);
     const source = wire ? pinDisplayName(parts.get(wire.from.partId), wire.from.pin, library) : '연결 없음';
     const fb = netIds.some((id) => id !== null && outLoops.has(nets.loopOf(id)));
-    return { key: `in:${pin.name}`, kind: fb ? 'fb' : 'in', name: `${pin.name} · ${source}`, netIds };
+    return { key: `in:${pin.name}`, kind: fb ? 'fb' : 'in', name: `${pinLabel(part, pin.name)} · ${source}`, netIds };
   });
 }
 

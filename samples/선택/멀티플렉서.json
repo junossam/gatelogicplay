@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 7,
+  "version": 8,
   "title": "멀티플렉서·디멀티플렉서",
   "description": "4:1 MUX(2:1 MUX 3개) · 1:4 DEMUX",
   "library": {},

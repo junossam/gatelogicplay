@@ -1958,7 +1958,7 @@ button {
 
 .lut-table th,
 .lut-table td {
-  min-width: 44px;
+  min-width: 56px;
   padding: 0;
   text-align: center;
   border-bottom: 1px solid var(--border);
@@ -1989,7 +1989,7 @@ button {
 }
 
 .lut-cell {
-  width: 44px;
+  width: 56px;
   height: 44px;
   background: none;
   border: 0;
@@ -2025,4 +2025,31 @@ button {
 
 .lut-table thead th.in {
   z-index: 2;
+}
+
+.lut-controls-gap {
+  flex: 1;
+}
+
+.lut-name {
+  width: 52px;
+  min-height: 32px;
+  padding: 0 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: inherit;
+}
+
+.lut-name::placeholder {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.lut-table thead th {
+  height: 44px;
 }

@@ -1,3 +1,4 @@
+import { readFileSync, writeFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { CircuitBuilder } from '../fixtures/circuits';
 import { seed } from './helpers';
@@ -84,4 +85,48 @@ test('진리표 부품 최대 크기: 입력 8개(256행) · 출력 16개', asyn
   await dialog.getByRole('button', { name: '적용' }).click();
   await expect(page.locator('[data-pin="lut:h"]')).toHaveCount(1);
   await expect(page.locator('[data-pin="lut:y15"]')).toHaveCount(1);
+});
+
+test('진리표 부품: 핀 이름 바꾸기, 진리표 내려받기(CSV) · 올리기', async ({ page }, info) => {
+  const b = new CircuitBuilder().add('LUT', 'lut', 4, 2);
+  await seed(page, b.build());
+  await page.getByTestId('part-lut').locator('.part-hit').click({ position: { x: 30, y: 10 } });
+  await page.getByRole('button', { name: '진리표 편집' }).click();
+  const dialog = page.getByRole('dialog', { name: '진리표 편집' });
+
+  // 핀 이름: 입력 A→X, 출력 Y0→합
+  await dialog.getByLabel('입력 A 이름').fill('X');
+  await dialog.getByLabel('출력 Y0 이름').fill('합');
+  const [down] = await Promise.all([page.waitForEvent('download'), dialog.getByRole('button', { name: '진리표 내려받기' }).click()]);
+  expect(down.suggestedFilename()).toBe('lut 진리표.csv');
+  const csv = readFileSync((await down.path())!, 'utf8').replace(String.fromCharCode(0xfeff), '');
+  expect(csv.split('\r\n').slice(0, 5)).toEqual(['X,B,|,합', '0,0,|,0', '0,1,|,0', '1,0,|,0', '1,1,|,0']);
+
+  // 엑셀에서 만든 파일을 올린다: 3입력 다수결 + 패리티, 핀 이름도 함께
+  const file = info.outputPath('majority.csv');
+  writeFileSync(file, 'P,Q,R,|,다수,홀수\n0,0,1,|,0,1\n0,1,0,|,0,1\n0,1,1,|,1,0\n1,0,0,|,0,1\n1,0,1,|,1,0\n1,1,0,|,1,0\n1,1,1,|,1,1\n');
+  await dialog.getByTestId('lut-file').setInputFiles(file);
+  await expect(dialog.getByRole('status')).toContainText('입력 3 · 출력 2');
+  await expect(dialog.locator('tbody tr')).toHaveCount(8);
+  await expect(dialog.getByLabel('입력 A 이름')).toHaveValue('P');
+  await expect(dialog.getByLabel('출력 Y1 이름')).toHaveValue('홀수');
+  await expect(dialog.getByRole('button', { name: '7행 Y1' })).toHaveAttribute('aria-pressed', 'true');
+  await page.screenshot({ path: info.outputPath('lut-names.png') });
+
+  // 잘못된 파일은 이유를 보여 주고 표는 그대로
+  const bad = info.outputPath('bad.csv');
+  writeFileSync(bad, 'A,|,Y\n2,|,1\n');
+  await dialog.getByTestId('lut-file').setInputFiles(bad);
+  await expect(dialog.getByRole('alert')).toContainText('2번째 줄: 입력 A은 0이나 1이어야 합니다');
+  await expect(dialog.locator('tbody tr')).toHaveCount(8);
+
+  await dialog.getByRole('button', { name: '적용' }).click();
+  // 부품과 인스펙터에 새 핀 이름
+  const lut = page.getByTestId('part-lut');
+  await expect(lut.locator('text', { hasText: '다수' })).toHaveCount(1);
+  await expect(lut.locator('text', { hasText: 'R' })).toHaveCount(1);
+  await expect(page.getByTestId('inspector-part')).toContainText('입력 P');
+  await expect(page.getByTestId('inspector-part')).toContainText('출력 홀수');
+  await expect(page.locator('[data-pin="lut:c"]')).toHaveCount(1);
+  await page.screenshot({ path: info.outputPath('lut-names-part.png') });
 });

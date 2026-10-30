@@ -46,6 +46,14 @@ export function partOutputs(part: Part): number {
   return part.kind.type === 'primitive' && part.kind.kind === 'LUT' ? lutOutputs(part.props?.outputs) : 1;
 }
 
+/** 화면에 보일 핀 이름: 진리표 부품은 사용자가 정한 이름(없으면 A~·Y0~), 나머지는 핀 이름 그대로 */
+export function pinLabel(part: Part, pin: string): string {
+  if (part.kind.type !== 'primitive' || part.kind.kind !== 'LUT') return pin;
+  const out = /^y(\d+)$/.exec(pin);
+  if (out) return part.props?.outNames?.[Number(out[1])] || `Y${out[1]}`;
+  return part.props?.inNames?.[pin.charCodeAt(0) - 97] || pin.toUpperCase();
+}
+
 /** 진리표 부품의 표: 2^입력 수 행, 각 행은 출력 비트 묶음 (빠진 행은 0) */
 export function lutTable(part: Part): number[] {
   const n = partInputs(part);

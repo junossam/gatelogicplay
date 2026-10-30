@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 7,
+  "version": 8,
   "title": "디코더·인코더",
   "description": "3→8 디코더(2→4 두 개) · 4→2 우선순위 인코더",
   "library": {},

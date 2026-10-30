@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 7,
+  "version": 8,
   "title": "0~99 카운터 (BCD 표시)",
   "description": "BCD 카운터 2개 + BCD→8세그먼트 2개",
   "library": {},
