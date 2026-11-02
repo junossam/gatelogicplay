@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 8,
+  "version": 9,
   "title": "레지스터 (확장)",
   "description": "1·4비트 레지스터(LD) · 4비트 시프트(SI·SO)",
   "library": {

@@ -3,7 +3,7 @@ import type { Circuit } from '../sim/types';
 
 export const FORMAT = 'logiclab';
 /** 2: 다중 비트 버스 (SPLIT/MERGE, props.bits), 3: 게이트 입력 수(props.inputs)와 칩 분류(category) */
-export const VERSION = 8;
+export const VERSION = 9;
 
 const primitiveKind = z.enum(['AND', 'OR', 'XOR', 'NAND', 'NOR', 'XNOR', 'NOT', 'SWITCH', 'PUSH', 'LED', 'CLOCK', 'SPLIT', 'MERGE', 'SEG8', 'VCC', 'GND', 'LUT']);
 
@@ -30,6 +30,7 @@ export const partSchema = z.object({
       table: z.array(z.number().int().min(0).max(65535)).max(256).optional(),
       inNames: z.array(z.string().max(8)).max(8).optional(),
       outNames: z.array(z.string().max(8)).max(16).optional(),
+      hex: z.boolean().optional(),
     })
     .optional(),
 });

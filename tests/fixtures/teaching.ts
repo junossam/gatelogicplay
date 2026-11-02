@@ -33,7 +33,7 @@ export const merge = (b: CircuitBuilder, id: string, srcs: string[]) => {
   b.add('MERGE', id).bits(srcs.length);
   srcs.forEach((s, k) => b.wire(s, `${id}.a${k}`));
 };
-export const use = (b: CircuitBuilder, chipId: string, id: string, pins: Record<string, string>) => {
+export const chipAt = (b: CircuitBuilder, chipId: string, id: string, pins: Record<string, string>) => {
   b.chip(chipId, id);
   for (const [pin, src] of Object.entries(pins)) b.wire(src, `${id}.${pin}`);
 };
@@ -152,9 +152,9 @@ const mux4 = makeChip('t-mux4', '4:1 MUX', (b) => {
   for (let i = 0; i < 4; i++) sw(b, `d${i}`, `D${i}`);
   sw(b, 's0', 'S0');
   sw(b, 's1', 'S1');
-  use(b, mux2.id, 'm01', { D0: 'd0.y', D1: 'd1.y', S: 's0.y' });
-  use(b, mux2.id, 'm23', { D0: 'd2.y', D1: 'd3.y', S: 's0.y' });
-  use(b, mux2.id, 'mf', { D0: 'm01.Y', D1: 'm23.Y', S: 's1.y' });
+  chipAt(b, mux2.id, 'm01', { D0: 'd0.y', D1: 'd1.y', S: 's0.y' });
+  chipAt(b, mux2.id, 'm23', { D0: 'd2.y', D1: 'd3.y', S: 's0.y' });
+  chipAt(b, mux2.id, 'mf', { D0: 'm01.Y', D1: 'm23.Y', S: 's1.y' });
   led(b, 'y', 'Y', 'mf.Y');
 }, [['D0', 'd0'], ['D1', 'd1'], ['D2', 'd2'], ['D3', 'd3'], ['S0', 's0'], ['S1', 's1']], [['Y', 'y']], { [mux2.id]: mux2 });
 
@@ -189,8 +189,8 @@ const dec38 = makeChip('t-dec38', '3→8 디코더', (b) => {
   sw(b, 'a1', 'A1');
   sw(b, 'a2', 'A2');
   gate(b, 'NOT', 'na2', ['a2.y']);
-  use(b, dec24.id, 'lo', { A0: 'a0.y', A1: 'a1.y', EN: 'na2.y' });
-  use(b, dec24.id, 'hi', { A0: 'a0.y', A1: 'a1.y', EN: 'a2.y' });
+  chipAt(b, dec24.id, 'lo', { A0: 'a0.y', A1: 'a1.y', EN: 'na2.y' });
+  chipAt(b, dec24.id, 'hi', { A0: 'a0.y', A1: 'a1.y', EN: 'a2.y' });
   for (let i = 0; i < 8; i++) led(b, `y${i}`, `Y${i}`, `${i < 4 ? 'lo' : 'hi'}.Y${i % 4}`);
 }, [['A0', 'a0'], ['A1', 'a1'], ['A2', 'a2']], [0, 1, 2, 3, 4, 5, 6, 7].map((i) => [`Y${i}`, `y${i}`] as [string, string]), { [dec24.id]: dec24 });
 
@@ -224,7 +224,7 @@ const cmp4 = makeChip('t-cmp4', '4비트 비교기', (b) => {
   sw(b, 'b', 'B', 4);
   split(b, 'sa', 'a.y', 4);
   split(b, 'sb', 'b.y', 4);
-  for (let i = 0; i < 4; i++) use(b, cmp1.id, `c${i}`, { A: `sa.y${i}`, B: `sb.y${i}` });
+  for (let i = 0; i < 4; i++) chipAt(b, cmp1.id, `c${i}`, { A: `sa.y${i}`, B: `sb.y${i}` });
   const e = (i: number) => `c${i}.A=B`;
   gate(b, 'AND', 'eq', [e(3), e(2), e(1), e(0)]);
   for (const [k, pin] of [['gt', 'A>B'], ['lt', 'A<B']] as const) {
@@ -252,8 +252,8 @@ const fullSub = makeChip('t-fsub', '전감산기', (b) => {
   sw(b, 'a', 'A');
   sw(b, 'b', 'B');
   sw(b, 'bi', 'Bi');
-  use(b, halfSub.id, 'h1', { A: 'a.y', B: 'b.y' });
-  use(b, halfSub.id, 'h2', { A: 'h1.D', B: 'bi.y' });
+  chipAt(b, halfSub.id, 'h1', { A: 'a.y', B: 'b.y' });
+  chipAt(b, halfSub.id, 'h2', { A: 'h1.D', B: 'bi.y' });
   gate(b, 'OR', 'o', ['h1.Bo', 'h2.Bo']);
   led(b, 'd', 'D', 'h2.D');
   led(b, 'bo', 'Bo', 'o.y');
@@ -272,8 +272,8 @@ const fullAdd = makeChip('t-fadd', '전가산기', (b) => {
   sw(b, 'a', 'A');
   sw(b, 'b', 'B');
   sw(b, 'cin', 'Cin');
-  use(b, halfAdd.id, 'h1', { A: 'a.y', B: 'b.y' });
-  use(b, halfAdd.id, 'h2', { A: 'h1.S', B: 'cin.y' });
+  chipAt(b, halfAdd.id, 'h1', { A: 'a.y', B: 'b.y' });
+  chipAt(b, halfAdd.id, 'h2', { A: 'h1.S', B: 'cin.y' });
   gate(b, 'OR', 'o', ['h1.C', 'h2.C']);
   led(b, 's', 'S', 'h2.S');
   led(b, 'cout', 'Cout', 'o.y');
@@ -288,7 +288,7 @@ const addSub4 = makeChip('t-addsub4', '4비트 가감산기', (b) => {
   for (let i = 0; i < 4; i++) {
     // 뺄셈이면 B를 뒤집고 처음 자리올림을 1로: A + ~B + 1 = A - B
     gate(b, 'XOR', `x${i}`, [`sb.y${i}`, 'sub.y']);
-    use(b, fullAdd.id, `fa${i}`, { A: `sa.y${i}`, B: `x${i}.y`, Cin: i ? `fa${i - 1}.Cout` : 'sub.y' });
+    chipAt(b, fullAdd.id, `fa${i}`, { A: `sa.y${i}`, B: `x${i}.y`, Cin: i ? `fa${i - 1}.Cout` : 'sub.y' });
   }
   merge(b, 'ms', [0, 1, 2, 3].map((i) => `fa${i}.S`));
   led(b, 's', 'S', 'ms.y', 4);
@@ -302,7 +302,7 @@ const alu4 = makeChip('t-alu4', '4비트 ALU', (b) => {
   split(b, 'sop', 'op.y', 2);
   gate(b, 'AND', 'and4', ['a.y', 'b.y'], 4);
   gate(b, 'OR', 'or4', ['a.y', 'b.y'], 4);
-  use(b, addSub4.id, 'as', { A: 'a.y', B: 'b.y', SUB: 'sop.y0' });
+  chipAt(b, addSub4.id, 'as', { A: 'a.y', B: 'b.y', SUB: 'sop.y0' });
   gate(b, 'NOT', 'nop0', ['sop.y0']);
   gate(b, 'NOT', 'nop1', ['sop.y1']);
   gate(b, 'AND', 'd0', ['nop1.y', 'nop0.y']);
@@ -386,7 +386,7 @@ function seqChips(ff: Library) {
     sw(b, 'd', 'D', 4);
     sw(b, 'clk', 'CLK');
     split(b, 'sd', 'd.y', 4);
-    for (let i = 0; i < 4; i++) use(b, 'ff-d', `f${i}`, { D: `sd.y${i}`, CLK: 'clk.y' });
+    for (let i = 0; i < 4; i++) chipAt(b, 'ff-d', `f${i}`, { D: `sd.y${i}`, CLK: 'clk.y' });
     merge(b, 'mq', [0, 1, 2, 3].map((i) => `f${i}.Q`));
     led(b, 'q', 'Q', 'mq.y', 4);
   }, [['D', 'd'], ['CLK', 'clk']], [['Q', 'q']], ff);
@@ -394,7 +394,7 @@ function seqChips(ff: Library) {
   const shift4 = makeChip('t-shift4', '4비트 시프트 레지스터', (b) => {
     sw(b, 'in', 'IN');
     sw(b, 'clk', 'CLK');
-    for (let i = 0; i < 4; i++) use(b, 'ff-d', `f${i}`, { D: i ? `f${i - 1}.Q` : 'in.y', CLK: 'clk.y' });
+    for (let i = 0; i < 4; i++) chipAt(b, 'ff-d', `f${i}`, { D: i ? `f${i - 1}.Q` : 'in.y', CLK: 'clk.y' });
     for (let i = 0; i < 4; i++) led(b, `q${i}`, `Q${i}`, `f${i}.Q`);
   }, [['IN', 'in'], ['CLK', 'clk']], [0, 1, 2, 3].map((i) => [`Q${i}`, `q${i}`] as [string, string]), ff);
 
@@ -416,7 +416,7 @@ function seqChips(ff: Library) {
         gate(b, 'AND', `r${i}`, ['nclr.y', `f${i - 1}.Q̄`]);
         gate(b, 'OR', `c${i}`, [`r${i}.y`, 'clrclk.y']);
       }
-      use(b, 'ff-d', `f${i}`, { D: `d${i}.y`, CLK: i ? `c${i}.y` : 'clk.y' });
+      chipAt(b, 'ff-d', `f${i}`, { D: `d${i}.y`, CLK: i ? `c${i}.y` : 'clk.y' });
     }
     merge(b, 'mq', [0, 1, 2, 3].map((i) => `f${i}.Q`));
     led(b, 'q', 'Q', 'mq.y', 4);
@@ -435,7 +435,7 @@ function seqChips(ff: Library) {
       gate(b, 'XOR', `x${i}`, [`f${i}.Q`, t[i]!]);
       gate(b, 'AND', `d${i}`, [`x${i}.y`, 'nclr.y']);
     }
-    for (let i = 0; i < 4; i++) use(b, 'ff-d', `f${i}`, { D: `d${i}.y`, CLK: 'clk.y' });
+    for (let i = 0; i < 4; i++) chipAt(b, 'ff-d', `f${i}`, { D: `d${i}.y`, CLK: 'clk.y' });
     gate(b, 'AND', 'co', ['f0.Q', 'f1.Q', 'f2.Q', 'f3.Q']);
     merge(b, 'mq', [0, 1, 2, 3].map((i) => `f${i}.Q`));
     led(b, 'q', 'Q', 'mq.y', 4);
@@ -457,7 +457,7 @@ function seqChips(ff: Library) {
     for (let i = 0; i < 4; i++) {
       gate(b, 'XOR', `x${i}`, [`f${i}.Q`, t[i]!]);
       gate(b, 'AND', `d${i}`, [`x${i}.y`, 'nclr.y', 'nwrap.y']);
-      use(b, 'ff-d', `f${i}`, { D: `d${i}.y`, CLK: 'clk.y' });
+      chipAt(b, 'ff-d', `f${i}`, { D: `d${i}.y`, CLK: 'clk.y' });
     }
     merge(b, 'mq', [0, 1, 2, 3].map((i) => `f${i}.Q`));
     led(b, 'q', 'Q', 'mq.y', 4);
@@ -505,10 +505,10 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
   add('기본/NAND로 만든 게이트.json', 'NAND로 만든 게이트', 'NAND만으로 NOT·AND·OR·XOR', 'NAND 하나로 모든 게이트를 만들 수 있습니다.\nA, B를 눌러 네 결과를 비교해 보세요.', L(nandNot, nandAnd, nandOr, nandXor), (b) => {
     sw(b, 'a', 'A');
     sw(b, 'b', 'B');
-    use(b, nandNot.id, 'not', { A: 'a.y' });
-    use(b, nandAnd.id, 'and', { A: 'a.y', B: 'b.y' });
-    use(b, nandOr.id, 'or', { A: 'a.y', B: 'b.y' });
-    use(b, nandXor.id, 'xor', { A: 'a.y', B: 'b.y' });
+    chipAt(b, nandNot.id, 'not', { A: 'a.y' });
+    chipAt(b, nandAnd.id, 'and', { A: 'a.y', B: 'b.y' });
+    chipAt(b, nandOr.id, 'or', { A: 'a.y', B: 'b.y' });
+    chipAt(b, nandXor.id, 'xor', { A: 'a.y', B: 'b.y' });
     led(b, 'y_not', 'NOT A', 'not.Y');
     led(b, 'y_and', 'A AND B', 'and.Y');
     led(b, 'y_or', 'A OR B', 'or.Y');
@@ -520,8 +520,8 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
     sw(b, 's0', 'S0');
     sw(b, 's1', 'S1');
     sw(b, 'dd', 'D');
-    use(b, mux4.id, 'mux', { D0: 'd0.y', D1: 'd1.y', D2: 'd2.y', D3: 'd3.y', S0: 's0.y', S1: 's1.y' });
-    use(b, demux4.id, 'demux', { D: 'dd.y', S0: 's0.y', S1: 's1.y' });
+    chipAt(b, mux4.id, 'mux', { D0: 'd0.y', D1: 'd1.y', D2: 'd2.y', D3: 'd3.y', S0: 's0.y', S1: 's1.y' });
+    chipAt(b, demux4.id, 'demux', { D: 'dd.y', S0: 's0.y', S1: 's1.y' });
     led(b, 'y', 'Y', 'mux.Y');
     for (let i = 0; i < 4; i++) led(b, `y${i}`, `Y${i}`, `demux.Y${i}`);
   });
@@ -531,8 +531,8 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
     sw(b, 'a1', 'A1');
     sw(b, 'a2', 'A2');
     for (let i = 0; i < 4; i++) sw(b, `i${i}`, `I${i}`);
-    use(b, dec38.id, 'dec', { A0: 'a0.y', A1: 'a1.y', A2: 'a2.y' });
-    use(b, prio4.id, 'enc', { I0: 'i0.y', I1: 'i1.y', I2: 'i2.y', I3: 'i3.y' });
+    chipAt(b, dec38.id, 'dec', { A0: 'a0.y', A1: 'a1.y', A2: 'a2.y' });
+    chipAt(b, prio4.id, 'enc', { I0: 'i0.y', I1: 'i1.y', I2: 'i2.y', I3: 'i3.y' });
     for (let i = 0; i < 8; i++) led(b, `y${i}`, `Y${i}`, `dec.Y${i}`);
     led(b, 'ey1', 'Y1', 'enc.Y1');
     led(b, 'ey0', 'Y0', 'enc.Y0');
@@ -542,7 +542,7 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
   add('연산/비교기.json', '4비트 비교기', '1비트 비교기 4개로 A>B, A=B, A<B', '4비트 스위치 A, B를 눌러 값을 바꿔 보세요.\n윗자리부터 같으면 아래 자리를 봅니다.', L(cmp1, cmp4), (b) => {
     sw(b, 'a', 'A', 4);
     sw(b, 'b', 'B', 4);
-    use(b, cmp4.id, 'cmp', { A: 'a.y', B: 'b.y' });
+    chipAt(b, cmp4.id, 'cmp', { A: 'a.y', B: 'b.y' });
     led(b, 'gt', 'A>B', 'cmp.A>B');
     led(b, 'eq', 'A=B', 'cmp.A=B');
     led(b, 'lt', 'A<B', 'cmp.A<B');
@@ -552,7 +552,7 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
     sw(b, 'a', 'A');
     sw(b, 'b', 'B');
     sw(b, 'bi', 'Bi');
-    use(b, fullSub.id, 'fs', { A: 'a.y', B: 'b.y', Bi: 'bi.y' });
+    chipAt(b, fullSub.id, 'fs', { A: 'a.y', B: 'b.y', Bi: 'bi.y' });
     led(b, 'd', 'D', 'fs.D');
     led(b, 'bo', 'Bo', 'fs.Bo');
   });
@@ -561,7 +561,7 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
     sw(b, 'a', 'A', 4);
     sw(b, 'b', 'B', 4);
     sw(b, 'op', 'OP', 2);
-    use(b, alu4.id, 'alu', { A: 'a.y', B: 'b.y', OP: 'op.y' });
+    chipAt(b, alu4.id, 'alu', { A: 'a.y', B: 'b.y', OP: 'op.y' });
     led(b, 'y', 'Y', 'alu.Y', 4);
     led(b, 'c', 'C', 'alu.C');
   });
@@ -571,8 +571,8 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
     b.add('PUSH', 'clk', 0, 0, 'CLK');
     sw(b, 'sin', 'IN');
     b.add('PUSH', 'sclk', 0, 0, 'S-CLK');
-    use(b, seq.reg4.id, 'reg', { D: 'd.y', CLK: 'clk.y' });
-    use(b, seq.shift4.id, 'sh', { IN: 'sin.y', CLK: 'sclk.y' });
+    chipAt(b, seq.reg4.id, 'reg', { D: 'd.y', CLK: 'clk.y' });
+    chipAt(b, seq.shift4.id, 'sh', { IN: 'sin.y', CLK: 'sclk.y' });
     led(b, 'q', 'Q', 'reg.Q', 4);
     for (let i = 0; i < 4; i++) led(b, `q${i}`, `Q${i}`, `sh.Q${i}`);
   });
@@ -580,8 +580,8 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
   add('기억 소자/카운터.json', '카운터 (비동기·동기)', '4비트 비동기(리플) 카운터와 동기 카운터 비교', '먼저 CLR을 켜고 CLK를 한 번 누른 뒤 CLR을 끄세요.\nCLK를 누를 때마다 둘 다 1씩 늘어납니다. 파형으로 바뀌는 시점을 비교해 보세요.', seq.lib(seq.ripple4, seq.sync4), (b) => {
     b.add('PUSH', 'clk', 0, 0, 'CLK');
     sw(b, 'clr', 'CLR');
-    use(b, seq.ripple4.id, 'rip', { CLK: 'clk.y', CLR: 'clr.y' });
-    use(b, seq.sync4.id, 'syn', { CLK: 'clk.y', CLR: 'clr.y' });
+    chipAt(b, seq.ripple4.id, 'rip', { CLK: 'clk.y', CLR: 'clr.y' });
+    chipAt(b, seq.sync4.id, 'syn', { CLK: 'clk.y', CLR: 'clr.y' });
     led(b, 'rq', '비동기 Q', 'rip.Q', 4);
     led(b, 'sq', '동기 Q', 'syn.Q', 4);
     led(b, 'co', 'CO', 'syn.CO');
@@ -591,10 +591,10 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
     b.add('CLOCK', 'clk', 0, 0, 'CLK').hz(1);
     sw(b, 'clr', 'CLR');
     b.add('VCC', 'vcc');
-    use(b, seq.bcd.id, 'ones', { CLK: 'clk.y', CLR: 'clr.y', EN: 'vcc.y' });
-    use(b, seq.bcd.id, 'tens', { CLK: 'clk.y', CLR: 'clr.y', EN: 'ones.CO' });
-    use(b, bcd7.id, 'dec10', { N: 'tens.Q' });
-    use(b, bcd7.id, 'dec1', { N: 'ones.Q' });
+    chipAt(b, seq.bcd.id, 'ones', { CLK: 'clk.y', CLR: 'clr.y', EN: 'vcc.y' });
+    chipAt(b, seq.bcd.id, 'tens', { CLK: 'clk.y', CLR: 'clr.y', EN: 'ones.CO' });
+    chipAt(b, bcd7.id, 'dec10', { N: 'tens.Q' });
+    chipAt(b, bcd7.id, 'dec1', { N: 'ones.Q' });
     b.add('SEG8', 'seg10');
     b.add('SEG8', 'seg1');
     for (const s of 'abcdefg') {
@@ -609,10 +609,10 @@ export function teachingSamples(flipflops: Library): TeachingSample[] {
     for (let i = 0; i < 4; i++) sw(b, `b${i}`, `B${i}`);
     for (let i = 0; i < 4; i++) sw(b, `gi${i}`, `G${i}`);
     const d = Object.fromEntries([0, 1, 2, 3].map((i) => [`D${i}`, `d${i}.y`]));
-    use(b, parityGen.id, 'pgen', d);
-    use(b, parityChk.id, 'pchk', { ...d, P: 'pin.y' });
-    use(b, bin2gray.id, 'b2g', Object.fromEntries([0, 1, 2, 3].map((i) => [`B${i}`, `b${i}.y`])));
-    use(b, gray2bin.id, 'g2b', Object.fromEntries([0, 1, 2, 3].map((i) => [`G${i}`, `gi${i}.y`])));
+    chipAt(b, parityGen.id, 'pgen', d);
+    chipAt(b, parityChk.id, 'pchk', { ...d, P: 'pin.y' });
+    chipAt(b, bin2gray.id, 'b2g', Object.fromEntries([0, 1, 2, 3].map((i) => [`B${i}`, `b${i}.y`])));
+    chipAt(b, gray2bin.id, 'g2b', Object.fromEntries([0, 1, 2, 3].map((i) => [`G${i}`, `gi${i}.y`])));
     led(b, 'p', 'P', 'pgen.P');
     led(b, 'err', 'ERR', 'pchk.ERR');
     for (let i = 0; i < 4; i++) led(b, `g${i}`, `→G${i}`, `b2g.G${i}`);

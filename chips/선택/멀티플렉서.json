@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 8,
+  "version": 9,
   "title": "멀티플렉서 (EN)",
   "description": "2:1 · 4:1 MUX. EN과 OR로 8:1 이상",
   "library": {

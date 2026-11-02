@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 8,
+  "version": 9,
   "title": "디멀티플렉서",
   "description": "1:2 · 1:4 DEMUX. 앞 단 출력 → 뒤 단 D로 1:8 이상",
   "library": {

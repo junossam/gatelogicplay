@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 8,
+  "version": 9,
   "title": "디코더·인코더 (확장)",
   "description": "2→4 디코더(EN) · 4→2 우선순위 인코더(EI·EO·GS)",
   "library": {

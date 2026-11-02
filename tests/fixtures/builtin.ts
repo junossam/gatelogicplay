@@ -2,7 +2,7 @@
 // chips/ 파일은 이 코드로 만들고, tests/unit/builtinChips.test.ts가 실제로 엮어서 넓힌 회로를 엔진으로 검증한다.
 import { withDependencies } from '../../src/model/library';
 import type { ChipDef, Library } from '../../src/sim/types';
-import { gate, led, makeChip, merge, split, sw, use } from './teaching';
+import { chipAt, gate, led, makeChip, merge, split, sw } from './teaching';
 
 export interface BuiltinChipFile {
   /** chips/ 기준 경로 */
@@ -151,7 +151,7 @@ export function registerChips(ff: Library) {
     gate(b, 'AND', 'take', ['d.y', 'ld.y']);
     gate(b, 'AND', 'keep', ['f.Q', 'nld.y']);
     gate(b, 'OR', 'next', ['take.y', 'keep.y']);
-    use(b, 'ff-d', 'f', { D: 'next.y', CLK: 'clk.y' });
+    chipAt(b, 'ff-d', 'f', { D: 'next.y', CLK: 'clk.y' });
     led(b, 'q', 'Q', 'f.Q');
   }, [['D', 'd'], ['LD', 'ld'], ['CLK', 'clk']], [['Q', 'q']], ff);
 
@@ -160,7 +160,7 @@ export function registerChips(ff: Library) {
     sw(b, 'ld', 'LD');
     sw(b, 'clk', 'CLK');
     split(b, 'sd', 'd.y', 4);
-    for (const i of range(4)) use(b, reg1.id, `r${i}`, { D: `sd.y${i}`, LD: 'ld.y', CLK: 'clk.y' });
+    for (const i of range(4)) chipAt(b, reg1.id, `r${i}`, { D: `sd.y${i}`, LD: 'ld.y', CLK: 'clk.y' });
     merge(b, 'mq', range(4).map((i) => `r${i}.Q`));
     led(b, 'q', 'Q', 'mq.y', 4);
   }, [['D', 'd'], ['LD', 'ld'], ['CLK', 'clk']], [['Q', 'q']], { ...ff, [reg1.id]: reg1 });
@@ -169,7 +169,7 @@ export function registerChips(ff: Library) {
   const shift4 = makeChip('bi-shift4', '4비트 시프트 레지스터 (SI·SO)', (b) => {
     sw(b, 'si', 'SI');
     sw(b, 'clk', 'CLK');
-    for (const i of range(4)) use(b, 'ff-d', `f${i}`, { D: i ? `f${i - 1}.Q` : 'si.y', CLK: 'clk.y' });
+    for (const i of range(4)) chipAt(b, 'ff-d', `f${i}`, { D: i ? `f${i - 1}.Q` : 'si.y', CLK: 'clk.y' });
     merge(b, 'mq', range(4).map((i) => `f${i}.Q`));
     led(b, 'q', 'Q', 'mq.y', 4);
     led(b, 'so', 'SO', 'f3.Q');

@@ -1,6 +1,6 @@
 {
   "format": "logiclab",
-  "version": 8,
+  "version": 9,
   "title": "1비트 비교기 (확장)",
   "description": "Gi·Ei·Li → G·E·L. 이어서 n비트 비교",
   "library": {

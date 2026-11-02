@@ -7,7 +7,7 @@ import { kindPins, kindSize, GRID } from '../Canvas/geometry';
  * 좌표계는 부품 크기(격자 칸 × 20px) 그대로이며, 핀 리드 선이 핀 위치까지 이어진다.
  */
 /** 여러 비트 부품 기호 (나누기·묶기, 숫자 스위치·LED). 1비트 기호는 아래 PartShape. */
-function BusShape({ kind, bits, value }: { kind: PrimitiveKind; bits: number; value: number }) {
+function BusShape({ kind, bits, value, hex = false }: { kind: PrimitiveKind; bits: number; value: number; hex?: boolean }) {
   const stroke = 'var(--text-2)';
   const body = { fill: 'var(--bg-chip)', stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };
   const bus = { stroke, strokeWidth: 4 };
@@ -34,7 +34,8 @@ function BusShape({ kind, bits, value }: { kind: PrimitiveKind; bits: number; va
       </g>
     );
   }
-  const text = String(value);
+  // 16진수 표시: 비트 수에 맞춰 자리를 채운다 (예: 16비트 → 4자리)
+  const text = hex ? value.toString(16).toUpperCase().padStart(Math.ceil(bits / 4), '0') : String(value);
   if (kind === 'SWITCH') {
     return (
       <g>
@@ -180,6 +181,7 @@ export function PartShape({
   width = 5,
   pinLabel = (pin: string) => pin.toUpperCase(),
   title = '진리표',
+  hex = false,
 }: {
   kind: PrimitiveKind;
   on?: boolean;
@@ -193,9 +195,11 @@ export function PartShape({
   pinLabel?: (pin: string) => string;
   /** 진리표 부품 가운데 이름 */
   title?: string;
+  /** 여러 비트 스위치·LED를 16진수로 */
+  hex?: boolean;
 }) {
   if (kind === 'LUT') return <LutShape inputs={inputs} outputs={outputs} width={width} label={pinLabel} title={title} />;
-  if (kind === 'SPLIT' || kind === 'MERGE' || ((kind === 'SWITCH' || kind === 'LED') && bits > 1)) return <BusShape kind={kind} bits={bits} value={value} />;
+  if (kind === 'SPLIT' || kind === 'MERGE' || ((kind === 'SWITCH' || kind === 'LED') && bits > 1)) return <BusShape kind={kind} bits={bits} value={value} hex={hex} />;
   const stroke = 'var(--text-2)';
   const body = { fill: 'var(--bg-chip)', stroke, strokeWidth: 2, strokeLinejoin: 'round' as const };
   const lead = { stroke, strokeWidth: 2 };

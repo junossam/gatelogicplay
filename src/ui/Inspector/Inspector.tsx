@@ -100,6 +100,18 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
       <dd>{kind ? KIND_NAMES[kind] : `칩 · ${library[(part.kind as { chipId: string }).chipId]?.name ?? '?'}`}</dd>
       <dt>ID</dt>
       <dd className="mono">{part.id}</dd>
+      {!kind && (
+        <>
+          <dt>이름</dt>
+          <dd>
+            {readOnly ? (
+              part.label ?? ''
+            ) : (
+              <CommitInput label="칩 부품 이름" value={part.label ?? ''} onCommit={(v) => editorStore.getState().updatePart(part.id, { label: v.trim() })} />
+            )}
+          </dd>
+        </>
+      )}
       {labelled && (
         <>
           <dt>{kind === 'LED' ? '출력 핀 이름' : '입력 핀 이름'}</dt>
@@ -205,6 +217,28 @@ function PartDetails({ part, prefix, readOnly }: { part: Part; prefix: string; r
                 }}
               />
             )}
+          </dd>
+        </>
+      )}
+      {(kind === 'SWITCH' || kind === 'LED') && bits > 1 && (
+        <>
+          <dt>표시</dt>
+          <dd>
+            <label className="check">
+              <input
+                type="checkbox"
+                aria-label="16진수로 표시"
+                checked={part.props?.hex === true}
+                disabled={readOnly}
+                onChange={(e) => {
+                  const props = { ...part.props };
+                  if (e.target.checked) props.hex = true;
+                  else delete props.hex;
+                  editorStore.getState().updatePart(part.id, { props: Object.keys(props).length ? props : undefined });
+                }}
+              />
+              16진수
+            </label>
           </dd>
         </>
       )}

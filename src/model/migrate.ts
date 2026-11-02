@@ -19,6 +19,8 @@ const steps: Record<number, (doc: Record<string, unknown>) => Record<string, unk
   6: (doc) => ({ ...doc, version: 7 }),
   // 7 → 8: 진리표 부품 핀 이름(props.inNames·outNames) 추가. 버전만 올린다.
   7: (doc) => ({ ...doc, version: 8 }),
+  // 8 → 9: 여러 비트 스위치·LED 16진수 표시(props.hex) 추가. 버전만 올린다.
+  8: (doc) => ({ ...doc, version: 9 }),
 };
 
 export class MigrationError extends Error {}

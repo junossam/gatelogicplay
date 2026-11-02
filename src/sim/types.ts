@@ -19,9 +19,10 @@ export interface Part {
   /**
    * hz: 클럭 주파수, bits: 비트 수 (8단계 버스, 없으면 1. 나누기·묶기는 4), inputs: 게이트 입력 수 (2~8, 없으면 2).
    * 진리표 부품(LUT): inputs 1~8, outputs 1~16, table[행] = 그 입력 조합의 출력 (A가 가장 높은 자리, 출력 Y0이 비트 0).
+   * hex: 여러 비트 스위치·LED의 값을 16진수로 표시.
    * inNames·outNames: 핀 표시 이름 (빈 문자열이면 A~·Y0~). 핀 id(a~·y0~)는 그대로라 전선은 끊기지 않는다.
    */
-  props?: { hz?: number; bits?: number; inputs?: number; outputs?: number; table?: number[]; inNames?: string[]; outNames?: string[] };
+  props?: { hz?: number; bits?: number; inputs?: number; outputs?: number; table?: number[]; inNames?: string[]; outNames?: string[]; hex?: boolean };
 }
 
 export interface PinRef {
