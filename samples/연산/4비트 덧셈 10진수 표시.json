@@ -1,0 +1,4920 @@
+{
+  "format": "logiclab",
+  "version": 9,
+  "title": "4비트 덧셈 결과를 10진수로",
+  "description": "4비트 가산기의 합(0~30)을 논리 게이트로 10진수 두 자리로 바꿔 8세그먼트에 표시",
+  "library": {
+    "chip-ha": {
+      "id": "chip-ha",
+      "name": "반가산기",
+      "color": "chip-1",
+      "category": "가산기",
+      "inputs": [
+        {
+          "name": "A",
+          "partId": "a"
+        },
+        {
+          "name": "B",
+          "partId": "b"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "S",
+          "partId": "s"
+        },
+        {
+          "name": "C",
+          "partId": "c"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "a",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 0,
+            "label": "A"
+          },
+          {
+            "id": "b",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 6,
+            "label": "B"
+          },
+          {
+            "id": "xor1",
+            "kind": {
+              "type": "primitive",
+              "kind": "XOR"
+            },
+            "x": 6,
+            "y": 0
+          },
+          {
+            "id": "and1",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 6,
+            "y": 6
+          },
+          {
+            "id": "s",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 14,
+            "y": 1,
+            "label": "S"
+          },
+          {
+            "id": "c",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 14,
+            "y": 7,
+            "label": "C"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "a",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "xor1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "b",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "xor1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "a",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "and1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "b",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "and1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "xor1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "s",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "and1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "c",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1
+    },
+    "chip-fa": {
+      "id": "chip-fa",
+      "name": "전가산기",
+      "color": "chip-1",
+      "category": "가산기",
+      "inputs": [
+        {
+          "name": "A",
+          "partId": "a"
+        },
+        {
+          "name": "B",
+          "partId": "b"
+        },
+        {
+          "name": "Cin",
+          "partId": "cin"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "S",
+          "partId": "s"
+        },
+        {
+          "name": "Cout",
+          "partId": "cout"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "a",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 0,
+            "label": "A"
+          },
+          {
+            "id": "b",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 4,
+            "label": "B"
+          },
+          {
+            "id": "cin",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 8,
+            "label": "Cin"
+          },
+          {
+            "id": "ha1",
+            "kind": {
+              "type": "chip",
+              "chipId": "chip-ha"
+            },
+            "x": 5,
+            "y": 0
+          },
+          {
+            "id": "ha2",
+            "kind": {
+              "type": "chip",
+              "chipId": "chip-ha"
+            },
+            "x": 13,
+            "y": 4
+          },
+          {
+            "id": "or1",
+            "kind": {
+              "type": "primitive",
+              "kind": "OR"
+            },
+            "x": 21,
+            "y": 6
+          },
+          {
+            "id": "s",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 28,
+            "y": 0,
+            "label": "S"
+          },
+          {
+            "id": "cout",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 28,
+            "y": 6,
+            "label": "Cout"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "a",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ha1",
+              "pin": "A"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "b",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ha1",
+              "pin": "B"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "ha1",
+              "pin": "S"
+            },
+            "to": {
+              "partId": "ha2",
+              "pin": "A"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "cin",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "ha2",
+              "pin": "B"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "ha2",
+              "pin": "S"
+            },
+            "to": {
+              "partId": "s",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "ha1",
+              "pin": "C"
+            },
+            "to": {
+              "partId": "or1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "ha2",
+              "pin": "C"
+            },
+            "to": {
+              "partId": "or1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "or1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "cout",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1
+    },
+    "chip-add4bus": {
+      "id": "chip-add4bus",
+      "name": "4비트 가산기(버스)",
+      "color": "chip-1",
+      "category": "가산기",
+      "inputs": [
+        {
+          "name": "A",
+          "partId": "a"
+        },
+        {
+          "name": "B",
+          "partId": "b"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "S",
+          "partId": "s"
+        },
+        {
+          "name": "Cout",
+          "partId": "cout"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "a",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 4,
+            "label": "A",
+            "props": {
+              "bits": 4
+            }
+          },
+          {
+            "id": "b",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 20,
+            "label": "B",
+            "props": {
+              "bits": 4
+            }
+          },
+          {
+            "id": "sa",
+            "kind": {
+              "type": "primitive",
+              "kind": "SPLIT"
+            },
+            "x": 6,
+            "y": 1,
+            "props": {
+              "bits": 4
+            }
+          },
+          {
+            "id": "sb",
+            "kind": {
+              "type": "primitive",
+              "kind": "SPLIT"
+            },
+            "x": 6,
+            "y": 17,
+            "props": {
+              "bits": 4
+            }
+          },
+          {
+            "id": "ms",
+            "kind": {
+              "type": "primitive",
+              "kind": "MERGE"
+            },
+            "x": 30,
+            "y": 1,
+            "props": {
+              "bits": 4
+            }
+          },
+          {
+            "id": "s",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 36,
+            "y": 4,
+            "label": "S",
+            "props": {
+              "bits": 4
+            }
+          },
+          {
+            "id": "cout",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 36,
+            "y": 20,
+            "label": "Cout"
+          },
+          {
+            "id": "fa0",
+            "kind": {
+              "type": "chip",
+              "chipId": "chip-fa"
+            },
+            "x": 14,
+            "y": 0
+          },
+          {
+            "id": "fa1",
+            "kind": {
+              "type": "chip",
+              "chipId": "chip-fa"
+            },
+            "x": 14,
+            "y": 7
+          },
+          {
+            "id": "fa2",
+            "kind": {
+              "type": "chip",
+              "chipId": "chip-fa"
+            },
+            "x": 14,
+            "y": 14
+          },
+          {
+            "id": "fa3",
+            "kind": {
+              "type": "chip",
+              "chipId": "chip-fa"
+            },
+            "x": 14,
+            "y": 21
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "a",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "sa",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "b",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "sb",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "ms",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "s",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "sa",
+              "pin": "y0"
+            },
+            "to": {
+              "partId": "fa0",
+              "pin": "A"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "sb",
+              "pin": "y0"
+            },
+            "to": {
+              "partId": "fa0",
+              "pin": "B"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "fa0",
+              "pin": "S"
+            },
+            "to": {
+              "partId": "ms",
+              "pin": "a0"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "sa",
+              "pin": "y1"
+            },
+            "to": {
+              "partId": "fa1",
+              "pin": "A"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "sb",
+              "pin": "y1"
+            },
+            "to": {
+              "partId": "fa1",
+              "pin": "B"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "fa1",
+              "pin": "S"
+            },
+            "to": {
+              "partId": "ms",
+              "pin": "a1"
+            }
+          },
+          {
+            "id": "w10",
+            "from": {
+              "partId": "fa0",
+              "pin": "Cout"
+            },
+            "to": {
+              "partId": "fa1",
+              "pin": "Cin"
+            }
+          },
+          {
+            "id": "w11",
+            "from": {
+              "partId": "sa",
+              "pin": "y2"
+            },
+            "to": {
+              "partId": "fa2",
+              "pin": "A"
+            }
+          },
+          {
+            "id": "w12",
+            "from": {
+              "partId": "sb",
+              "pin": "y2"
+            },
+            "to": {
+              "partId": "fa2",
+              "pin": "B"
+            }
+          },
+          {
+            "id": "w13",
+            "from": {
+              "partId": "fa2",
+              "pin": "S"
+            },
+            "to": {
+              "partId": "ms",
+              "pin": "a2"
+            }
+          },
+          {
+            "id": "w14",
+            "from": {
+              "partId": "fa1",
+              "pin": "Cout"
+            },
+            "to": {
+              "partId": "fa2",
+              "pin": "Cin"
+            }
+          },
+          {
+            "id": "w15",
+            "from": {
+              "partId": "sa",
+              "pin": "y3"
+            },
+            "to": {
+              "partId": "fa3",
+              "pin": "A"
+            }
+          },
+          {
+            "id": "w16",
+            "from": {
+              "partId": "sb",
+              "pin": "y3"
+            },
+            "to": {
+              "partId": "fa3",
+              "pin": "B"
+            }
+          },
+          {
+            "id": "w17",
+            "from": {
+              "partId": "fa3",
+              "pin": "S"
+            },
+            "to": {
+              "partId": "ms",
+              "pin": "a3"
+            }
+          },
+          {
+            "id": "w18",
+            "from": {
+              "partId": "fa2",
+              "pin": "Cout"
+            },
+            "to": {
+              "partId": "fa3",
+              "pin": "Cin"
+            }
+          },
+          {
+            "id": "w19",
+            "from": {
+              "partId": "fa3",
+              "pin": "Cout"
+            },
+            "to": {
+              "partId": "cout",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1
+    },
+    "builtin-hex-7seg-bits": {
+      "id": "builtin-hex-7seg-bits",
+      "name": "2진수→8세그먼트",
+      "color": "chip-5",
+      "category": "표시",
+      "inputs": [
+        {
+          "name": "B0",
+          "partId": "b0"
+        },
+        {
+          "name": "B1",
+          "partId": "b1"
+        },
+        {
+          "name": "B2",
+          "partId": "b2"
+        },
+        {
+          "name": "B3",
+          "partId": "b3"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "a",
+          "partId": "out_a"
+        },
+        {
+          "name": "b",
+          "partId": "out_b"
+        },
+        {
+          "name": "c",
+          "partId": "out_c"
+        },
+        {
+          "name": "d",
+          "partId": "out_d"
+        },
+        {
+          "name": "e",
+          "partId": "out_e"
+        },
+        {
+          "name": "f",
+          "partId": "out_f"
+        },
+        {
+          "name": "g",
+          "partId": "out_g"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "b0",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 9,
+            "label": "B0"
+          },
+          {
+            "id": "b1",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 13,
+            "label": "B1"
+          },
+          {
+            "id": "b2",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 17,
+            "label": "B2"
+          },
+          {
+            "id": "b3",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 21,
+            "label": "B3"
+          },
+          {
+            "id": "inv0",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 9,
+            "y": 11
+          },
+          {
+            "id": "inv1",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 9,
+            "y": 13
+          },
+          {
+            "id": "inv2",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 9,
+            "y": 15
+          },
+          {
+            "id": "inv3",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 9,
+            "y": 17
+          },
+          {
+            "id": "m0",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 0,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m1",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 9,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m2",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 18,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m3",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 27,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m4",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 36,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m5",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 45,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m6",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 54,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m7",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 63,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m9",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 72,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m10",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 81,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m11",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 90,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m12",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 99,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m13",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 108,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m14",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 117,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "m15",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 18,
+            "y": 126,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "seg_a",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOR"
+            },
+            "x": 30,
+            "y": 6,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "out_a",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 38,
+            "y": 8,
+            "label": "a"
+          },
+          {
+            "id": "seg_b",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOR"
+            },
+            "x": 30,
+            "y": 20,
+            "props": {
+              "inputs": 6
+            }
+          },
+          {
+            "id": "out_b",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 38,
+            "y": 22,
+            "label": "b"
+          },
+          {
+            "id": "seg_c",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOR"
+            },
+            "x": 30,
+            "y": 34,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "out_c",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 38,
+            "y": 36,
+            "label": "c"
+          },
+          {
+            "id": "seg_d",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOR"
+            },
+            "x": 30,
+            "y": 48,
+            "props": {
+              "inputs": 5
+            }
+          },
+          {
+            "id": "out_d",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 38,
+            "y": 50,
+            "label": "d"
+          },
+          {
+            "id": "seg_e",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOR"
+            },
+            "x": 30,
+            "y": 62,
+            "props": {
+              "inputs": 6
+            }
+          },
+          {
+            "id": "out_e",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 38,
+            "y": 64,
+            "label": "e"
+          },
+          {
+            "id": "seg_f",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOR"
+            },
+            "x": 30,
+            "y": 76,
+            "props": {
+              "inputs": 5
+            }
+          },
+          {
+            "id": "out_f",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 38,
+            "y": 78,
+            "label": "f"
+          },
+          {
+            "id": "seg_g",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOR"
+            },
+            "x": 30,
+            "y": 90,
+            "props": {
+              "inputs": 4
+            }
+          },
+          {
+            "id": "out_g",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 38,
+            "y": 92,
+            "label": "g"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "b0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "inv0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "b1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "inv1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "b2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "inv2",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "b3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "inv3",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "inv0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m0",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "inv1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m0",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "inv2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m0",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "inv3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m0",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "b0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m1",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w10",
+            "from": {
+              "partId": "inv1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m1",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w11",
+            "from": {
+              "partId": "inv2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m1",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w12",
+            "from": {
+              "partId": "inv3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m1",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w13",
+            "from": {
+              "partId": "inv0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m2",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w14",
+            "from": {
+              "partId": "b1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m2",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w15",
+            "from": {
+              "partId": "inv2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m2",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w16",
+            "from": {
+              "partId": "inv3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m2",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w17",
+            "from": {
+              "partId": "b0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m3",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w18",
+            "from": {
+              "partId": "b1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m3",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w19",
+            "from": {
+              "partId": "inv2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m3",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w20",
+            "from": {
+              "partId": "inv3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m3",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w21",
+            "from": {
+              "partId": "inv0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m4",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w22",
+            "from": {
+              "partId": "inv1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m4",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w23",
+            "from": {
+              "partId": "b2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m4",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w24",
+            "from": {
+              "partId": "inv3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m4",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w25",
+            "from": {
+              "partId": "b0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m5",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w26",
+            "from": {
+              "partId": "inv1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m5",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w27",
+            "from": {
+              "partId": "b2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m5",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w28",
+            "from": {
+              "partId": "inv3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m5",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w29",
+            "from": {
+              "partId": "inv0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m6",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w30",
+            "from": {
+              "partId": "b1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m6",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w31",
+            "from": {
+              "partId": "b2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m6",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w32",
+            "from": {
+              "partId": "inv3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m6",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w33",
+            "from": {
+              "partId": "b0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m7",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w34",
+            "from": {
+              "partId": "b1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m7",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w35",
+            "from": {
+              "partId": "b2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m7",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w36",
+            "from": {
+              "partId": "inv3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m7",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w37",
+            "from": {
+              "partId": "b0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m9",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w38",
+            "from": {
+              "partId": "inv1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m9",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w39",
+            "from": {
+              "partId": "inv2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m9",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w40",
+            "from": {
+              "partId": "b3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m9",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w41",
+            "from": {
+              "partId": "inv0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m10",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w42",
+            "from": {
+              "partId": "b1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m10",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w43",
+            "from": {
+              "partId": "inv2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m10",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w44",
+            "from": {
+              "partId": "b3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m10",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w45",
+            "from": {
+              "partId": "b0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m11",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w46",
+            "from": {
+              "partId": "b1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m11",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w47",
+            "from": {
+              "partId": "inv2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m11",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w48",
+            "from": {
+              "partId": "b3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m11",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w49",
+            "from": {
+              "partId": "inv0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m12",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w50",
+            "from": {
+              "partId": "inv1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m12",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w51",
+            "from": {
+              "partId": "b2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m12",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w52",
+            "from": {
+              "partId": "b3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m12",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w53",
+            "from": {
+              "partId": "b0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m13",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w54",
+            "from": {
+              "partId": "inv1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m13",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w55",
+            "from": {
+              "partId": "b2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m13",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w56",
+            "from": {
+              "partId": "b3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m13",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w57",
+            "from": {
+              "partId": "inv0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m14",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w58",
+            "from": {
+              "partId": "b1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m14",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w59",
+            "from": {
+              "partId": "b2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m14",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w60",
+            "from": {
+              "partId": "b3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m14",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w61",
+            "from": {
+              "partId": "b0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m15",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w62",
+            "from": {
+              "partId": "b1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m15",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w63",
+            "from": {
+              "partId": "b2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m15",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w64",
+            "from": {
+              "partId": "b3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "m15",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w65",
+            "from": {
+              "partId": "m1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_a",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w66",
+            "from": {
+              "partId": "m4",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_a",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w67",
+            "from": {
+              "partId": "m11",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_a",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w68",
+            "from": {
+              "partId": "m13",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_a",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w69",
+            "from": {
+              "partId": "seg_a",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "out_a",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w70",
+            "from": {
+              "partId": "m5",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_b",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w71",
+            "from": {
+              "partId": "m6",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_b",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w72",
+            "from": {
+              "partId": "m11",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_b",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w73",
+            "from": {
+              "partId": "m12",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_b",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w74",
+            "from": {
+              "partId": "m14",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_b",
+              "pin": "e"
+            }
+          },
+          {
+            "id": "w75",
+            "from": {
+              "partId": "m15",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_b",
+              "pin": "f"
+            }
+          },
+          {
+            "id": "w76",
+            "from": {
+              "partId": "seg_b",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "out_b",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w77",
+            "from": {
+              "partId": "m2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_c",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w78",
+            "from": {
+              "partId": "m12",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_c",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w79",
+            "from": {
+              "partId": "m14",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_c",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w80",
+            "from": {
+              "partId": "m15",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_c",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w81",
+            "from": {
+              "partId": "seg_c",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "out_c",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w82",
+            "from": {
+              "partId": "m1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_d",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w83",
+            "from": {
+              "partId": "m4",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_d",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w84",
+            "from": {
+              "partId": "m7",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_d",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w85",
+            "from": {
+              "partId": "m10",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_d",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w86",
+            "from": {
+              "partId": "m15",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_d",
+              "pin": "e"
+            }
+          },
+          {
+            "id": "w87",
+            "from": {
+              "partId": "seg_d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "out_d",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w88",
+            "from": {
+              "partId": "m1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_e",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w89",
+            "from": {
+              "partId": "m3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_e",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w90",
+            "from": {
+              "partId": "m4",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_e",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w91",
+            "from": {
+              "partId": "m5",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_e",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w92",
+            "from": {
+              "partId": "m7",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_e",
+              "pin": "e"
+            }
+          },
+          {
+            "id": "w93",
+            "from": {
+              "partId": "m9",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_e",
+              "pin": "f"
+            }
+          },
+          {
+            "id": "w94",
+            "from": {
+              "partId": "seg_e",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "out_e",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w95",
+            "from": {
+              "partId": "m1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_f",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w96",
+            "from": {
+              "partId": "m2",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_f",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w97",
+            "from": {
+              "partId": "m3",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_f",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w98",
+            "from": {
+              "partId": "m7",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_f",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w99",
+            "from": {
+              "partId": "m13",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_f",
+              "pin": "e"
+            }
+          },
+          {
+            "id": "w100",
+            "from": {
+              "partId": "seg_f",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "out_f",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w101",
+            "from": {
+              "partId": "m0",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_g",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w102",
+            "from": {
+              "partId": "m1",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_g",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w103",
+            "from": {
+              "partId": "m7",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_g",
+              "pin": "c"
+            }
+          },
+          {
+            "id": "w104",
+            "from": {
+              "partId": "m12",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "seg_g",
+              "pin": "d"
+            }
+          },
+          {
+            "id": "w105",
+            "from": {
+              "partId": "seg_g",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "out_g",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1
+    }
+  },
+  "workspace": {
+    "parts": [
+      {
+        "id": "41",
+        "kind": {
+          "type": "chip",
+          "chipId": "chip-add4bus"
+        },
+        "x": 6,
+        "y": 20
+      },
+      {
+        "id": "switch1",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 20,
+        "label": "A",
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "switch2",
+        "kind": {
+          "type": "primitive",
+          "kind": "SWITCH"
+        },
+        "x": 0,
+        "y": 22,
+        "label": "B",
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "split1",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 14,
+        "y": 17,
+        "props": {
+          "bits": 4
+        }
+      },
+      {
+        "id": "281",
+        "kind": {
+          "type": "chip",
+          "chipId": "builtin-hex-7seg-bits"
+        },
+        "x": 64,
+        "y": -42,
+        "label": "일의 자리"
+      },
+      {
+        "id": "282",
+        "kind": {
+          "type": "chip",
+          "chipId": "builtin-hex-7seg-bits"
+        },
+        "x": 64,
+        "y": 60,
+        "label": "십의 자리"
+      },
+      {
+        "id": "seg81",
+        "kind": {
+          "type": "primitive",
+          "kind": "SEG8"
+        },
+        "x": 106,
+        "y": 20
+      },
+      {
+        "id": "seg82",
+        "kind": {
+          "type": "primitive",
+          "kind": "SEG8"
+        },
+        "x": 94,
+        "y": 20
+      },
+      {
+        "id": "gnd1",
+        "kind": {
+          "type": "primitive",
+          "kind": "GND"
+        },
+        "x": 59,
+        "y": 66
+      },
+      {
+        "id": "and1",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -78,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "and2",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -71,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "and3",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -62,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "and4",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -53,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "and5",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -85,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "not1",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 21,
+        "y": 30
+      },
+      {
+        "id": "not2",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 21,
+        "y": 33
+      },
+      {
+        "id": "not3",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 21,
+        "y": 36
+      },
+      {
+        "id": "not4",
+        "kind": {
+          "type": "primitive",
+          "kind": "NOT"
+        },
+        "x": 21,
+        "y": 39
+      },
+      {
+        "id": "or1",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 54,
+        "y": -70,
+        "props": {
+          "inputs": 5
+        }
+      },
+      {
+        "id": "and6",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -34,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "and7",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -27,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "and8",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -20,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "and9",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -41,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "or2",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 54,
+        "y": -32,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "and10",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -10,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "and11",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": -1,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "and12",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": 8,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "or3",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 54,
+        "y": 0,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "or4",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 46,
+        "y": 75
+      },
+      {
+        "id": "and13",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 54,
+        "y": 77
+      },
+      {
+        "id": "and14",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": 44,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "and15",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": 51,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "and16",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": 58,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "and17",
+        "kind": {
+          "type": "primitive",
+          "kind": "AND"
+        },
+        "x": 46,
+        "y": 65,
+        "props": {
+          "inputs": 3
+        }
+      },
+      {
+        "id": "or5",
+        "kind": {
+          "type": "primitive",
+          "kind": "OR"
+        },
+        "x": 54,
+        "y": 53,
+        "props": {
+          "inputs": 4
+        }
+      },
+      {
+        "id": "merge1",
+        "kind": {
+          "type": "primitive",
+          "kind": "MERGE"
+        },
+        "x": 72,
+        "y": 60,
+        "props": {
+          "bits": 7
+        }
+      },
+      {
+        "id": "split2",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 90,
+        "y": 17,
+        "props": {
+          "bits": 7
+        }
+      },
+      {
+        "id": "merge2",
+        "kind": {
+          "type": "primitive",
+          "kind": "MERGE"
+        },
+        "x": 72,
+        "y": -42,
+        "props": {
+          "bits": 7
+        }
+      },
+      {
+        "id": "split3",
+        "kind": {
+          "type": "primitive",
+          "kind": "SPLIT"
+        },
+        "x": 102,
+        "y": 17,
+        "props": {
+          "bits": 7
+        }
+      }
+    ],
+    "wires": [
+      {
+        "id": "w1",
+        "from": {
+          "partId": "switch1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "41",
+          "pin": "A"
+        }
+      },
+      {
+        "id": "w2",
+        "from": {
+          "partId": "switch2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "41",
+          "pin": "B"
+        }
+      },
+      {
+        "id": "w3",
+        "from": {
+          "partId": "41",
+          "pin": "S"
+        },
+        "to": {
+          "partId": "split1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w9",
+        "from": {
+          "partId": "split1",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "281",
+          "pin": "B0"
+        },
+        "points": [
+          {
+            "x": 26,
+            "y": 18
+          },
+          {
+            "x": 26,
+            "y": -90
+          },
+          {
+            "x": 62,
+            "y": -90
+          },
+          {
+            "x": 62,
+            "y": -41
+          }
+        ]
+      },
+      {
+        "id": "w10",
+        "from": {
+          "partId": "gnd1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "282",
+          "pin": "B2"
+        }
+      },
+      {
+        "id": "w11",
+        "from": {
+          "partId": "gnd1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "282",
+          "pin": "B3"
+        }
+      },
+      {
+        "id": "w12",
+        "from": {
+          "partId": "split1",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "not1",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 20,
+            "y": 20
+          },
+          {
+            "x": 20,
+            "y": 31
+          }
+        ]
+      },
+      {
+        "id": "w27",
+        "from": {
+          "partId": "split1",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "not2",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 19,
+            "y": 22
+          },
+          {
+            "x": 19,
+            "y": 34
+          }
+        ]
+      },
+      {
+        "id": "w28",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "not3",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 18,
+            "y": 24
+          },
+          {
+            "x": 18,
+            "y": 37
+          }
+        ]
+      },
+      {
+        "id": "w29",
+        "from": {
+          "partId": "41",
+          "pin": "Cout"
+        },
+        "to": {
+          "partId": "not4",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 13,
+            "y": 23
+          },
+          {
+            "x": 13,
+            "y": 40
+          }
+        ]
+      },
+      {
+        "id": "w30",
+        "from": {
+          "partId": "split1",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "and5",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 28,
+            "y": 20
+          },
+          {
+            "x": 28,
+            "y": -84
+          }
+        ]
+      },
+      {
+        "id": "w31",
+        "from": {
+          "partId": "split1",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "and5",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": 22
+          },
+          {
+            "x": 32,
+            "y": -82
+          }
+        ]
+      },
+      {
+        "id": "w32",
+        "from": {
+          "partId": "not3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and5",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 38,
+            "y": 37
+          },
+          {
+            "x": 38,
+            "y": -80
+          }
+        ]
+      },
+      {
+        "id": "w33",
+        "from": {
+          "partId": "split1",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "and1",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 28,
+            "y": 20
+          },
+          {
+            "x": 28,
+            "y": -77
+          }
+        ]
+      },
+      {
+        "id": "w34",
+        "from": {
+          "partId": "not4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and1",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 42,
+            "y": 40
+          },
+          {
+            "x": 42,
+            "y": -73
+          }
+        ]
+      },
+      {
+        "id": "w35",
+        "from": {
+          "partId": "not3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and1",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 38,
+            "y": 37
+          },
+          {
+            "x": 38,
+            "y": -75
+          }
+        ]
+      },
+      {
+        "id": "w36",
+        "from": {
+          "partId": "41",
+          "pin": "Cout"
+        },
+        "to": {
+          "partId": "and2",
+          "pin": "d"
+        },
+        "points": [
+          {
+            "x": 13,
+            "y": 23
+          },
+          {
+            "x": 13,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": -64
+          }
+        ]
+      },
+      {
+        "id": "w37",
+        "from": {
+          "partId": "split1",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "and2",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 28,
+            "y": 20
+          },
+          {
+            "x": 28,
+            "y": -70
+          }
+        ]
+      },
+      {
+        "id": "w38",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "and2",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 24
+          },
+          {
+            "x": 36,
+            "y": -66
+          }
+        ]
+      },
+      {
+        "id": "w39",
+        "from": {
+          "partId": "not2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and2",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": 34
+          },
+          {
+            "x": 34,
+            "y": -68
+          }
+        ]
+      },
+      {
+        "id": "w40",
+        "from": {
+          "partId": "not4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and3",
+          "pin": "d"
+        },
+        "points": [
+          {
+            "x": 42,
+            "y": 40
+          },
+          {
+            "x": 42,
+            "y": -55
+          }
+        ]
+      },
+      {
+        "id": "w41",
+        "from": {
+          "partId": "split1",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "and3",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": 22
+          },
+          {
+            "x": 32,
+            "y": -59
+          }
+        ]
+      },
+      {
+        "id": "w42",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "and3",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 24
+          },
+          {
+            "x": 36,
+            "y": -57
+          }
+        ]
+      },
+      {
+        "id": "w43",
+        "from": {
+          "partId": "not1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and3",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 30,
+            "y": 31
+          },
+          {
+            "x": 30,
+            "y": -61
+          }
+        ]
+      },
+      {
+        "id": "w44",
+        "from": {
+          "partId": "41",
+          "pin": "Cout"
+        },
+        "to": {
+          "partId": "and4",
+          "pin": "d"
+        },
+        "points": [
+          {
+            "x": 13,
+            "y": 23
+          },
+          {
+            "x": 13,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": -46
+          }
+        ]
+      },
+      {
+        "id": "w45",
+        "from": {
+          "partId": "not1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and4",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 30,
+            "y": 31
+          },
+          {
+            "x": 30,
+            "y": -52
+          }
+        ]
+      },
+      {
+        "id": "w46",
+        "from": {
+          "partId": "not2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and4",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": 34
+          },
+          {
+            "x": 34,
+            "y": -50
+          }
+        ]
+      },
+      {
+        "id": "w47",
+        "from": {
+          "partId": "not3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and4",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 38,
+            "y": 37
+          },
+          {
+            "x": 38,
+            "y": -48
+          }
+        ]
+      },
+      {
+        "id": "w48",
+        "from": {
+          "partId": "and5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or1",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w49",
+        "from": {
+          "partId": "and1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or1",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w50",
+        "from": {
+          "partId": "and2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or1",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w51",
+        "from": {
+          "partId": "and3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or1",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w52",
+        "from": {
+          "partId": "and4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or1",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w53",
+        "from": {
+          "partId": "or1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "281",
+          "pin": "B1"
+        }
+      },
+      {
+        "id": "w54",
+        "from": {
+          "partId": "41",
+          "pin": "Cout"
+        },
+        "to": {
+          "partId": "and9",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 13,
+            "y": 23
+          },
+          {
+            "x": 13,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": -36
+          }
+        ]
+      },
+      {
+        "id": "w55",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "and9",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 24
+          },
+          {
+            "x": 36,
+            "y": -38
+          }
+        ]
+      },
+      {
+        "id": "w56",
+        "from": {
+          "partId": "not2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and9",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": 34
+          },
+          {
+            "x": 34,
+            "y": -40
+          }
+        ]
+      },
+      {
+        "id": "w57",
+        "from": {
+          "partId": "not4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and6",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 42,
+            "y": 40
+          },
+          {
+            "x": 42,
+            "y": -29
+          }
+        ]
+      },
+      {
+        "id": "w58",
+        "from": {
+          "partId": "split1",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "and6",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 28,
+            "y": 20
+          },
+          {
+            "x": 28,
+            "y": -33
+          }
+        ]
+      },
+      {
+        "id": "w59",
+        "from": {
+          "partId": "split1",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "and6",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": 22
+          },
+          {
+            "x": 32,
+            "y": -31
+          }
+        ]
+      },
+      {
+        "id": "w60",
+        "from": {
+          "partId": "41",
+          "pin": "Cout"
+        },
+        "to": {
+          "partId": "and7",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 13,
+            "y": 23
+          },
+          {
+            "x": 13,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": -22
+          }
+        ]
+      },
+      {
+        "id": "w61",
+        "from": {
+          "partId": "not1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and7",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 30,
+            "y": 31
+          },
+          {
+            "x": 30,
+            "y": -26
+          }
+        ]
+      },
+      {
+        "id": "w62",
+        "from": {
+          "partId": "not2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and7",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": 34
+          },
+          {
+            "x": 34,
+            "y": -24
+          }
+        ]
+      },
+      {
+        "id": "w63",
+        "from": {
+          "partId": "not4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and8",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 42,
+            "y": 40
+          },
+          {
+            "x": 42,
+            "y": -15
+          }
+        ]
+      },
+      {
+        "id": "w64",
+        "from": {
+          "partId": "not3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and8",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 38,
+            "y": 37
+          },
+          {
+            "x": 38,
+            "y": -17
+          }
+        ]
+      },
+      {
+        "id": "w65",
+        "from": {
+          "partId": "split1",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "and8",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": 22
+          },
+          {
+            "x": 32,
+            "y": -19
+          }
+        ]
+      },
+      {
+        "id": "w66",
+        "from": {
+          "partId": "and9",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or2",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w67",
+        "from": {
+          "partId": "and6",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or2",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w68",
+        "from": {
+          "partId": "and7",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or2",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w69",
+        "from": {
+          "partId": "and8",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or2",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w70",
+        "from": {
+          "partId": "or2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "281",
+          "pin": "B2"
+        }
+      },
+      {
+        "id": "w71",
+        "from": {
+          "partId": "and10",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or3",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w72",
+        "from": {
+          "partId": "and11",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or3",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w73",
+        "from": {
+          "partId": "and12",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or3",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w74",
+        "from": {
+          "partId": "41",
+          "pin": "Cout"
+        },
+        "to": {
+          "partId": "and10",
+          "pin": "d"
+        },
+        "points": [
+          {
+            "x": 13,
+            "y": 23
+          },
+          {
+            "x": 13,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": -3
+          }
+        ]
+      },
+      {
+        "id": "w75",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "and10",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 24
+          },
+          {
+            "x": 36,
+            "y": -5
+          }
+        ]
+      },
+      {
+        "id": "w76",
+        "from": {
+          "partId": "split1",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "and10",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": 22
+          },
+          {
+            "x": 32,
+            "y": -7
+          }
+        ]
+      },
+      {
+        "id": "w77",
+        "from": {
+          "partId": "not1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and10",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 30,
+            "y": 31
+          },
+          {
+            "x": 30,
+            "y": -9
+          }
+        ]
+      },
+      {
+        "id": "w78",
+        "from": {
+          "partId": "41",
+          "pin": "Cout"
+        },
+        "to": {
+          "partId": "and11",
+          "pin": "d"
+        },
+        "points": [
+          {
+            "x": 13,
+            "y": 23
+          },
+          {
+            "x": 13,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 6
+          }
+        ]
+      },
+      {
+        "id": "w79",
+        "from": {
+          "partId": "split1",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "and11",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 28,
+            "y": 20
+          },
+          {
+            "x": 28,
+            "y": 0
+          }
+        ]
+      },
+      {
+        "id": "w80",
+        "from": {
+          "partId": "not2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and11",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": 34
+          },
+          {
+            "x": 34,
+            "y": 2
+          }
+        ]
+      },
+      {
+        "id": "w81",
+        "from": {
+          "partId": "not3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and11",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 38,
+            "y": 37
+          },
+          {
+            "x": 38,
+            "y": 4
+          }
+        ]
+      },
+      {
+        "id": "w82",
+        "from": {
+          "partId": "not4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and12",
+          "pin": "d"
+        },
+        "points": [
+          {
+            "x": 42,
+            "y": 40
+          },
+          {
+            "x": 42,
+            "y": 15
+          }
+        ]
+      },
+      {
+        "id": "w83",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "and12",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 24
+          },
+          {
+            "x": 36,
+            "y": 13
+          }
+        ]
+      },
+      {
+        "id": "w84",
+        "from": {
+          "partId": "not2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and12",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": 34
+          },
+          {
+            "x": 34,
+            "y": 11
+          }
+        ]
+      },
+      {
+        "id": "w85",
+        "from": {
+          "partId": "not1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and12",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 30,
+            "y": 31
+          },
+          {
+            "x": 30,
+            "y": 9
+          }
+        ]
+      },
+      {
+        "id": "w86",
+        "from": {
+          "partId": "or3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "281",
+          "pin": "B3"
+        }
+      },
+      {
+        "id": "w87",
+        "from": {
+          "partId": "split1",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "or4",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": 22
+          },
+          {
+            "x": 32,
+            "y": 76
+          }
+        ]
+      },
+      {
+        "id": "w88",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "or4",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 24
+          },
+          {
+            "x": 36,
+            "y": 78
+          }
+        ]
+      },
+      {
+        "id": "w89",
+        "from": {
+          "partId": "or4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and13",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w90",
+        "from": {
+          "partId": "41",
+          "pin": "Cout"
+        },
+        "to": {
+          "partId": "and13",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 13,
+            "y": 23
+          },
+          {
+            "x": 13,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 80
+          }
+        ]
+      },
+      {
+        "id": "w91",
+        "from": {
+          "partId": "and13",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "282",
+          "pin": "B1"
+        }
+      },
+      {
+        "id": "w92",
+        "from": {
+          "partId": "split1",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "and14",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 28,
+            "y": 20
+          },
+          {
+            "x": 28,
+            "y": 45
+          }
+        ]
+      },
+      {
+        "id": "w93",
+        "from": {
+          "partId": "split1",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "and14",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": 22
+          },
+          {
+            "x": 32,
+            "y": 47
+          }
+        ]
+      },
+      {
+        "id": "w94",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "and14",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 24
+          },
+          {
+            "x": 36,
+            "y": 49
+          }
+        ]
+      },
+      {
+        "id": "w95",
+        "from": {
+          "partId": "split1",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "and15",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 28,
+            "y": 20
+          },
+          {
+            "x": 28,
+            "y": 52
+          }
+        ]
+      },
+      {
+        "id": "w96",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "and15",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 24
+          },
+          {
+            "x": 36,
+            "y": 54
+          }
+        ]
+      },
+      {
+        "id": "w97",
+        "from": {
+          "partId": "not4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and15",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 42,
+            "y": 40
+          },
+          {
+            "x": 42,
+            "y": 56
+          }
+        ]
+      },
+      {
+        "id": "w98",
+        "from": {
+          "partId": "not4",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and16",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 42,
+            "y": 40
+          },
+          {
+            "x": 42,
+            "y": 63
+          }
+        ]
+      },
+      {
+        "id": "w99",
+        "from": {
+          "partId": "split1",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "and16",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 24
+          },
+          {
+            "x": 36,
+            "y": 61
+          }
+        ]
+      },
+      {
+        "id": "w100",
+        "from": {
+          "partId": "split1",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "and16",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": 22
+          },
+          {
+            "x": 32,
+            "y": 59
+          }
+        ]
+      },
+      {
+        "id": "w101",
+        "from": {
+          "partId": "41",
+          "pin": "Cout"
+        },
+        "to": {
+          "partId": "and17",
+          "pin": "c"
+        },
+        "points": [
+          {
+            "x": 13,
+            "y": 23
+          },
+          {
+            "x": 13,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 27
+          },
+          {
+            "x": 40,
+            "y": 70
+          }
+        ]
+      },
+      {
+        "id": "w102",
+        "from": {
+          "partId": "not3",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and17",
+          "pin": "b"
+        },
+        "points": [
+          {
+            "x": 38,
+            "y": 37
+          },
+          {
+            "x": 38,
+            "y": 68
+          }
+        ]
+      },
+      {
+        "id": "w103",
+        "from": {
+          "partId": "not2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "and17",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": 34
+          },
+          {
+            "x": 34,
+            "y": 66
+          }
+        ]
+      },
+      {
+        "id": "w104",
+        "from": {
+          "partId": "and14",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or5",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w105",
+        "from": {
+          "partId": "and15",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or5",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w106",
+        "from": {
+          "partId": "and16",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or5",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w107",
+        "from": {
+          "partId": "and17",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "or5",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w108",
+        "from": {
+          "partId": "or5",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "282",
+          "pin": "B0"
+        }
+      },
+      {
+        "id": "w20",
+        "from": {
+          "partId": "282",
+          "pin": "a"
+        },
+        "to": {
+          "partId": "merge1",
+          "pin": "a0"
+        }
+      },
+      {
+        "id": "w21",
+        "from": {
+          "partId": "282",
+          "pin": "b"
+        },
+        "to": {
+          "partId": "merge1",
+          "pin": "a1"
+        }
+      },
+      {
+        "id": "w22",
+        "from": {
+          "partId": "282",
+          "pin": "c"
+        },
+        "to": {
+          "partId": "merge1",
+          "pin": "a2"
+        }
+      },
+      {
+        "id": "w23",
+        "from": {
+          "partId": "282",
+          "pin": "d"
+        },
+        "to": {
+          "partId": "merge1",
+          "pin": "a3"
+        }
+      },
+      {
+        "id": "w24",
+        "from": {
+          "partId": "282",
+          "pin": "e"
+        },
+        "to": {
+          "partId": "merge1",
+          "pin": "a4"
+        }
+      },
+      {
+        "id": "w25",
+        "from": {
+          "partId": "282",
+          "pin": "f"
+        },
+        "to": {
+          "partId": "merge1",
+          "pin": "a5"
+        }
+      },
+      {
+        "id": "w26",
+        "from": {
+          "partId": "282",
+          "pin": "g"
+        },
+        "to": {
+          "partId": "merge1",
+          "pin": "a6"
+        }
+      },
+      {
+        "id": "w109",
+        "from": {
+          "partId": "split2",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "seg82",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w110",
+        "from": {
+          "partId": "split2",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "seg82",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w111",
+        "from": {
+          "partId": "split2",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "seg82",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w112",
+        "from": {
+          "partId": "split2",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "seg82",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w114",
+        "from": {
+          "partId": "split2",
+          "pin": "y4"
+        },
+        "to": {
+          "partId": "seg82",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w115",
+        "from": {
+          "partId": "split2",
+          "pin": "y5"
+        },
+        "to": {
+          "partId": "seg82",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w116",
+        "from": {
+          "partId": "split2",
+          "pin": "y6"
+        },
+        "to": {
+          "partId": "seg82",
+          "pin": "g"
+        }
+      },
+      {
+        "id": "w117",
+        "from": {
+          "partId": "merge1",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "split2",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 88,
+            "y": 67
+          },
+          {
+            "x": 88,
+            "y": 24
+          }
+        ]
+      },
+      {
+        "id": "w13",
+        "from": {
+          "partId": "281",
+          "pin": "a"
+        },
+        "to": {
+          "partId": "merge2",
+          "pin": "a0"
+        }
+      },
+      {
+        "id": "w14",
+        "from": {
+          "partId": "281",
+          "pin": "b"
+        },
+        "to": {
+          "partId": "merge2",
+          "pin": "a1"
+        }
+      },
+      {
+        "id": "w15",
+        "from": {
+          "partId": "281",
+          "pin": "c"
+        },
+        "to": {
+          "partId": "merge2",
+          "pin": "a2"
+        }
+      },
+      {
+        "id": "w16",
+        "from": {
+          "partId": "281",
+          "pin": "d"
+        },
+        "to": {
+          "partId": "merge2",
+          "pin": "a3"
+        }
+      },
+      {
+        "id": "w17",
+        "from": {
+          "partId": "281",
+          "pin": "e"
+        },
+        "to": {
+          "partId": "merge2",
+          "pin": "a4"
+        }
+      },
+      {
+        "id": "w18",
+        "from": {
+          "partId": "281",
+          "pin": "f"
+        },
+        "to": {
+          "partId": "merge2",
+          "pin": "a5"
+        }
+      },
+      {
+        "id": "w19",
+        "from": {
+          "partId": "281",
+          "pin": "g"
+        },
+        "to": {
+          "partId": "merge2",
+          "pin": "a6"
+        }
+      },
+      {
+        "id": "w118",
+        "from": {
+          "partId": "split3",
+          "pin": "y1"
+        },
+        "to": {
+          "partId": "seg81",
+          "pin": "b"
+        }
+      },
+      {
+        "id": "w113",
+        "from": {
+          "partId": "split3",
+          "pin": "y2"
+        },
+        "to": {
+          "partId": "seg81",
+          "pin": "c"
+        }
+      },
+      {
+        "id": "w119",
+        "from": {
+          "partId": "split3",
+          "pin": "y0"
+        },
+        "to": {
+          "partId": "seg81",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w120",
+        "from": {
+          "partId": "split3",
+          "pin": "y3"
+        },
+        "to": {
+          "partId": "seg81",
+          "pin": "d"
+        }
+      },
+      {
+        "id": "w122",
+        "from": {
+          "partId": "split3",
+          "pin": "y4"
+        },
+        "to": {
+          "partId": "seg81",
+          "pin": "e"
+        }
+      },
+      {
+        "id": "w125",
+        "from": {
+          "partId": "merge2",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "split3",
+          "pin": "a"
+        },
+        "points": [
+          {
+            "x": 100,
+            "y": -35
+          },
+          {
+            "x": 100,
+            "y": 24
+          }
+        ]
+      },
+      {
+        "id": "w4",
+        "from": {
+          "partId": "split3",
+          "pin": "y5"
+        },
+        "to": {
+          "partId": "seg81",
+          "pin": "f"
+        }
+      },
+      {
+        "id": "w5",
+        "from": {
+          "partId": "split3",
+          "pin": "y6"
+        },
+        "to": {
+          "partId": "seg81",
+          "pin": "g"
+        }
+      }
+    ],
+    "groups": [
+      {
+        "id": "g-add",
+        "name": "4비트 덧셈",
+        "parts": [
+          "switch1",
+          "switch2",
+          "41",
+          "split1"
+        ]
+      },
+      {
+        "id": "g-not",
+        "name": "부정",
+        "parts": [
+          "not1",
+          "not2",
+          "not3",
+          "not4"
+        ]
+      },
+      {
+        "id": "g1",
+        "name": "일의 자리 B1",
+        "parts": [
+          "and1",
+          "and2",
+          "and3",
+          "and4",
+          "and5",
+          "or1"
+        ]
+      },
+      {
+        "id": "g2",
+        "name": "일의 자리 B2",
+        "parts": [
+          "and6",
+          "and7",
+          "and8",
+          "and9",
+          "or2"
+        ]
+      },
+      {
+        "id": "g3",
+        "name": "일의 자리 B3",
+        "parts": [
+          "and10",
+          "and11",
+          "and12",
+          "or3"
+        ]
+      },
+      {
+        "id": "g4",
+        "name": "십의 자리 B0",
+        "parts": [
+          "and14",
+          "and15",
+          "and16",
+          "and17",
+          "or5"
+        ]
+      },
+      {
+        "id": "g5",
+        "name": "십의 자리 B1",
+        "parts": [
+          "or4",
+          "and13"
+        ]
+      },
+      {
+        "id": "g-disp",
+        "name": "10진수 두 자리 표시",
+        "parts": [
+          "split2",
+          "seg82",
+          "split3",
+          "seg81"
+        ]
+      }
+    ],
+    "notes": [
+      {
+        "id": "note1",
+        "x": -20,
+        "y": -40,
+        "text": "4비트 + 4비트 덧셈 결과(0~30)를 10진수 두 자리로 표시\nA·B 스위치를 눌러 값을 바꿔 보세요. 합 = C(자리올림)·S3 S2 S1 S0\n\n일의 자리 B0 = S0  (10·20·30을 빼도 홀짝은 그대로)\n일의 자리 B1 = S1·S2·S3' + S1·S3'·C' + S1·S2'·S3·C + S1'·S2·S3·C' + S1'·S2'·S3'·C\n일의 자리 B2 = S2'·S3·C + S1·S2·C' + S1'·S2'·C + S2·S3'·C'\n일의 자리 B3 = S1'·S2·S3·C + S1·S2'·S3'·C + S1'·S2'·S3·C'\n십의 자리 B0 = S1·S2·S3 + S1·S3·C' + S2·S3·C' + S2'·S3'·C\n십의 자리 B1 = (S2 + S3)·C   (B2·B3은 0)\n\n가운데 세로줄: 왼쪽부터 S1 S1' S2 S2' S3 S3' C C'"
+      }
+    ]
+  },
+  "openChipId": null
+}
