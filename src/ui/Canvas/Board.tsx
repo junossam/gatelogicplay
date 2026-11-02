@@ -477,7 +477,8 @@ export function Board() {
 
   /** 모든 부품이 화면에 들어오게 배율과 위치를 맞춘다 (100%보다 크게 확대하지는 않음) */
   const fitView = useCallback(() => {
-    const b = boundsOf(partRects);
+    // 메모도 함께 보이게
+    const b = boundsOf([...partRects, ...(viewCircuit.current.notes ?? []).map(noteRect)]);
     if (!b) return;
     const margin = 60;
     const z = Math.min(1, Math.max(MIN_ZOOM, Math.min((size.w - 2 * margin) / Math.max(b.w, 1), (size.h - 2 * margin) / Math.max(b.h, 1))));

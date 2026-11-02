@@ -41,6 +41,19 @@ export function basicComputer(ff: Library): { circuit: Circuit; library: Library
     led(b, 'co', 'COUT', 'cout.y');
   }, [['D', 'd'], ['LD', 'ld'], ['INR', 'inr'], ['CLR', 'clr'], ['CIN', 'cin'], ['CLK', 'clk']], [['Q', 'q'], ['COUT', 'co']], ff);
 
+  /** I·E 플립플롭: LD=1이면 CLK 상승에 D를 저장, CLR이면 0 */
+  const ff1 = makeChip('bc-ff1', '플립플롭 (LD·CLR)', (b) => {
+    for (const [id, label] of [['d', 'D'], ['ld', 'LD'], ['clr', 'CLR'], ['clk', 'CLK']]) sw(b, id!, label!);
+    gate(b, 'NOT', 'nld', ['ld.y']);
+    gate(b, 'NOT', 'nclr', ['clr.y']);
+    gate(b, 'AND', 'take', ['d.y', 'ld.y']);
+    gate(b, 'AND', 'keep', ['f.Q', 'nld.y']);
+    gate(b, 'OR', 'pre', ['take.y', 'keep.y']);
+    gate(b, 'AND', 'next', ['pre.y', 'nclr.y']);
+    chipAt(b, 'ff-d', 'f', { D: 'next.y', CLK: 'clk.y' });
+    led(b, 'q', 'Q', 'f.Q');
+  }, [['D', 'd'], ['LD', 'ld'], ['CLR', 'clr'], ['CLK', 'clk']], [['Q', 'q']], ff);
+
   const reg4 = makeChip('bc-reg4', '4비트 레지스터 (LD·INR·CLR)', (b) => {
     sw(b, 'd', 'D', 4);
     for (const [id, label] of [['ld', 'LD'], ['inr', 'INR'], ['clr', 'CLR'], ['cin', 'CIN'], ['clk', 'CLK']]) sw(b, id!, label!);
@@ -187,95 +200,129 @@ export function basicComputer(ff: Library): { circuit: Circuit; library: Library
     ['LD(AR)', 'oldar'], ['LD(DR)', 'olddr'], ['INR(PC)', 'oinrpc'], ['LD(IR)', 'oldir'], ['LD(I)', 'oldi'],
   ], ff);
 
-  setCat(bit, reg4, reg8, reg12, reg16, bus, mem, ha, fa, alu, ctrl);
-  const all = [bit, reg4, reg8, reg12, reg16, bus, mem, ha, fa, alu, ctrl];
+  setCat(bit, ff1, reg4, reg8, reg12, reg16, bus, mem, ha, fa, alu, ctrl);
+  const all = [bit, ff1, reg4, reg8, reg12, reg16, bus, mem, ha, fa, alu, ctrl];
   const full: Library = { ...ff, ...Object.fromEntries(all.map((d) => [d.id, d])) };
   const library = withDependencies(all.map((d) => d.id), full);
 
   // ---------------------------------------------------------------- 작업 공간 (그림 5-4처럼)
+  // 가운데 세로로 메모리 → AR → PC → DR → AC → IR → TR → OUTR. 왼쪽 세로줄이 공통 버스(버스 출력이 위를 돌아 내려온다),
+  // 오른쪽 위 버스 선택기는 270° 돌려 1~7번 입력이 아래를 향하고, 레지스터 출력이 오른쪽 세로줄로 올라가 꽂힌다.
   const b = new CircuitBuilder();
-  const at = (x: number, y: number) => {
+  const at = (x: number, y: number, rotation?: 0 | 90 | 180 | 270) => {
     const p = b.parts[b.parts.length - 1]!;
     p.x = x;
     p.y = y;
+    if (rotation) p.rotation = rotation;
   };
+  const named = (label: string) => (b.parts[b.parts.length - 1]!.label = label);
   const hexLed = (id: string, label: string, src: string, bits: number, x: number, y: number) => {
     led(b, id, label, src, bits);
     at(x, y);
     b.parts[b.parts.length - 1]!.props = { ...b.parts[b.parts.length - 1]!.props, hex: true };
   };
 
-  b.add('PUSH', 'clk', 0, 12, 'CLK');
-  b.add('SWITCH', 'reset', 0, 18, 'RESET');
-  b.add('GND', 'gnd', 0, 24);
+  /** 격자 좌표 */
+  const COL = 14; // 레지스터 열 왼쪽 (칩 폭 6 → 출력 핀 x = 20)
+  const BAR = 2; // 공통 버스 세로줄
+  const TOP = -13; // 공통 버스 가로줄 (버스 선택기 위)
+  const BUSX = 31; // 버스 선택기 왼쪽 (270° 회전: 입력 S·1~7이 아래, 출력이 위)
+  const BUSY = -10;
+  const lane = (n: number) => BUSX + 1 + 2 * n; // n번 입력 핀의 x (S = 0)
+  const outX = (j: number) => BUSX + 1 + 2 * j; // j번 출력 핀의 x (BUS = 0, BUS 0~11 = 1, BUS 0~7 = 2, BUS 15 = 3)
+  const ROW = { mem: 2, ar: 8, pc: 21, dr: 34, ac: 47, ir: 69, tr: 82, outr: 95 };
+
+  // 왼쪽: 클럭·리셋, 인출 제어, 손으로 넣는 신호
+  b.add('PUSH', 'clk', -32, 9, 'CLK');
+  b.add('SWITCH', 'reset', -32, 14, 'RESET');
+  b.add('GND', 'gnd', -32, 19);
   chipAt(b, ctrl.id, 'ctrl', { CLK: 'clk.y', CLR: 'reset.y' });
-  at(6, 10);
+  at(-22, 8);
+  named('인출 제어');
   for (const i of range(4)) {
     led(b, `t${i}`, `T${i}`, `ctrl.T${i}`);
-    at(16 + i * 4, 4);
+    at(-32 + i * 4, 2);
   }
   led(b, 'sel', 'S', 'ctrl.S', 3);
-  at(32, 4);
+  at(-15, 2);
+  const manual: [string, string, number][] = [['ldac', 'LD(AC)', ROW.ac + 2], ['inrac', 'INR(AC)', ROW.ac + 6], ['ldtr', 'LD(TR)', ROW.tr + 2], ['inrtr', 'INR(TR)', ROW.tr + 6], ['ldout', 'LD(OUTR)', ROW.outr + 2]];
+  for (const [id, label, y] of manual) b.add('SWITCH', id, -32, y, label);
 
-  // 손으로 넣는 신호 (인출 단계에서는 쓰지 않음)
-  const manual: [string, string, number][] = [['ldac', 'LD(AC)', 54], ['inrac', 'INR(AC)', 58], ['ldtr', 'LD(TR)', 82], ['inrtr', 'INR(TR)', 86], ['ldout', 'LD(OUTR)', 96]];
-  for (const [id, label, y] of manual) b.add('SWITCH', id, 0, y, label);
-
-  // 메모리와 레지스터 (왼쪽 위 → 아래)
-  const col = 28;
+  // 가운데 열
   chipAt(b, mem.id, 'mem', { Address: 'ar.Q' });
-  at(col, 10);
-  const regs: [string, ChipDef, number, Record<string, string>][] = [
-    ['ar', reg12, 16, { LD: 'ctrl.LD(AR)', INR: 'gnd.y', CLR: 'reset.y', CLK: 'clk.y', D: 'bus.BUS 0~11' }],
-    ['pc', reg12, 28, { LD: 'gnd.y', INR: 'ctrl.INR(PC)', CLR: 'reset.y', CLK: 'clk.y', D: 'bus.BUS 0~11' }],
-    ['dr', reg16, 40, { LD: 'ctrl.LD(DR)', INR: 'gnd.y', CLR: 'reset.y', CLK: 'clk.y', D: 'bus.BUS' }],
-    ['ac', reg16, 52, { LD: 'ldac.y', INR: 'inrac.y', CLR: 'reset.y', CLK: 'clk.y', D: 'alu.합' }],
-    ['ir', reg16, 68, { LD: 'ctrl.LD(IR)', INR: 'gnd.y', CLR: 'reset.y', CLK: 'clk.y', D: 'bus.BUS' }],
-    ['tr', reg16, 80, { LD: 'ldtr.y', INR: 'inrtr.y', CLR: 'reset.y', CLK: 'clk.y', D: 'bus.BUS' }],
-    ['outr', reg8, 94, { LD: 'ldout.y', INR: 'gnd.y', CLR: 'reset.y', CLK: 'clk.y', D: 'bus.BUS 0~7' }],
+  at(COL, ROW.mem);
+  named('메모리 256×16');
+  const regs: [keyof typeof ROW, ChipDef, Record<string, string>][] = [
+    ['ar', reg12, { D: 'bus.BUS 0~11', LD: 'ctrl.LD(AR)', INR: 'gnd.y', CLR: 'reset.y', CLK: 'clk.y' }],
+    ['pc', reg12, { D: 'bus.BUS 0~11', LD: 'gnd.y', INR: 'ctrl.INR(PC)', CLR: 'reset.y', CLK: 'clk.y' }],
+    ['dr', reg16, { D: 'bus.BUS', LD: 'ctrl.LD(DR)', INR: 'gnd.y', CLR: 'reset.y', CLK: 'clk.y' }],
+    ['ac', reg16, { D: 'alu.합', LD: 'ldac.y', INR: 'inrac.y', CLR: 'reset.y', CLK: 'clk.y' }],
+    ['ir', reg16, { D: 'bus.BUS', LD: 'ctrl.LD(IR)', INR: 'gnd.y', CLR: 'reset.y', CLK: 'clk.y' }],
+    ['tr', reg16, { D: 'bus.BUS', LD: 'ldtr.y', INR: 'inrtr.y', CLR: 'reset.y', CLK: 'clk.y' }],
+    ['outr', reg8, { D: 'bus.BUS 0~7', LD: 'ldout.y', INR: 'gnd.y', CLR: 'reset.y', CLK: 'clk.y' }],
   ];
-  for (const [id, def, y, pins] of regs) {
+  for (const [id, def, pins] of regs) {
     chipAt(b, def.id, id, pins);
-    at(col, y);
-    b.parts[b.parts.length - 1]!.label = id.toUpperCase();
+    at(COL, ROW[id]);
+    named(id.toUpperCase());
   }
+  // AC 왼쪽: 덧셈·논리 회로와 E, 그 아래 INPR
   chipAt(b, alu.id, 'alu', { AC: 'ac.Q', DR: 'dr.Q' });
-  at(16, 50);
-  // I·E 플립플롭 (레지스터 비트)
-  chipAt(b, bit.id, 'iff', { D: 'bus.BUS 15', LD: 'ctrl.LD(I)', INR: 'gnd.y', CLR: 'reset.y', CIN: 'gnd.y', CLK: 'clk.y' });
-  at(16, 66);
-  b.parts[b.parts.length - 1]!.label = 'I';
-  chipAt(b, bit.id, 'eff', { D: 'alu.E', LD: 'ldac.y', INR: 'gnd.y', CLR: 'reset.y', CIN: 'gnd.y', CLK: 'clk.y' });
-  at(16, 58);
-  b.parts[b.parts.length - 1]!.label = 'E';
-  b.add('SWITCH', 'inpr', 0, 0, 'INPR').bits(8);
-  at(col, 62);
+  at(6, ROW.ac);
+  named('덧셈·논리');
+  chipAt(b, ff1.id, 'eff', { D: 'alu.E', LD: 'ldac.y', CLR: 'reset.y', CLK: 'clk.y' });
+  at(6, ROW.ac + 6);
+  named('E');
+  b.add('SWITCH', 'inpr', 6, ROW.ac + 16, 'INPR');
   b.parts[b.parts.length - 1]!.props = { bits: 8, hex: true };
+  // IR 위: I 플립플롭
+  chipAt(b, ff1.id, 'iff', { D: 'bus.BUS 15', LD: 'ctrl.LD(I)', CLR: 'reset.y', CLK: 'clk.y' });
+  at(22, ROW.ir - 9);
+  named('I');
 
-  // 값 보기 LED (16진수)
-  const lx = 40;
-  hexLed('m_out', 'M[AR]', 'mem.Data', 16, lx, 10);
-  hexLed('v_ar', 'AR', 'ar.Q', 12, lx, 18);
-  hexLed('v_pc', 'PC', 'pc.Q', 12, lx, 30);
-  hexLed('v_dr', 'DR', 'dr.Q', 16, lx, 42);
-  hexLed('v_ac', 'AC', 'ac.Q', 16, lx, 54);
-  hexLed('v_ir', 'IR', 'ir.Q', 16, lx, 70);
-  hexLed('v_tr', 'TR', 'tr.Q', 16, lx, 82);
-  hexLed('v_outr', 'OUTR', 'outr.Q', 8, lx, 96);
-  led(b, 'v_i', 'I', 'iff.Q');
-  at(24, 68);
-  led(b, 'v_e', 'E', 'eff.Q');
-  at(24, 60);
+  // 오른쪽 위: 버스 선택기 (270°)
   chipAt(b, bus.id, 'bus', { S: 'ctrl.S', '1': 'ar.Q', '2': 'pc.Q', '3': 'dr.Q', '4': 'ac.Q', '5': 'ir.Q', '6': 'tr.Q', '7': 'mem.Data' });
-  at(52, 36);
-  hexLed('v_bus', 'BUS', 'bus.BUS', 16, 62, 36);
+  at(BUSX, BUSY, 270);
+  named('Bus');
+  hexLed('v_bus', 'BUS', 'bus.BUS', 16, 50, -9);
+
+  // 값 보기 LED (레지스터 오른쪽 아래, 16진수)
+  hexLed('m_out', 'M[AR]', 'mem.Data', 16, 22, ROW.mem + 3);
+  for (const [id, , ] of regs) hexLed(`v_${id}`, id.toUpperCase(), `${id}.Q`, id === 'ar' || id === 'pc' ? 12 : id === 'outr' ? 8 : 16, 22, ROW[id] + 4);
+  led(b, 'v_i', 'I', 'iff.Q');
+  at(30, ROW.ir - 8);
+  led(b, 'v_e', 'E', 'eff.Q');
+  at(6, ROW.ac + 20);
 
   const circuit = b.build();
+  // 전선 경로를 그림처럼 직접 꺾는다
+  const route = (from: string, to: string, points: [number, number][]) => {
+    const [fp, fpin] = from.split('.') as [string, string];
+    const [tp, tpin] = to.split('.') as [string, string];
+    const w = circuit.wires.find((x) => x.from.partId === fp && x.from.pin === fpin && x.to.partId === tp && x.to.pin === tpin);
+    if (!w) throw new Error(`전선 없음: ${from} → ${to}`);
+    w.points = points.map(([x, y]) => ({ x, y }));
+  };
+  // 공통 버스: 버스 출력 → 위 → 왼쪽 세로줄 → 각 레지스터 D
+  const busIn: [string, number, string][] = [
+    ['ar.D', 1, 'bus.BUS 0~11'], ['pc.D', 1, 'bus.BUS 0~11'], ['dr.D', 0, 'bus.BUS'], ['ir.D', 0, 'bus.BUS'], ['tr.D', 0, 'bus.BUS'], ['outr.D', 2, 'bus.BUS 0~7'],
+  ];
+  for (const [to, j, from] of busIn) {
+    const y = ROW[to.split('.')[0] as keyof typeof ROW] + 1;
+    route(from, to, [[outX(j), TOP], [BAR, TOP], [BAR, y]]);
+  }
+  route('bus.BUS 15', 'iff.D', [[outX(3), TOP], [BAR, TOP], [BAR, ROW.ir - 8], [20, ROW.ir - 8]]);
+  // 레지스터 출력 → 오른쪽 세로줄 → 버스 선택기 n번 입력
+  const busOut: [string, number][] = [['ar.Q', 1], ['pc.Q', 2], ['dr.Q', 3], ['ac.Q', 4], ['ir.Q', 5], ['tr.Q', 6]];
+  for (const [from, n] of busOut) route(from, `bus.${n}`, [[lane(n), ROW[from.split('.')[0] as keyof typeof ROW] + 1]]);
+  route('mem.Data', 'bus.7', [[lane(7), ROW.mem + 1]]);
+  // AR → 메모리 주소 (오른쪽으로 나가 위로 올라가 메모리 왼쪽으로)
+  route('ar.Q', 'mem.Address', [[28, ROW.ar + 1], [28, ROW.mem - 2], [12, ROW.mem - 2], [12, ROW.mem + 1]]);
   circuit.notes = [
     {
       id: 'note1',
-      x: 0,
-      y: -14,
+      x: -34,
+      y: -24,
       text: [
         '기본 컴퓨터 명령어 인출 (MAR = AR, MBR = DR)',
         '① RESET을 켜고 CLK를 한 번 누른 뒤 RESET을 끄세요 (모두 0, T0)',

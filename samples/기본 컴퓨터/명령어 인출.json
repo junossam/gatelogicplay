@@ -1055,6 +1055,301 @@
       "updatedAt": "2026-01-01T00:00:00.000Z",
       "revision": 1
     },
+    "bc-ff1": {
+      "id": "bc-ff1",
+      "name": "플립플롭 (LD·CLR)",
+      "color": "chip-1",
+      "inputs": [
+        {
+          "name": "D",
+          "partId": "d"
+        },
+        {
+          "name": "LD",
+          "partId": "ld"
+        },
+        {
+          "name": "CLR",
+          "partId": "clr"
+        },
+        {
+          "name": "CLK",
+          "partId": "clk"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Q",
+          "partId": "q"
+        }
+      ],
+      "circuit": {
+        "parts": [
+          {
+            "id": "d",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 0,
+            "label": "D"
+          },
+          {
+            "id": "ld",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 4,
+            "label": "LD"
+          },
+          {
+            "id": "clr",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 8,
+            "label": "CLR"
+          },
+          {
+            "id": "clk",
+            "kind": {
+              "type": "primitive",
+              "kind": "SWITCH"
+            },
+            "x": 0,
+            "y": 12,
+            "label": "CLK"
+          },
+          {
+            "id": "nld",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 7
+          },
+          {
+            "id": "nclr",
+            "kind": {
+              "type": "primitive",
+              "kind": "NOT"
+            },
+            "x": 8,
+            "y": 11
+          },
+          {
+            "id": "take",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 8,
+            "y": 1
+          },
+          {
+            "id": "keep",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 46,
+            "y": 8
+          },
+          {
+            "id": "pre",
+            "kind": {
+              "type": "primitive",
+              "kind": "OR"
+            },
+            "x": 17,
+            "y": 1
+          },
+          {
+            "id": "next",
+            "kind": {
+              "type": "primitive",
+              "kind": "AND"
+            },
+            "x": 26,
+            "y": 6
+          },
+          {
+            "id": "f",
+            "kind": {
+              "type": "chip",
+              "chipId": "ff-d"
+            },
+            "x": 35,
+            "y": 9
+          },
+          {
+            "id": "q",
+            "kind": {
+              "type": "primitive",
+              "kind": "LED"
+            },
+            "x": 55,
+            "y": 10,
+            "label": "Q"
+          }
+        ],
+        "wires": [
+          {
+            "id": "w1",
+            "from": {
+              "partId": "ld",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nld",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w2",
+            "from": {
+              "partId": "clr",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "nclr",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w3",
+            "from": {
+              "partId": "d",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "take",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w4",
+            "from": {
+              "partId": "ld",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "take",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w5",
+            "from": {
+              "partId": "f",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "keep",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w6",
+            "from": {
+              "partId": "nld",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "keep",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w7",
+            "from": {
+              "partId": "take",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "pre",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w8",
+            "from": {
+              "partId": "keep",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "pre",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w9",
+            "from": {
+              "partId": "pre",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "next",
+              "pin": "a"
+            }
+          },
+          {
+            "id": "w10",
+            "from": {
+              "partId": "nclr",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "next",
+              "pin": "b"
+            }
+          },
+          {
+            "id": "w11",
+            "from": {
+              "partId": "next",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "f",
+              "pin": "D"
+            }
+          },
+          {
+            "id": "w12",
+            "from": {
+              "partId": "clk",
+              "pin": "y"
+            },
+            "to": {
+              "partId": "f",
+              "pin": "CLK"
+            }
+          },
+          {
+            "id": "w13",
+            "from": {
+              "partId": "f",
+              "pin": "Q"
+            },
+            "to": {
+              "partId": "q",
+              "pin": "a"
+            }
+          }
+        ]
+      },
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "revision": 1,
+      "category": "기본 컴퓨터"
+    },
     "bc-reg4": {
       "id": "bc-reg4",
       "name": "4비트 레지스터 (LD·INR·CLR)",
@@ -9723,8 +10018,8 @@
           "type": "primitive",
           "kind": "PUSH"
         },
-        "x": 0,
-        "y": 12,
+        "x": -32,
+        "y": 9,
         "label": "CLK"
       },
       {
@@ -9733,8 +10028,8 @@
           "type": "primitive",
           "kind": "SWITCH"
         },
-        "x": 0,
-        "y": 18,
+        "x": -32,
+        "y": 14,
         "label": "RESET"
       },
       {
@@ -9743,8 +10038,8 @@
           "type": "primitive",
           "kind": "GND"
         },
-        "x": 0,
-        "y": 24
+        "x": -32,
+        "y": 19
       },
       {
         "id": "ctrl",
@@ -9752,8 +10047,9 @@
           "type": "chip",
           "chipId": "bc-ctrl"
         },
-        "x": 6,
-        "y": 10
+        "x": -22,
+        "y": 8,
+        "label": "인출 제어"
       },
       {
         "id": "t0",
@@ -9761,8 +10057,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 16,
-        "y": 4,
+        "x": -32,
+        "y": 2,
         "label": "T0"
       },
       {
@@ -9771,8 +10067,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 20,
-        "y": 4,
+        "x": -28,
+        "y": 2,
         "label": "T1"
       },
       {
@@ -9781,8 +10077,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 24,
-        "y": 4,
+        "x": -24,
+        "y": 2,
         "label": "T2"
       },
       {
@@ -9791,8 +10087,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 28,
-        "y": 4,
+        "x": -20,
+        "y": 2,
         "label": "T3"
       },
       {
@@ -9801,8 +10097,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 32,
-        "y": 4,
+        "x": -15,
+        "y": 2,
         "label": "S",
         "props": {
           "bits": 3
@@ -9814,8 +10110,8 @@
           "type": "primitive",
           "kind": "SWITCH"
         },
-        "x": 0,
-        "y": 54,
+        "x": -32,
+        "y": 49,
         "label": "LD(AC)"
       },
       {
@@ -9824,8 +10120,8 @@
           "type": "primitive",
           "kind": "SWITCH"
         },
-        "x": 0,
-        "y": 58,
+        "x": -32,
+        "y": 53,
         "label": "INR(AC)"
       },
       {
@@ -9834,8 +10130,8 @@
           "type": "primitive",
           "kind": "SWITCH"
         },
-        "x": 0,
-        "y": 82,
+        "x": -32,
+        "y": 84,
         "label": "LD(TR)"
       },
       {
@@ -9844,8 +10140,8 @@
           "type": "primitive",
           "kind": "SWITCH"
         },
-        "x": 0,
-        "y": 86,
+        "x": -32,
+        "y": 88,
         "label": "INR(TR)"
       },
       {
@@ -9854,8 +10150,8 @@
           "type": "primitive",
           "kind": "SWITCH"
         },
-        "x": 0,
-        "y": 96,
+        "x": -32,
+        "y": 97,
         "label": "LD(OUTR)"
       },
       {
@@ -9864,8 +10160,9 @@
           "type": "chip",
           "chipId": "bc-mem"
         },
-        "x": 28,
-        "y": 10
+        "x": 14,
+        "y": 2,
+        "label": "메모리 256×16"
       },
       {
         "id": "ar",
@@ -9873,8 +10170,8 @@
           "type": "chip",
           "chipId": "bc-reg12"
         },
-        "x": 28,
-        "y": 16,
+        "x": 14,
+        "y": 8,
         "label": "AR"
       },
       {
@@ -9883,8 +10180,8 @@
           "type": "chip",
           "chipId": "bc-reg12"
         },
-        "x": 28,
-        "y": 28,
+        "x": 14,
+        "y": 21,
         "label": "PC"
       },
       {
@@ -9893,8 +10190,8 @@
           "type": "chip",
           "chipId": "bc-reg16"
         },
-        "x": 28,
-        "y": 40,
+        "x": 14,
+        "y": 34,
         "label": "DR"
       },
       {
@@ -9903,8 +10200,8 @@
           "type": "chip",
           "chipId": "bc-reg16"
         },
-        "x": 28,
-        "y": 52,
+        "x": 14,
+        "y": 47,
         "label": "AC"
       },
       {
@@ -9913,8 +10210,8 @@
           "type": "chip",
           "chipId": "bc-reg16"
         },
-        "x": 28,
-        "y": 68,
+        "x": 14,
+        "y": 69,
         "label": "IR"
       },
       {
@@ -9923,8 +10220,8 @@
           "type": "chip",
           "chipId": "bc-reg16"
         },
-        "x": 28,
-        "y": 80,
+        "x": 14,
+        "y": 82,
         "label": "TR"
       },
       {
@@ -9933,8 +10230,8 @@
           "type": "chip",
           "chipId": "bc-reg8"
         },
-        "x": 28,
-        "y": 94,
+        "x": 14,
+        "y": 95,
         "label": "OUTR"
       },
       {
@@ -9943,27 +10240,18 @@
           "type": "chip",
           "chipId": "bc-alu"
         },
-        "x": 16,
-        "y": 50
-      },
-      {
-        "id": "iff",
-        "kind": {
-          "type": "chip",
-          "chipId": "bc-bit"
-        },
-        "x": 16,
-        "y": 66,
-        "label": "I"
+        "x": 6,
+        "y": 47,
+        "label": "덧셈·논리"
       },
       {
         "id": "eff",
         "kind": {
           "type": "chip",
-          "chipId": "bc-bit"
+          "chipId": "bc-ff1"
         },
-        "x": 16,
-        "y": 58,
+        "x": 6,
+        "y": 53,
         "label": "E"
       },
       {
@@ -9972,11 +10260,46 @@
           "type": "primitive",
           "kind": "SWITCH"
         },
-        "x": 28,
-        "y": 62,
+        "x": 6,
+        "y": 63,
         "label": "INPR",
         "props": {
           "bits": 8,
+          "hex": true
+        }
+      },
+      {
+        "id": "iff",
+        "kind": {
+          "type": "chip",
+          "chipId": "bc-ff1"
+        },
+        "x": 22,
+        "y": 60,
+        "label": "I"
+      },
+      {
+        "id": "bus",
+        "kind": {
+          "type": "chip",
+          "chipId": "bc-bus"
+        },
+        "x": 31,
+        "y": -10,
+        "rotation": 270,
+        "label": "Bus"
+      },
+      {
+        "id": "v_bus",
+        "kind": {
+          "type": "primitive",
+          "kind": "LED"
+        },
+        "x": 50,
+        "y": -9,
+        "label": "BUS",
+        "props": {
+          "bits": 16,
           "hex": true
         }
       },
@@ -9986,8 +10309,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 40,
-        "y": 10,
+        "x": 22,
+        "y": 5,
         "label": "M[AR]",
         "props": {
           "bits": 16,
@@ -10000,8 +10323,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 40,
-        "y": 18,
+        "x": 22,
+        "y": 12,
         "label": "AR",
         "props": {
           "bits": 12,
@@ -10014,8 +10337,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 40,
-        "y": 30,
+        "x": 22,
+        "y": 25,
         "label": "PC",
         "props": {
           "bits": 12,
@@ -10028,8 +10351,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 40,
-        "y": 42,
+        "x": 22,
+        "y": 38,
         "label": "DR",
         "props": {
           "bits": 16,
@@ -10042,8 +10365,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 40,
-        "y": 54,
+        "x": 22,
+        "y": 51,
         "label": "AC",
         "props": {
           "bits": 16,
@@ -10056,8 +10379,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 40,
-        "y": 70,
+        "x": 22,
+        "y": 73,
         "label": "IR",
         "props": {
           "bits": 16,
@@ -10070,8 +10393,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 40,
-        "y": 82,
+        "x": 22,
+        "y": 86,
         "label": "TR",
         "props": {
           "bits": 16,
@@ -10084,8 +10407,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 40,
-        "y": 96,
+        "x": 22,
+        "y": 99,
         "label": "OUTR",
         "props": {
           "bits": 8,
@@ -10098,8 +10421,8 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 24,
-        "y": 68,
+        "x": 30,
+        "y": 61,
         "label": "I"
       },
       {
@@ -10108,32 +10431,9 @@
           "type": "primitive",
           "kind": "LED"
         },
-        "x": 24,
-        "y": 60,
+        "x": 6,
+        "y": 67,
         "label": "E"
-      },
-      {
-        "id": "bus",
-        "kind": {
-          "type": "chip",
-          "chipId": "bc-bus"
-        },
-        "x": 52,
-        "y": 36
-      },
-      {
-        "id": "v_bus",
-        "kind": {
-          "type": "primitive",
-          "kind": "LED"
-        },
-        "x": 62,
-        "y": 36,
-        "label": "BUS",
-        "props": {
-          "bits": 16,
-          "hex": true
-        }
       }
     ],
     "wires": [
@@ -10223,10 +10523,53 @@
         "to": {
           "partId": "mem",
           "pin": "Address"
-        }
+        },
+        "points": [
+          {
+            "x": 28,
+            "y": 9
+          },
+          {
+            "x": 28,
+            "y": 0
+          },
+          {
+            "x": 12,
+            "y": 0
+          },
+          {
+            "x": 12,
+            "y": 3
+          }
+        ]
       },
       {
         "id": "w9",
+        "from": {
+          "partId": "bus",
+          "pin": "BUS 0~11"
+        },
+        "to": {
+          "partId": "ar",
+          "pin": "D"
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": 9
+          }
+        ]
+      },
+      {
+        "id": "w10",
         "from": {
           "partId": "ctrl",
           "pin": "LD(AR)"
@@ -10237,7 +10580,7 @@
         }
       },
       {
-        "id": "w10",
+        "id": "w11",
         "from": {
           "partId": "gnd",
           "pin": "y"
@@ -10248,7 +10591,7 @@
         }
       },
       {
-        "id": "w11",
+        "id": "w12",
         "from": {
           "partId": "reset",
           "pin": "y"
@@ -10259,7 +10602,7 @@
         }
       },
       {
-        "id": "w12",
+        "id": "w13",
         "from": {
           "partId": "clk",
           "pin": "y"
@@ -10270,18 +10613,32 @@
         }
       },
       {
-        "id": "w13",
+        "id": "w14",
         "from": {
           "partId": "bus",
           "pin": "BUS 0~11"
         },
         "to": {
-          "partId": "ar",
+          "partId": "pc",
           "pin": "D"
-        }
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": 22
+          }
+        ]
       },
       {
-        "id": "w14",
+        "id": "w15",
         "from": {
           "partId": "gnd",
           "pin": "y"
@@ -10292,7 +10649,7 @@
         }
       },
       {
-        "id": "w15",
+        "id": "w16",
         "from": {
           "partId": "ctrl",
           "pin": "INR(PC)"
@@ -10303,7 +10660,7 @@
         }
       },
       {
-        "id": "w16",
+        "id": "w17",
         "from": {
           "partId": "reset",
           "pin": "y"
@@ -10314,7 +10671,7 @@
         }
       },
       {
-        "id": "w17",
+        "id": "w18",
         "from": {
           "partId": "clk",
           "pin": "y"
@@ -10325,18 +10682,32 @@
         }
       },
       {
-        "id": "w18",
+        "id": "w19",
         "from": {
           "partId": "bus",
-          "pin": "BUS 0~11"
+          "pin": "BUS"
         },
         "to": {
-          "partId": "pc",
+          "partId": "dr",
           "pin": "D"
-        }
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": 35
+          }
+        ]
       },
       {
-        "id": "w19",
+        "id": "w20",
         "from": {
           "partId": "ctrl",
           "pin": "LD(DR)"
@@ -10347,7 +10718,7 @@
         }
       },
       {
-        "id": "w20",
+        "id": "w21",
         "from": {
           "partId": "gnd",
           "pin": "y"
@@ -10358,7 +10729,7 @@
         }
       },
       {
-        "id": "w21",
+        "id": "w22",
         "from": {
           "partId": "reset",
           "pin": "y"
@@ -10366,76 +10737,21 @@
         "to": {
           "partId": "dr",
           "pin": "CLR"
-        }
-      },
-      {
-        "id": "w22",
-        "from": {
-          "partId": "clk",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "dr",
-          "pin": "CLK"
         }
       },
       {
         "id": "w23",
         "from": {
-          "partId": "bus",
-          "pin": "BUS"
-        },
-        "to": {
-          "partId": "dr",
-          "pin": "D"
-        }
-      },
-      {
-        "id": "w24",
-        "from": {
-          "partId": "ldac",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "ac",
-          "pin": "LD"
-        }
-      },
-      {
-        "id": "w25",
-        "from": {
-          "partId": "inrac",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "ac",
-          "pin": "INR"
-        }
-      },
-      {
-        "id": "w26",
-        "from": {
-          "partId": "reset",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "ac",
-          "pin": "CLR"
-        }
-      },
-      {
-        "id": "w27",
-        "from": {
           "partId": "clk",
           "pin": "y"
         },
         "to": {
-          "partId": "ac",
+          "partId": "dr",
           "pin": "CLK"
         }
       },
       {
-        "id": "w28",
+        "id": "w24",
         "from": {
           "partId": "alu",
           "pin": "합"
@@ -10446,7 +10762,76 @@
         }
       },
       {
+        "id": "w25",
+        "from": {
+          "partId": "ldac",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ac",
+          "pin": "LD"
+        }
+      },
+      {
+        "id": "w26",
+        "from": {
+          "partId": "inrac",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ac",
+          "pin": "INR"
+        }
+      },
+      {
+        "id": "w27",
+        "from": {
+          "partId": "reset",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ac",
+          "pin": "CLR"
+        }
+      },
+      {
+        "id": "w28",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "ac",
+          "pin": "CLK"
+        }
+      },
+      {
         "id": "w29",
+        "from": {
+          "partId": "bus",
+          "pin": "BUS"
+        },
+        "to": {
+          "partId": "ir",
+          "pin": "D"
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": 70
+          }
+        ]
+      },
+      {
+        "id": "w30",
         "from": {
           "partId": "ctrl",
           "pin": "LD(IR)"
@@ -10457,7 +10842,7 @@
         }
       },
       {
-        "id": "w30",
+        "id": "w31",
         "from": {
           "partId": "gnd",
           "pin": "y"
@@ -10468,7 +10853,7 @@
         }
       },
       {
-        "id": "w31",
+        "id": "w32",
         "from": {
           "partId": "reset",
           "pin": "y"
@@ -10479,7 +10864,7 @@
         }
       },
       {
-        "id": "w32",
+        "id": "w33",
         "from": {
           "partId": "clk",
           "pin": "y"
@@ -10490,18 +10875,32 @@
         }
       },
       {
-        "id": "w33",
+        "id": "w34",
         "from": {
           "partId": "bus",
           "pin": "BUS"
         },
         "to": {
-          "partId": "ir",
+          "partId": "tr",
           "pin": "D"
-        }
+        },
+        "points": [
+          {
+            "x": 32,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": 83
+          }
+        ]
       },
       {
-        "id": "w34",
+        "id": "w35",
         "from": {
           "partId": "ldtr",
           "pin": "y"
@@ -10512,7 +10911,7 @@
         }
       },
       {
-        "id": "w35",
+        "id": "w36",
         "from": {
           "partId": "inrtr",
           "pin": "y"
@@ -10523,7 +10922,7 @@
         }
       },
       {
-        "id": "w36",
+        "id": "w37",
         "from": {
           "partId": "reset",
           "pin": "y"
@@ -10534,7 +10933,7 @@
         }
       },
       {
-        "id": "w37",
+        "id": "w38",
         "from": {
           "partId": "clk",
           "pin": "y"
@@ -10545,18 +10944,32 @@
         }
       },
       {
-        "id": "w38",
+        "id": "w39",
         "from": {
           "partId": "bus",
-          "pin": "BUS"
+          "pin": "BUS 0~7"
         },
         "to": {
-          "partId": "tr",
+          "partId": "outr",
           "pin": "D"
-        }
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": 96
+          }
+        ]
       },
       {
-        "id": "w39",
+        "id": "w40",
         "from": {
           "partId": "ldout",
           "pin": "y"
@@ -10567,7 +10980,7 @@
         }
       },
       {
-        "id": "w40",
+        "id": "w41",
         "from": {
           "partId": "gnd",
           "pin": "y"
@@ -10578,7 +10991,7 @@
         }
       },
       {
-        "id": "w41",
+        "id": "w42",
         "from": {
           "partId": "reset",
           "pin": "y"
@@ -10589,7 +11002,7 @@
         }
       },
       {
-        "id": "w42",
+        "id": "w43",
         "from": {
           "partId": "clk",
           "pin": "y"
@@ -10597,17 +11010,6 @@
         "to": {
           "partId": "outr",
           "pin": "CLK"
-        }
-      },
-      {
-        "id": "w43",
-        "from": {
-          "partId": "bus",
-          "pin": "BUS 0~7"
-        },
-        "to": {
-          "partId": "outr",
-          "pin": "D"
         }
       },
       {
@@ -10635,72 +11037,6 @@
       {
         "id": "w46",
         "from": {
-          "partId": "bus",
-          "pin": "BUS 15"
-        },
-        "to": {
-          "partId": "iff",
-          "pin": "D"
-        }
-      },
-      {
-        "id": "w47",
-        "from": {
-          "partId": "ctrl",
-          "pin": "LD(I)"
-        },
-        "to": {
-          "partId": "iff",
-          "pin": "LD"
-        }
-      },
-      {
-        "id": "w48",
-        "from": {
-          "partId": "gnd",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "iff",
-          "pin": "INR"
-        }
-      },
-      {
-        "id": "w49",
-        "from": {
-          "partId": "reset",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "iff",
-          "pin": "CLR"
-        }
-      },
-      {
-        "id": "w50",
-        "from": {
-          "partId": "gnd",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "iff",
-          "pin": "CIN"
-        }
-      },
-      {
-        "id": "w51",
-        "from": {
-          "partId": "clk",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "iff",
-          "pin": "CLK"
-        }
-      },
-      {
-        "id": "w52",
-        "from": {
           "partId": "alu",
           "pin": "E"
         },
@@ -10710,7 +11046,7 @@
         }
       },
       {
-        "id": "w53",
+        "id": "w47",
         "from": {
           "partId": "ldac",
           "pin": "y"
@@ -10721,18 +11057,7 @@
         }
       },
       {
-        "id": "w54",
-        "from": {
-          "partId": "gnd",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "eff",
-          "pin": "INR"
-        }
-      },
-      {
-        "id": "w55",
+        "id": "w48",
         "from": {
           "partId": "reset",
           "pin": "y"
@@ -10743,18 +11068,7 @@
         }
       },
       {
-        "id": "w56",
-        "from": {
-          "partId": "gnd",
-          "pin": "y"
-        },
-        "to": {
-          "partId": "eff",
-          "pin": "CIN"
-        }
-      },
-      {
-        "id": "w57",
+        "id": "w49",
         "from": {
           "partId": "clk",
           "pin": "y"
@@ -10765,117 +11079,69 @@
         }
       },
       {
-        "id": "w58",
+        "id": "w50",
         "from": {
-          "partId": "mem",
-          "pin": "Data"
+          "partId": "bus",
+          "pin": "BUS 15"
         },
         "to": {
-          "partId": "m_out",
-          "pin": "a"
-        }
-      },
-      {
-        "id": "w59",
-        "from": {
-          "partId": "ar",
-          "pin": "Q"
-        },
-        "to": {
-          "partId": "v_ar",
-          "pin": "a"
-        }
-      },
-      {
-        "id": "w60",
-        "from": {
-          "partId": "pc",
-          "pin": "Q"
-        },
-        "to": {
-          "partId": "v_pc",
-          "pin": "a"
-        }
-      },
-      {
-        "id": "w61",
-        "from": {
-          "partId": "dr",
-          "pin": "Q"
-        },
-        "to": {
-          "partId": "v_dr",
-          "pin": "a"
-        }
-      },
-      {
-        "id": "w62",
-        "from": {
-          "partId": "ac",
-          "pin": "Q"
-        },
-        "to": {
-          "partId": "v_ac",
-          "pin": "a"
-        }
-      },
-      {
-        "id": "w63",
-        "from": {
-          "partId": "ir",
-          "pin": "Q"
-        },
-        "to": {
-          "partId": "v_ir",
-          "pin": "a"
-        }
-      },
-      {
-        "id": "w64",
-        "from": {
-          "partId": "tr",
-          "pin": "Q"
-        },
-        "to": {
-          "partId": "v_tr",
-          "pin": "a"
-        }
-      },
-      {
-        "id": "w65",
-        "from": {
-          "partId": "outr",
-          "pin": "Q"
-        },
-        "to": {
-          "partId": "v_outr",
-          "pin": "a"
-        }
-      },
-      {
-        "id": "w66",
-        "from": {
           "partId": "iff",
-          "pin": "Q"
+          "pin": "D"
         },
-        "to": {
-          "partId": "v_i",
-          "pin": "a"
-        }
+        "points": [
+          {
+            "x": 38,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": -13
+          },
+          {
+            "x": 2,
+            "y": 61
+          },
+          {
+            "x": 20,
+            "y": 61
+          }
+        ]
       },
       {
-        "id": "w67",
+        "id": "w51",
         "from": {
-          "partId": "eff",
-          "pin": "Q"
+          "partId": "ctrl",
+          "pin": "LD(I)"
         },
         "to": {
-          "partId": "v_e",
-          "pin": "a"
+          "partId": "iff",
+          "pin": "LD"
         }
       },
       {
-        "id": "w68",
+        "id": "w52",
+        "from": {
+          "partId": "reset",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "iff",
+          "pin": "CLR"
+        }
+      },
+      {
+        "id": "w53",
+        "from": {
+          "partId": "clk",
+          "pin": "y"
+        },
+        "to": {
+          "partId": "iff",
+          "pin": "CLK"
+        }
+      },
+      {
+        "id": "w54",
         "from": {
           "partId": "ar",
           "pin": "Q"
@@ -10883,10 +11149,16 @@
         "to": {
           "partId": "bus",
           "pin": "1"
-        }
+        },
+        "points": [
+          {
+            "x": 34,
+            "y": 9
+          }
+        ]
       },
       {
-        "id": "w69",
+        "id": "w55",
         "from": {
           "partId": "pc",
           "pin": "Q"
@@ -10894,10 +11166,16 @@
         "to": {
           "partId": "bus",
           "pin": "2"
-        }
+        },
+        "points": [
+          {
+            "x": 36,
+            "y": 22
+          }
+        ]
       },
       {
-        "id": "w70",
+        "id": "w56",
         "from": {
           "partId": "dr",
           "pin": "Q"
@@ -10905,10 +11183,16 @@
         "to": {
           "partId": "bus",
           "pin": "3"
-        }
+        },
+        "points": [
+          {
+            "x": 38,
+            "y": 35
+          }
+        ]
       },
       {
-        "id": "w71",
+        "id": "w57",
         "from": {
           "partId": "ac",
           "pin": "Q"
@@ -10916,10 +11200,16 @@
         "to": {
           "partId": "bus",
           "pin": "4"
-        }
+        },
+        "points": [
+          {
+            "x": 40,
+            "y": 48
+          }
+        ]
       },
       {
-        "id": "w72",
+        "id": "w58",
         "from": {
           "partId": "ir",
           "pin": "Q"
@@ -10927,10 +11217,16 @@
         "to": {
           "partId": "bus",
           "pin": "5"
-        }
+        },
+        "points": [
+          {
+            "x": 42,
+            "y": 70
+          }
+        ]
       },
       {
-        "id": "w73",
+        "id": "w59",
         "from": {
           "partId": "tr",
           "pin": "Q"
@@ -10938,10 +11234,16 @@
         "to": {
           "partId": "bus",
           "pin": "6"
-        }
+        },
+        "points": [
+          {
+            "x": 44,
+            "y": 83
+          }
+        ]
       },
       {
-        "id": "w74",
+        "id": "w60",
         "from": {
           "partId": "mem",
           "pin": "Data"
@@ -10949,10 +11251,16 @@
         "to": {
           "partId": "bus",
           "pin": "7"
-        }
+        },
+        "points": [
+          {
+            "x": 46,
+            "y": 3
+          }
+        ]
       },
       {
-        "id": "w75",
+        "id": "w61",
         "from": {
           "partId": "ctrl",
           "pin": "S"
@@ -10963,7 +11271,7 @@
         }
       },
       {
-        "id": "w76",
+        "id": "w62",
         "from": {
           "partId": "bus",
           "pin": "BUS"
@@ -10972,13 +11280,123 @@
           "partId": "v_bus",
           "pin": "a"
         }
+      },
+      {
+        "id": "w63",
+        "from": {
+          "partId": "mem",
+          "pin": "Data"
+        },
+        "to": {
+          "partId": "m_out",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w64",
+        "from": {
+          "partId": "ar",
+          "pin": "Q"
+        },
+        "to": {
+          "partId": "v_ar",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w65",
+        "from": {
+          "partId": "pc",
+          "pin": "Q"
+        },
+        "to": {
+          "partId": "v_pc",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w66",
+        "from": {
+          "partId": "dr",
+          "pin": "Q"
+        },
+        "to": {
+          "partId": "v_dr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w67",
+        "from": {
+          "partId": "ac",
+          "pin": "Q"
+        },
+        "to": {
+          "partId": "v_ac",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w68",
+        "from": {
+          "partId": "ir",
+          "pin": "Q"
+        },
+        "to": {
+          "partId": "v_ir",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w69",
+        "from": {
+          "partId": "tr",
+          "pin": "Q"
+        },
+        "to": {
+          "partId": "v_tr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w70",
+        "from": {
+          "partId": "outr",
+          "pin": "Q"
+        },
+        "to": {
+          "partId": "v_outr",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w71",
+        "from": {
+          "partId": "iff",
+          "pin": "Q"
+        },
+        "to": {
+          "partId": "v_i",
+          "pin": "a"
+        }
+      },
+      {
+        "id": "w72",
+        "from": {
+          "partId": "eff",
+          "pin": "Q"
+        },
+        "to": {
+          "partId": "v_e",
+          "pin": "a"
+        }
       }
     ],
     "notes": [
       {
         "id": "note1",
-        "x": 0,
-        "y": -14,
+        "x": -34,
+        "y": -24,
         "text": "기본 컴퓨터 명령어 인출 (MAR = AR, MBR = DR)\n① RESET을 켜고 CLK를 한 번 누른 뒤 RESET을 끄세요 (모두 0, T0)\n② CLK를 누를 때마다 한 단계씩:\n   T0: AR ← PC\n   T1: DR ← M[AR], PC ← PC + 1\n   T2: IR ← DR\n   T3: I ← IR(15), AR ← IR(0~11)\n메모리는 진리표 부품으로 만든 256워드 ROM (주소 = AR 아래 8비트). 메모리 칩 안 ROM을 두 번 누르면 프로그램이 보입니다.\n값은 16진수. 칩을 두 번 누르거나 인스펙터의 \"칩 내부: 1단계\"로 안을 볼 수 있습니다."
       }
     ]
