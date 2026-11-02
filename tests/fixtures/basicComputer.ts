@@ -20,6 +20,50 @@ export const PROGRAM: Record<number, number> = {
   0x007: 0x9004, // ADD I 004 (I = 1)
 };
 
+/** 명령어로 쓰지 않고 데이터로 둔 번지 */
+export const DATA_WORDS = new Set([0x004, 0x005, 0x006]);
+
+const hex3 = (n: number) => n.toString(16).toUpperCase().padStart(3, '0');
+const hex4 = (n: number) => n.toString(16).toUpperCase().padStart(4, '0');
+const bin16 = (n: number) => n.toString(2).padStart(16, '0').replace(/(\d{4})(?=\d)/g, '$1 ');
+
+const MRI: Record<number, [string, (m: string) => string]> = {
+  0: ['AND', (m) => `AC ← AC ∧ ${m}`],
+  1: ['ADD', (m) => `AC ← AC + ${m}, E ← 자리올림`],
+  2: ['LDA', (m) => `AC ← ${m}`],
+  3: ['STA', (m) => `${m} ← AC`],
+  4: ['BUN', () => 'PC ← 유효 주소 (무조건 분기)'],
+  5: ['BSA', () => '유효 주소에 PC 저장 후 그다음으로 분기'],
+  6: ['ISZ', (m) => `${m} ← ${m} + 1, 0이면 다음 명령 건너뜀`],
+};
+const RRI: Record<number, [string, string]> = {
+  0x7800: ['CLA', 'AC ← 0'], 0x7400: ['CLE', 'E ← 0'], 0x7200: ['CMA', 'AC ← AC의 보수'], 0x7100: ['CME', 'E ← E의 보수'],
+  0x7080: ['CIR', 'AC·E 오른쪽 순환'], 0x7040: ['CIL', 'AC·E 왼쪽 순환'], 0x7020: ['INC', 'AC ← AC + 1'], 0x7010: ['SPA', 'AC > 0이면 건너뜀'],
+  0x7008: ['SNA', 'AC < 0이면 건너뜀'], 0x7004: ['SZA', 'AC = 0이면 건너뜀'], 0x7002: ['SZE', 'E = 0이면 건너뜀'], 0x7001: ['HLT', '정지'],
+};
+
+/** 메모리 한 번지의 설명: 2진수, 직접/간접, 명령(또는 데이터), 하는 일 */
+export function describeWord(addr: number, w: number): string {
+  const head = `${hex3(addr)}번지  ${bin16(w)}  (${hex4(w)})`;
+  if (DATA_WORDS.has(addr)) {
+    const signed = w & 0x8000 ? w - 0x10000 : w;
+    return `${head}
+   데이터 = ${signed}`;
+  }
+  const i = w >> 15;
+  const op = (w >> 12) & 7;
+  const adr = w & 0xfff;
+  if (op === 7) {
+    const r = RRI[w];
+    return `${head}
+   레지스터 명령 · ${r ? `${r[0]} → ${r[1]}` : '?'}`;
+  }
+  const [name, does] = MRI[op]!;
+  const operand = i ? `M[M[${hex3(adr)}]]` : `M[${hex3(adr)}]`;
+  return `${head}
+   ${i ? '간접' : '직접'} · ${name}${i ? ' I' : ''} ${hex3(adr)} → ${does(operand)}`;
+}
+
 export function basicComputer(ff: Library): { circuit: Circuit; library: Library } {
   const setCat = (...defs: ChipDef[]) => defs.forEach((d) => ((d.category = '기본 컴퓨터'), (d.color = 'chip-1')));
 
@@ -319,6 +363,17 @@ export function basicComputer(ff: Library): { circuit: Circuit; library: Library
   // AR → 메모리 주소 (오른쪽으로 나가 위로 올라가 메모리 왼쪽으로)
   route('ar.Q', 'mem.Address', [[28, ROW.ar + 1], [28, ROW.mem - 2], [12, ROW.mem - 2], [12, ROW.mem + 1]]);
   circuit.notes = [
+    {
+      id: 'note-mem',
+      x: 52,
+      y: 0,
+      text: [
+        '메모리(ROM) 내용 — I(15) · 연산 코드(14~12) · 주소(11~0)',
+        ...Object.entries(PROGRAM).map(([a, w]) => describeWord(Number(a), w)),
+        '그 밖의 번지는 모두 0000',
+        '(데이터 번지도 PC가 지나가면 명령어로 인출됩니다)',
+      ].join('\n'),
+    },
     {
       id: 'note1',
       x: -34,

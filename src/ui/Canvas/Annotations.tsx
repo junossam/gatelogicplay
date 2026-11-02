@@ -6,7 +6,7 @@ import { GRID, type Rect } from './geometry';
 const GROUP_PAD = 14;
 const LABEL_H = 24;
 /** 메모 폭 (px). 높이는 글 길이에 따라 늘어난다. */
-export const NOTE_W = 200;
+export const NOTE_W = 420;
 
 /** 그룹이 차지하는 사각형: 묶은 부품들을 감싸고 여백을 둔다 */
 export function groupRect(group: Group, rects: Map<string, Rect>): Rect | null {
@@ -21,8 +21,10 @@ export function groupRect(group: Group, rects: Map<string, Rect>): Rect | null {
 
 /** 메모가 차지하는 대략의 사각형 (범위 선택용) */
 export function noteRect(note: Note): Rect {
-  const lines = Math.max(1, note.text.split('\n').length);
-  return { x: note.x * GRID, y: note.y * GRID, w: NOTE_W, h: 20 + lines * 18 };
+  const rows = note.text.split('\n');
+  // 상자는 글 길이만큼만 넓어진다 (최대 NOTE_W)
+  const longest = Math.max(1, ...rows.map((r) => [...r].reduce((s, ch) => s + (ch.charCodeAt(0) > 0x2000 ? 13 : 7.5), 0)));
+  return { x: note.x * GRID, y: note.y * GRID, w: Math.min(NOTE_W, longest + 24), h: 20 + rows.length * 18 };
 }
 
 interface GroupsProps {
