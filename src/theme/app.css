@@ -2057,3 +2057,15 @@ button {
 .lut-title-field {
   width: 9em;
 }
+
+/* 값이 1인 전선의 위층 사본: 1일 때만 그려 겹친 0 전선을 덮는다 */
+.wire.hot:not([data-value='1']) {
+  display: none;
+}
+
+/* 1인 전선은 위층 사본이 그리므로 아래층에서는 그리지 않는다 (같은 선을 두 번 칠하지 않게) */
+.wire:not(.hot)[data-value='1'] .wire-line,
+.wire:not(.hot)[data-value='1'] .wire-halo,
+.wire:not(.hot)[data-value='1'] .wire-branch {
+  visibility: hidden;
+}

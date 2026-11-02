@@ -526,14 +526,19 @@ export function Board() {
     const { values, netlist: nl } = engine;
     const osc = simStore.getState().oscillating;
     for (let i = 0; i < wireGeom.length; i++) {
-      const el = wireEls.current.get(wireGeom[i]!.id);
+      const id = wireGeom[i]!.id;
+      const el = wireEls.current.get(id);
       if (!el) continue;
       const nets = wireNets[i]!;
       // 버스는 비트 하나라도 1이면 강조
       const v = nets.some((n) => n >= 0 && values[n]) ? '1' : '0';
-      if (el.dataset.value !== v) el.dataset.value = v;
       const o = osc.size > 0 && nets.some((n) => n >= 0 && osc.has(nl.netIds[n]!)) ? '1' : '0';
-      if (el.dataset.osc !== o) el.dataset.osc = o;
+      // 아래층과 위층 사본(1일 때만 보임)에 같은 값
+      for (const g of [el, wireEls.current.get(`hot:${id}`)]) {
+        if (!g) continue;
+        if (g.dataset.value !== v) g.dataset.value = v;
+        if (g.dataset.osc !== o) g.dataset.osc = o;
+      }
     }
   }, [wireGeom, wireNets]);
   useLayoutEffect(() => {
@@ -615,6 +620,26 @@ export function Board() {
               register={register}
             />
           ))}
+          {/* 값이 1인 전선은 겹친 곳에서도 맨 위에 보이도록 위층에 한 번 더 (0이면 숨김) */}
+          <g className="wire-hot-layer">
+            {shownWires.map((g) => (
+              <WireView
+                key={g.id}
+                id={g.id}
+                d={g.d}
+                source={g.source}
+                junctions={g.junctions}
+                halo={layout.routed}
+                bus={g.width > 1}
+                selected={selectedWires.has(g.id)}
+                highlight={hoverNet === g.source}
+                onPointerDown={onWireDown}
+                onHover={setHoverNet}
+                register={register}
+                hot
+              />
+            ))}
+          </g>
           {/* 구간 손잡이는 부품 아래에: 핀이 손잡이에 가려 전선 연결이 막히지 않도록 */}
           {selectedWireGeom && !readOnly && (
             <g className="segment-handles" data-testid="segment-handles">

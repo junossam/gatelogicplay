@@ -18,9 +18,30 @@ interface Props {
   onHover(source: string | null): void;
   /** 값(data-value)과 진동(data-osc)은 Board가 틱마다 DOM에 직접 쓴다 — 전선마다 React 렌더를 피하려고 */
   register(id: string, el: SVGGElement | null): void;
+  /**
+   * 위층 사본: 모든 전선 위에 한 번 더 그리되 값이 1일 때만 보인다 (CSS).
+   * 겹친 곳에서 1인 선이 항상 0인 선 위에 오게 해 신호가 흐르는 길을 따라갈 수 있다. 클릭은 아래층이 받는다.
+   */
+  hot?: boolean;
 }
 
-export const WireView = memo(function WireView({ id, d, selected, highlight, source, junctions, halo, bus, onPointerDown, onHover, register }: Props) {
+export const WireView = memo(function WireView({ id, d, selected, highlight, source, junctions, halo, bus, onPointerDown, onHover, register, hot = false }: Props) {
+  if (hot) {
+    return (
+      <g
+        data-testid={`hotwire-${id}`}
+        className={`wire hot${selected ? ' selected' : ''}${highlight ? ' highlight' : ''}${bus ? ' bus' : ''}`}
+        ref={(el) => register(`hot:${id}`, el)}
+        pointerEvents="none"
+      >
+        {halo && <path d={d} className="wire-halo" />}
+        <path d={d} className="wire-line" />
+        {junctions.map((p) => (
+          <circle key={`${p.x},${p.y}`} cx={p.x} cy={p.y} r={4.5} className="wire-branch" />
+        ))}
+      </g>
+    );
+  }
   return (
     <g
       data-testid={`wire-${id}`}
